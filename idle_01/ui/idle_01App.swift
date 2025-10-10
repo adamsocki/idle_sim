@@ -13,6 +13,7 @@ struct idle_01App: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
+            ScenarioRun.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +26,7 @@ struct idle_01App: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
         .modelContainer(sharedModelContainer)
     }
