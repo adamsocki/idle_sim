@@ -14,6 +14,7 @@ struct idle_01App: App {
         let schema = Schema([
             Item.self,
             ScenarioRun.self,
+            UserPreferences.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -27,6 +28,7 @@ struct idle_01App: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+            .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)
     }

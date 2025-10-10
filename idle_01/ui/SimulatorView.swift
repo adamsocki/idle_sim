@@ -9,14 +9,16 @@ import SwiftUI
 import SwiftData
 
 struct SimulatorView: View {
-    
+
     @Environment(\.modelContext) private var modelContext
-   
+
     // Selections
     @State private var selectedScenarioID: PersistentIdentifier? = nil
     @State private var selectedItemID: PersistentIdentifier? = nil
 
-    
+    // Column visibility - persisted in SwiftData
+    @Query private var userPreferences: [UserPreferences]
+
     // all data
     @Query private var allScenarios: [ScenarioRun]
     @Query private var allItems: [Item]
@@ -35,28 +37,50 @@ struct SimulatorView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+    NavigationSplitView() {
             ScenarioListView(selectedScenarioID: $selectedScenarioID)
         } content: {
-            if let scenario = selectedScenario {
-                SimulationStageView(scenario: scenario, selectedItemID: $selectedItemID)
-            } else {
-                GlobalDashboardView()
+            Group {
+                if let scenario = selectedScenario {
+                    SimulationStageView(scenario: scenario, selectedItemID: $selectedItemID)
+                } else {
+                    GlobalDashboardView()
+                }
             }
+            
+            
         } detail: {
-            // Contextual detail panel
-            if let item = selectedItem {
-                DetailView(item: item)
-            } else if let scenario = selectedScenario {
-                ScenarioDetailView(scenario: scenario)
-            } else {
-                EmptyView()
+            Group {
+                if let item = selectedItem {
+                    DetailView(item: item)
+                } else if let scenario = selectedScenario {
+                    ScenarioDetailView(scenario: scenario)
+                } else {
+                    // Empty state
+                    VStack(spacing: 16) {
+                        Image(systemName: "sidebar.right")
+                            .font(.system(size: 48, weight: .ultraLight))
+                            .foregroundStyle(.secondary)
+
+                        Text("No Selection")
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+
+                        Text("Select a scenario or item to view details")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
             }
+            .navigationSplitViewColumnWidth(min: 250, ideal: 300, max: 350)
         }
     }
 }
 
 #Preview {
     SimulatorView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: [Item.self, ScenarioRun.self], inMemory: true)
 }
+
