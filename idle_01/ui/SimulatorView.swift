@@ -16,6 +16,9 @@ struct SimulatorView: View {
     @State private var selectedCityID: PersistentIdentifier? = nil
     @State private var selectedItemID: PersistentIdentifier? = nil
 
+    // Column visibility
+    @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
+
     // Column visibility - persisted in SwiftData
     @Query private var userPreferences: [UserPreferences]
 
@@ -37,7 +40,7 @@ struct SimulatorView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             CityListView(selectedCityID: $selectedCityID)
         } content: {
             Group {

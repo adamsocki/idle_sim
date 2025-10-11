@@ -90,7 +90,11 @@ struct CityConsciousnessView: View {
             }
         }
         .padding()
+        #if os(macOS)
         .background(Color(nsColor: .controlBackgroundColor))
+        #else
+        .background(Color(uiColor: .secondarySystemBackground))
+        #endif
         .cornerRadius(12)
     }
     
@@ -182,7 +186,11 @@ struct ResourceBar: View {
             .frame(height: 6)
         }
         .padding(8)
+        #if os(macOS)
         .background(Color(nsColor: .textBackgroundColor))
+        #else
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        #endif
         .cornerRadius(6)
     }
 }

@@ -13,7 +13,9 @@ struct GlobalDashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var pulseAnimation = false
     @State private var selectedVersion: DashboardVersion = .original
-    @State private var terminalFontSize: CGFloat = 9.0
+    @State private var terminalFontSize: CGFloat = 14.0
+    @State private var crtFlicker: Double = 1.0
+    @State private var crtFlickerEnabled: Bool = false
 
     enum DashboardVersion: String, CaseIterable {
         case original = "Original"
@@ -71,6 +73,7 @@ struct GlobalDashboardView: View {
             withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
                 pulseAnimation = true
             }
+            startCRTFlicker()
         }
     }
 
@@ -461,6 +464,29 @@ struct GlobalDashboardView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             }
+            .opacity(crtFlickerEnabled ? crtFlicker : 1.0)
+
+            // CRT Flicker toggle button (top-right corner)
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        crtFlickerEnabled.toggle()
+                    }) {
+                        Text(crtFlickerEnabled ? "CRT: ON" : "CRT: OFF")
+                            .font(.system(size: 8, weight: .medium, design: .monospaced))
+                            .foregroundStyle(crtFlickerEnabled ? Color.green.opacity(0.7) : Color.green.opacity(0.4))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.black.opacity(0.5))
+                            .cornerRadius(4)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 8)
+                    .padding(.trailing, 16)
+                }
+                Spacer()
+            }
 
             // Hidden buttons for keyboard shortcuts
             VStack {
@@ -480,6 +506,12 @@ struct GlobalDashboardView: View {
                     terminalFontSize = 9.0
                 }
                 .keyboardShortcut("0", modifiers: .command)
+                .hidden()
+
+                Button("") {
+                    crtFlickerEnabled.toggle()
+                }
+                .keyboardShortcut("f", modifiers: .command)
                 .hidden()
             }
         }
@@ -825,7 +857,21 @@ struct GlobalDashboardView: View {
         let minutes = (Int(uptime) % 3600) / 60
         return String(format: "%03d:%02d", hours, minutes)
     }
-    
+
+    private func startCRTFlicker() {
+        Timer.scheduledTimer(withTimeInterval: 0.016, repeats: true) { _ in
+            // Random flicker with varying intensity
+            let randomFlicker = Double.random(in: 0.96...1.0)
+
+            // Occasional stronger flicker (like a power surge)
+            let strongFlicker = Double.random(in: 0.0...1.0) < 0.02 ? Double.random(in: 0.85...0.95) : 1.0
+
+            withAnimation(.linear(duration: 0.016)) {
+                crtFlicker = min(randomFlicker, strongFlicker)
+            }
+        }
+    }
+
     // MARK: - Header
     
     private var consciousnessHeader: some View {
