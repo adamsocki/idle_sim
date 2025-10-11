@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CitySimulationLayer: View {
-    let scenario: ScenarioRun
+    let city: City
     @State private var pulse = false
 
     var body: some View {
@@ -10,7 +10,7 @@ struct CitySimulationLayer: View {
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.black,
-                    Color.blue.opacity(0.4 + scenario.progress * 0.6)
+                    Color.blue.opacity(0.4 + city.progress * 0.6)
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -19,7 +19,7 @@ struct CitySimulationLayer: View {
 
             // Central pulse that “breathes” with simulation
             Circle()
-                .fill(Color.cyan.opacity(0.4 + scenario.progress * 0.4))
+                .fill(Color.cyan.opacity(0.4 + city.progress * 0.4))
                 .frame(width: pulse ? 200 : 240, height: pulse ? 200 : 240)
                 .blur(radius: 80)
                 .animation(.easeInOut(duration: 1.2).repeatForever(), value: pulse)

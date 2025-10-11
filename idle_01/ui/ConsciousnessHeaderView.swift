@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct ConsciousnessHeaderView: View {
-    let scenarioCount: Int
-    let runningScenarios: Int
+    let cityCount: Int
+    let runningCities: Int
     @Binding var pulseAnimation: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Circle()
-                    .fill(runningScenarios > 0 ? Color.cyan : Color.gray.opacity(0.5))
+                    .fill(runningCities > 0 ? Color.cyan : Color.gray.opacity(0.5))
                     .frame(width: 6, height: 6)
                     .opacity(pulseAnimation ? 0.4 : 1.0)
                 
@@ -26,7 +26,7 @@ struct ConsciousnessHeaderView: View {
                 Spacer()
             }
             
-            Text(scenarioCount == 0 ? "awaiting first awakening" : "each city dreams in its own time")
+            Text(cityCount == 0 ? "awaiting first awakening" : "each city dreams in its own time")
                 .font(.system(size: 13, weight: .regular, design: .monospaced))
                 .foregroundStyle(.white.opacity(0.5))
         }
@@ -38,8 +38,8 @@ struct ConsciousnessHeaderView: View {
     ZStack {
         Color.black.ignoresSafeArea()
         ConsciousnessHeaderView(
-            scenarioCount: 3,
-            runningScenarios: 2,
+            cityCount: 3,
+            runningCities: 2,
             pulseAnimation: .constant(true)
         )
         .padding()

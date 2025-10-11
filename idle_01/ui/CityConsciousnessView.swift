@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CityConsciousnessView: View {
-    let scenario: ScenarioRun
+    let city: City
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -22,7 +22,7 @@ struct CityConsciousnessView: View {
                     Text("City Mood")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text(scenario.cityMood.capitalized)
+                    Text(city.cityMood.capitalized)
                         .font(.headline)
                         .foregroundColor(moodColor)
                 }
@@ -34,7 +34,7 @@ struct CityConsciousnessView: View {
                     Text("Attention")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("\(Int(scenario.attentionLevel * 100))%")
+                    Text("\(Int(city.attentionLevel * 100))%")
                         .font(.headline)
                         .foregroundColor(attentionColor)
                 }
@@ -52,28 +52,28 @@ struct CityConsciousnessView: View {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ResourceBar(
                         name: "Coherence",
-                        value: scenario.resources["coherence"] ?? 1.0,
+                        value: city.resources["coherence"] ?? 1.0,
                         icon: "brain.head.profile",
                         color: .blue
                     )
                     
                     ResourceBar(
                         name: "Memory",
-                        value: scenario.resources["memory"] ?? 0.0,
+                        value: city.resources["memory"] ?? 0.0,
                         icon: "archivebox",
                         color: .purple
                     )
                     
                     ResourceBar(
                         name: "Trust",
-                        value: scenario.resources["trust"] ?? 0.5,
+                        value: city.resources["trust"] ?? 0.5,
                         icon: "hand.thumbsup",
                         color: .green
                     )
                     
                     ResourceBar(
                         name: "Autonomy",
-                        value: scenario.resources["autonomy"] ?? 0.0,
+                        value: city.resources["autonomy"] ?? 0.0,
                         icon: "bird",
                         color: .orange
                     )
@@ -97,7 +97,7 @@ struct CityConsciousnessView: View {
     // MARK: - Computed Properties
     
     private var moodIcon: String {
-        switch scenario.cityMood {
+        switch city.cityMood {
         case "awakening": return "sunrise"
         case "waiting": return "hourglass"
         case "anxious": return "exclamationmark.triangle"
@@ -109,7 +109,7 @@ struct CityConsciousnessView: View {
     }
     
     private var moodColor: Color {
-        switch scenario.cityMood {
+        switch city.cityMood {
         case "awakening": return .orange
         case "waiting": return .blue
         case "anxious": return .red
@@ -121,13 +121,13 @@ struct CityConsciousnessView: View {
     }
     
     private var attentionColor: Color {
-        if scenario.attentionLevel > 0.7 { return .green }
-        else if scenario.attentionLevel > 0.4 { return .orange }
+        if city.attentionLevel > 0.7 { return .green }
+        else if city.attentionLevel > 0.4 { return .orange }
         else { return .red }
     }
     
     private var timeAgo: String {
-        let interval = Date().timeIntervalSince(scenario.lastInteraction)
+        let interval = Date().timeIntervalSince(city.lastInteraction)
         let hours = Int(interval / 3600)
         let minutes = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
         
@@ -188,7 +188,7 @@ struct ResourceBar: View {
 }
 
 #Preview {
-    CityConsciousnessView(scenario: ScenarioRun(
+    CityConsciousnessView(city: City(
         name: "Test City",
         parameters: ["growthRate": 0.05]
     ))

@@ -173,12 +173,55 @@ Every element should have space to exist. Avoid tight packing. The emptiness is 
 
 ### Buttons
 
-**Primary Action** (Glass Capsule)
+**LiquidButton Component** - The standardized glass capsule button
+
+Use `LiquidButton` for all interactive buttons. It provides two style variants that match your existing aesthetic perfectly.
+
+**Standard Style** (Default - compact, monospaced)
 ```swift
-.background(.ultraThinMaterial, in: Capsule())
-.overlay(Capsule().strokeBorder(.white.opacity(0.2), lineWidth: 1))
-.foregroundStyle(.white)
+LiquidButton("new thought", systemImage: "plus.circle") {
+    // Action
+}
+
+LiquidButton("refresh", systemImage: "arrow.clockwise") {
+    // Action
+}
+
+// Text only
+LiquidButton("observe") {
+    // Action
+}
 ```
+- Font: 13pt monospaced, medium weight
+- Padding: 12px horizontal, 6px vertical
+- Icon size: 14pt, light weight
+- Use for: Secondary actions, inline buttons, list actions
+
+**Prominent Style** (Primary actions - larger, rounded)
+```swift
+LiquidButton("awaken_new", systemImage: "eye.fill", style: .prominent) {
+    // Action
+}
+
+LiquidButton("pause", systemImage: "pause.circle", style: .prominent) {
+    // Action
+}
+```
+- Font: 14pt rounded, medium weight
+- Padding: 20px horizontal, 12px vertical
+- Icon size: 14pt, light weight
+- Use for: Primary CTAs, main actions, toolbar buttons
+
+**When to Use**:
+- **Standard**: Most buttons (new items, refresh, filters, secondary actions)
+- **Prominent**: Primary CTAs (awaken city, start simulation, major actions)
+
+**Component Features**:
+- Glass morphism (`.ultraThinMaterial`)
+- Capsule shape with subtle white border (0.2 opacity)
+- White text (0.9 opacity)
+- Optional SF Symbol icons (always light weight)
+- Plain button style (no default macOS styling)
 
 **Iconography**: Use SF Symbols, thin/light weight preferred
 

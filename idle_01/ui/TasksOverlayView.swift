@@ -9,13 +9,13 @@
 //import SwiftData
 //
 //struct TasksOverlayView: View {
-//    let scenario: ScenarioRun
+//    let city: City
 //    @Binding var selectedItemID: PersistentIdentifier?
 //    
 //    @Environment(\.modelContext) private var modelContext
 //    
 //    private var items: [Item] {
-//        scenario.items.sorted { $0.timestamp > $1.timestamp }
+//        city.items.sorted { $0.timestamp > $1.timestamp }
 //    }
 //    
 //    var body: some View {
@@ -44,7 +44,7 @@
 //    }
 //    
 //    private func addItem() {
-//        let item = Item(name: "New Task", scenario: scenario)
+//        let item = Item(name: "New Task", city: city)
 //        modelContext.insert(item)
 //        try? modelContext.save()
 //    }

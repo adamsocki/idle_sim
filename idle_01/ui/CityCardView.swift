@@ -10,7 +10,7 @@ import SwiftData
 
 struct CityCardView: View {
     @Environment(\.modelContext) private var modelContext
-    let scenario: ScenarioRun
+    let city: City
     let isSelected: Bool
     let onTap: () -> Void
     
@@ -42,7 +42,7 @@ struct CityCardView: View {
         .contextMenu {
             Button("Let it sleep", role: .destructive) {
                 withAnimation {
-                    modelContext.delete(scenario)
+                    modelContext.delete(city)
                 }
             }
         }
@@ -53,19 +53,19 @@ struct CityCardView: View {
     private var cityHeader: some View {
         HStack(spacing: 8) {
             Circle()
-                .fill(scenario.isRunning ? Color.cyan : Color.gray.opacity(0.3))
+                .fill(city.isRunning ? Color.cyan : Color.gray.opacity(0.3))
                 .frame(width: 5, height: 5)
             
-            Text(scenario.name)
+            Text(city.name)
                 .font(.system(size: 16, weight: .regular, design: .monospaced))
                 .foregroundStyle(.white.opacity(0.9))
             
             Spacer()
             
             // Mood indicator (subtle)
-            Image(systemName: CityMoodHelper.icon(for: scenario.cityMood))
+            Image(systemName: CityMoodHelper.icon(for: city.cityMood))
                 .font(.system(size: 14, weight: .light))
-                .foregroundStyle(CityMoodHelper.color(for: scenario.cityMood).opacity(0.7))
+                .foregroundStyle(CityMoodHelper.color(for: city.cityMood).opacity(0.7))
         }
     }
     
@@ -81,28 +81,28 @@ struct CityCardView: View {
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    CityMoodHelper.color(for: scenario.cityMood).opacity(0.6),
-                                    CityMoodHelper.color(for: scenario.cityMood).opacity(0.3)
+                                    CityMoodHelper.color(for: city.cityMood).opacity(0.6),
+                                    CityMoodHelper.color(for: city.cityMood).opacity(0.3)
                                 ],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .frame(width: geometry.size.width * scenario.progress)
+                        .frame(width: geometry.size.width * city.progress)
                 }
             }
             .frame(height: 4)
             
             // Attention level (subtle)
-            Text("\(Int(scenario.attentionLevel * 100))")
+            Text("\(Int(city.attentionLevel * 100))")
                 .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .foregroundStyle(CityMoodHelper.attentionColor(for: scenario.attentionLevel).opacity(0.7))
+                .foregroundStyle(CityMoodHelper.attentionColor(for: city.attentionLevel).opacity(0.7))
                 .frame(minWidth: 24, alignment: .trailing)
         }
     }
     
     private var moodText: some View {
-        Text(CityMoodHelper.description(for: scenario.cityMood))
+        Text(CityMoodHelper.description(for: city.cityMood))
             .font(.system(size: 11, weight: .regular, design: .monospaced))
             .foregroundStyle(.white.opacity(0.4))
             .italic()
@@ -113,11 +113,11 @@ struct CityCardView: View {
     ZStack {
         Color.black.ignoresSafeArea()
         CityCardView(
-            scenario: ScenarioRun(name: "Test City", parameters: ["growthRate": 0.02]),
+            city: City(name: "Test City", parameters: ["growthRate": 0.02]),
             isSelected: false,
             onTap: {}
         )
         .padding()
-        .modelContainer(for: ScenarioRun.self, inMemory: true)
+        .modelContainer(for: City.self, inMemory: true)
     }
 }

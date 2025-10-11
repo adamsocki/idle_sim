@@ -18,18 +18,18 @@ enum ItemType: String, Codable {
 @Model
 final class Item {
     var timestamp: Date
-    var scenario: ScenarioRun?
+    var city: City?
     var title: String?
     var targetDate: Date?
     var itemType: ItemType
     var urgency: Double  // 0.0 to 1.0 - how badly the city needs this addressed
     var response: String?  // Player's input/decision
     
-    init(timestamp: Date, title: String = "Task", targetDate: Date? = nil, scenario: ScenarioRun? = nil, itemType: ItemType = .request, urgency: Double = 0.5) {
+    init(timestamp: Date, title: String = "Task", targetDate: Date? = nil, city: City? = nil, itemType: ItemType = .request, urgency: Double = 0.5) {
         self.timestamp = timestamp
         self.title = title
         self.targetDate = targetDate
-        self.scenario = scenario
+        self.city = city
         self.itemType = itemType
         self.urgency = urgency
         self.response = nil

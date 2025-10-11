@@ -1,5 +1,5 @@
 //
-//  ScenarioListView.swift
+//  CityListView.swift
 //  idle_01
 //
 //  Created by Adam Socki on 10/7/25.
@@ -8,13 +8,13 @@
 import SwiftUI
 import SwiftData
 
-struct ScenarioListView: View {
+struct CityListView: View {
     
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \ScenarioRun.createdAt, order: .reverse)
-    private var scenarios: [ScenarioRun]
+    @Query(sort: \City.createdAt, order: .reverse)
+    private var cities: [City]
     
-    @Binding var selectedScenarioID: PersistentIdentifier?
+    @Binding var selectedCityID: PersistentIdentifier?
     @State private var pulseAnimation = false
     
     var body: some View {
@@ -26,22 +26,25 @@ struct ScenarioListView: View {
                 VStack(spacing: 24) {
                     // Header
                     ConsciousnessHeaderView(
-                        scenarioCount: scenarios.count,
-                        runningScenarios: runningScenarios,
+                        cityCount: cities.count,
+                        runningCities: runningCities,
                         pulseAnimation: $pulseAnimation
                     )
-                    
+
+                    // New City Button
+                    newCityButton
+
                     // Dashboard metrics (subtle)
-                    if !scenarios.isEmpty {
+                    if !cities.isEmpty {
                         CollectiveMetricsView(
-                            totalCities: scenarios.count,
-                            awakeCities: runningScenarios,
+                            totalCities: cities.count,
+                            awakeCities: runningCities,
                             averageProgress: averageProgress
                         )
                     }
                     
                     // City list
-                    if scenarios.isEmpty {
+                    if cities.isEmpty {
                         EmptyStateView()
                     } else {
                         cityList
@@ -52,9 +55,6 @@ struct ScenarioListView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                newCityButton
-            }
             ToolbarItem(placement: .cancellationAction) {
                 backButton
             }
@@ -84,15 +84,15 @@ struct ScenarioListView: View {
     
     private var cityList: some View {
         VStack(alignment: .leading, spacing: 12) {
-            ForEach(scenarios) { scenario in
+            ForEach(cities) { city in
                 CityCardView(
-                    scenario: scenario,
-                    isSelected: selectedScenarioID == scenario.persistentModelID,
+                    city: city,
+                    isSelected: selectedCityID == city.persistentModelID,
                     onTap: {
-                        if selectedScenarioID == scenario.persistentModelID {
-                            selectedScenarioID = nil
+                        if selectedCityID == city.persistentModelID {
+                            selectedCityID = nil
                         } else {
-                            selectedScenarioID = scenario.persistentModelID
+                            selectedCityID = city.persistentModelID
                         }
                     }
                 )
@@ -101,25 +101,12 @@ struct ScenarioListView: View {
     }
     
     private var newCityButton: some View {
-        Button {
-            createNewScenario()
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "eye.fill")
-                Text("awaken")
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().strokeBorder(.white.opacity(0.2), lineWidth: 1))
-        }
-        .foregroundStyle(.white)
+        LiquidButton("awaken", systemImage: "eye.fill", style: .standard, action: createNewCity)
     }
     
     private var backButton: some View {
         Button {
-            selectedScenarioID = nil
+            selectedCityID = nil
         } label: {
             Image(systemName: "arrow.left.circle")
                 .foregroundStyle(.white.opacity(0.7))
@@ -129,27 +116,27 @@ struct ScenarioListView: View {
     
     // MARK: - Actions
     
-    private func createNewScenario() {
+    private func createNewCity() {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-            let newScenario = ScenarioRun(name: "unnamed city", parameters: ["growthRate": 0.02])
-            modelContext.insert(newScenario)
-            selectedScenarioID = newScenario.persistentModelID
+            let newCity = City(name: "unnamed city", parameters: ["growthRate": 0.02])
+            modelContext.insert(newCity)
+            selectedCityID = newCity.persistentModelID
         }
     }
     
     // MARK: - Computed Properties
     
-    private var runningScenarios: Int {
-        scenarios.filter { $0.isRunning }.count
+    private var runningCities: Int {
+        cities.filter { $0.isRunning }.count
     }
     
     private var averageProgress: Double {
-        guard !scenarios.isEmpty else { return 0 }
-        return scenarios.reduce(0.0) { $0 + $1.progress } / Double(scenarios.count)
+        guard !cities.isEmpty else { return 0 }
+        return cities.reduce(0.0) { $0 + $1.progress } / Double(cities.count)
     }
 }
 
 #Preview {
-    ScenarioListView(selectedScenarioID: .constant(nil))
-        .modelContainer(for: ScenarioRun.self, inMemory: true)
+    CityListView(selectedCityID: .constant(nil))
+        .modelContainer(for: City.self, inMemory: true)
 }

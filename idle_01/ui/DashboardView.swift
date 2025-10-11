@@ -10,7 +10,7 @@ import SwiftData
 
 struct DashboardView: View {
     @Query private var items: [Item]
-    @Query private var scenarios: [ScenarioRun]
+    @Query private var cities: [City]
 
     private var latestItemDate: Date? {
         items.map { $0.timestamp }.sorted(by: >).first
@@ -54,26 +54,25 @@ struct DashboardView: View {
                     .padding(.vertical, 4)
                 }
                 
-                // --- Scenarios Section --- //
+                // --- Cities Section --- //
                 HStack {
-                    Text("Scenarios")
+                    Text("Cities")
                         .font(.title2)
                         .bold()
                     Spacer()
                     Button {
-                        createScenario()
+                        createCity()
                     } label: {
-                        Label("New Scenario", systemImage: "plus")
+                        Label("New City", systemImage: "plus")
                     }
                 }
 
-                if scenarios.isEmpty {
+                if cities.isEmpty {
                     ContentUnavailableView(
-                        "No Scenarios Yet",
+                        "No Cities Yet",
                         systemImage: "externaldrive",
-                        description: Text("Tap “New Scenario” to create one.")
+                        description: Text("Tap \"New City\" to create one.")
                     )
-
                     .frame(maxWidth: .infinity)
                 }
 
@@ -85,13 +84,13 @@ struct DashboardView: View {
         .navigationTitle("Dashboard")
     }
     
-    // MARK: - Create Scenario
-    private func createScenario() {
-        print("createScenario()")
+    // MARK: - Create City
+    private func createCity() {
+        print("createCity()")
     }
 }
 
-// MARK: - Scenario Card + scenario-scoped timers
+// MARK: - City Card + city-scoped timers
 //private struct createScenario
 
 #Preview {

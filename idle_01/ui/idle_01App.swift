@@ -13,7 +13,7 @@ struct idle_01App: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
-            ScenarioRun.self,
+            City.self,
             UserPreferences.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)

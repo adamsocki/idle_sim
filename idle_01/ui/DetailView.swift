@@ -101,9 +101,9 @@ struct DetailView: View {
                             }
                         }
                         
-                        if let s = it.scenario {
+                        if let s = it.city {
                             Divider()
-                            Text("Scenario").font(.headline)
+                            Text("City").font(.headline)
                             HStack {
                                 Text(s.name)
                                 Spacer()
@@ -134,13 +134,13 @@ struct DetailView: View {
     }
     
     private func submitResponse() {
-        guard let it = item, 
-              let scenario = it.scenario,
+        guard let it = item,
+              let city = it.city,
               !responseText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return
         }
-        
-        scenario.respondToRequest(it, response: responseText)
+
+        city.respondToRequest(it, response: responseText)
         
         withAnimation {
             showResponseConfirmation = true

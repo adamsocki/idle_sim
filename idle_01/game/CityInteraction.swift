@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension ScenarioRun {
+extension City {
     /// Update the city's state when the player interacts with it
     func recordInteraction() {
         self.lastInteraction = Date()

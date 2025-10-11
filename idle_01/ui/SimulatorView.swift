@@ -13,48 +13,44 @@ struct SimulatorView: View {
     @Environment(\.modelContext) private var modelContext
 
     // Selections
-    @State private var selectedScenarioID: PersistentIdentifier? = nil
+    @State private var selectedCityID: PersistentIdentifier? = nil
     @State private var selectedItemID: PersistentIdentifier? = nil
 
     // Column visibility - persisted in SwiftData
     @Query private var userPreferences: [UserPreferences]
 
     // all data
-    @Query private var allScenarios: [ScenarioRun]
+    @Query private var allCities: [City]
     @Query private var allItems: [Item]
-       
+
     // Lookup helpers
-    private var selectedScenario: ScenarioRun? {
-        guard let id = selectedScenarioID else { return nil }
-        return allScenarios.first { $0.persistentModelID == id }
+    private var selectedCity: City? {
+        guard let id = selectedCityID else { return nil }
+        return allCities.first { $0.persistentModelID == id }
     }
     private var selectedItem: Item? {
         guard
-            let scenario = selectedScenario,
+            let city = selectedCity,
             let itemID = selectedItemID
         else { return nil }
-        return scenario.items.first { $0.persistentModelID == itemID }
+        return city.items.first { $0.persistentModelID == itemID }
     }
 
     var body: some View {
-    NavigationSplitView() {
-            ScenarioListView(selectedScenarioID: $selectedScenarioID)
+        NavigationSplitView {
+            CityListView(selectedCityID: $selectedCityID)
         } content: {
             Group {
-                if let scenario = selectedScenario {
-                    SimulationStageView(scenario: scenario, selectedItemID: $selectedItemID)
+                if let city = selectedCity {
+                    CityView(city: city, selectedItemID: $selectedItemID)
                 } else {
                     GlobalDashboardView()
                 }
             }
-            
-            
         } detail: {
             Group {
                 if let item = selectedItem {
                     DetailView(item: item)
-                } else if let scenario = selectedScenario {
-                    ScenarioDetailView(scenario: scenario)
                 } else {
                     // Empty state
                     VStack(spacing: 16) {
@@ -66,7 +62,7 @@ struct SimulatorView: View {
                             .font(.title3)
                             .foregroundStyle(.secondary)
 
-                        Text("Select a scenario or item to view details")
+                        Text("Select a thought to view details")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                             .multilineTextAlignment(.center)
@@ -81,6 +77,6 @@ struct SimulatorView: View {
 
 #Preview {
     SimulatorView()
-        .modelContainer(for: [Item.self, ScenarioRun.self], inMemory: true)
+        .modelContainer(for: [Item.self, City.self], inMemory: true)
 }
 

@@ -16,23 +16,23 @@ struct GlobalDashboardView: View {
     // MARK: - Metrics
     
     private var averageProgress: Double {
-        guard !scenarios.isEmpty else { return 0 }
+        guard !cities.isEmpty else { return 0 }
         var total = 0.0
-        for s in scenarios {
+        for s in cities {
             total += s.progress
         }
-        let average = total / Double(scenarios.count)
+        let average = total / Double(cities.count)
         return average
     }
 
-    private var totalScenarios: Int { scenarios.count }
+    private var totalCities: Int { cities.count }
 
-    private var runningScenarios: Int {
-        scenarios.filter { $0.isRunning }.count
+    private var runningCities: Int {
+        cities.filter { $0.isRunning }.count
     }
 
-    @Query(sort: \ScenarioRun.createdAt, order: .reverse)
-    private var scenarios: [ScenarioRun]
+    @Query(sort: \City.createdAt, order: .reverse)
+    private var cities: [City]
     
     var body: some View {
         ZStack {
@@ -54,7 +54,7 @@ struct GlobalDashboardView: View {
                     
                     metricsGrid
                     
-                    if !scenarios.isEmpty {
+                    if !cities.isEmpty {
                         consciousnessStatus
                     } else {
                         awaitingInput
@@ -79,7 +79,7 @@ struct GlobalDashboardView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
                         Circle()
-                            .fill(runningScenarios > 0 ? Color.cyan : Color.gray)
+                            .fill(runningCities > 0 ? Color.cyan : Color.gray)
                             .frame(width: 8, height: 8)
                             .opacity(pulseAnimation ? 0.4 : 1.0)
                         
@@ -88,92 +88,51 @@ struct GlobalDashboardView: View {
                             .foregroundStyle(.white.opacity(0.95))
                     }
                     
-                    Text(runningScenarios > 0 ? "It waits for an input" : "The simulation is paused")
+                    Text(runningCities > 0 ? "It waits for an input" : "The simulation is paused")
                         .font(.system(size: 15, weight: .regular, design: .monospaced))
                         .foregroundStyle(.white.opacity(0.5))
                 }
                 
                 Spacer()
                 
-                Button {
+                LiquidButton("awaken", systemImage: "plus.circle.fill", style: .prominent) {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        let s = ScenarioRun(name: "new consciousness", parameters: ["growthRate": 0.02])
+                        let s = City(name: "new consciousness", parameters: ["growthRate": 0.02])
                         modelContext.insert(s)
                     }
-                } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "plus.circle.fill")
-                        Text("awaken")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .overlay(Capsule().strokeBorder(.white.opacity(0.2), lineWidth: 1))
                 }
-                .foregroundStyle(.white)
             }
         }
     }
     
     // MARK: - Metrics Grid
-    
+
     private var metricsGrid: some View {
         VStack(spacing: 16) {
-            HStack(spacing: 16) {
-                metricCard(
+            HStack(spacing: 12) {
+                MetricCard(
                     label: "consciousness nodes",
-                    value: "\(totalScenarios)",
-                    icon: "network",
-                    gradient: [Color.purple.opacity(0.6), Color.blue.opacity(0.6)]
+                    value: "\(totalCities)",
+                    icon: "◈",
+                    style: .consciousness
                 )
-                
-                metricCard(
+
+                MetricCard(
                     label: "active processes",
-                    value: "\(runningScenarios)",
-                    icon: "waveform.path.ecg",
-                    gradient: [Color.cyan.opacity(0.6), Color.teal.opacity(0.6)]
+                    value: "\(runningCities)",
+                    icon: "◉",
+                    style: runningCities > 0 ? .data : .void
                 )
             }
             
             // Progress indicator
-            if totalScenarios > 0 {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text("collective awareness")
-                            .font(.system(size: 13, weight: .medium, design: .monospaced))
-                            .foregroundStyle(.white.opacity(0.6))
-                        Spacer()
-                        Text("\(Int(averageProgress * 100))%")
-                            .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                            .foregroundStyle(.white.opacity(0.9))
-                    }
-                    
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            // Background
-                            Capsule()
-                                .fill(.ultraThinMaterial)
-                                .overlay(Capsule().strokeBorder(.white.opacity(0.1), lineWidth: 1))
-                            
-                            // Progress fill
-                            Capsule()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [Color.cyan, Color.purple],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: geometry.size.width * averageProgress)
-                                .shadow(color: .cyan.opacity(0.5), radius: 8, x: 0, y: 0)
-                        }
-                    }
-                    .frame(height: 8)
-                }
-                .padding(20)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.15), lineWidth: 1))
+            if totalCities > 0 {
+                MetricCard(
+                    label: "collective awareness",
+                    value: "\(Int(averageProgress * 100))%",
+                    icon: "∞",
+                    style: .gradient
+                )
             }
         }
     }
@@ -188,19 +147,19 @@ struct GlobalDashboardView: View {
                 .padding(.leading, 4)
             
             VStack(spacing: 12) {
-                ForEach(scenarios.prefix(5)) { scenario in
+                ForEach(cities.prefix(5)) { city in
                     HStack {
                         Circle()
-                            .fill(scenario.isRunning ? Color.cyan : Color.gray.opacity(0.5))
+                            .fill(city.isRunning ? Color.cyan : Color.gray.opacity(0.5))
                             .frame(width: 6, height: 6)
-                        
-                        Text(scenario.name)
+
+                        Text(city.name)
                             .font(.system(size: 14, weight: .regular, design: .monospaced))
                             .foregroundStyle(.white.opacity(0.8))
-                        
+
                         Spacer()
-                        
-                        Text("\(Int(scenario.progress * 100))%")
+
+                        Text("\(Int(city.progress * 100))%")
                             .font(.system(size: 12, weight: .medium, design: .monospaced))
                             .foregroundStyle(.white.opacity(0.5))
                     }
@@ -237,46 +196,9 @@ struct GlobalDashboardView: View {
         .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.15), lineWidth: 1))
     }
     
-    // MARK: - Helper Views
-    
-    private func metricCard(label: String, value: String, icon: String, gradient: [Color]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.system(size: 20, weight: .light))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: gradient,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                Spacer()
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(value)
-                    .font(.system(size: 32, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.95))
-                    .monospacedDigit()
-                
-                Text(label)
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
-                    .foregroundStyle(.white.opacity(0.5))
-            }
-        }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 140)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.white.opacity(0.15), lineWidth: 1))
-        .shadow(color: gradient[0].opacity(0.2), radius: 12, x: 0, y: 4)
-    }
 }
 
 #Preview {
     GlobalDashboardView()
-        .modelContainer(for: [ScenarioRun.self], inMemory: true)
+        .modelContainer(for: [City.self], inMemory: true)
 }

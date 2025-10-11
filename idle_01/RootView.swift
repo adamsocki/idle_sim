@@ -24,5 +24,5 @@ struct RootView: View {
 
 #Preview {
     RootView()
-        .modelContainer(for: [ScenarioRun.self, Item.self], inMemory: true)
+        .modelContainer(for: [City.self, Item.self], inMemory: true)
 }

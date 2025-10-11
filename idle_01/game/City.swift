@@ -1,5 +1,5 @@
 //
-//  ScnearioRun.swift
+//  City.swift
 //  idle_01
 //
 //  Created by Adam Socki on 10/5/25.
@@ -10,7 +10,7 @@ import SwiftData
 
 @Model
 
-final class ScenarioRun {
+final class City {
     var name: String
     var createdAt: Date
     var progress: Double
