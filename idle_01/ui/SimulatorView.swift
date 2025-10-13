@@ -26,7 +26,7 @@ struct SimulatorView: View {
     @State private var commandText: String = ""
     @State private var commandHistory: [String] = []
     @State private var outputHistory: [CommandOutput] = []
-    @State private var terminalFontSize: CGFloat = 12.0
+    @State private var terminalFontSize: CGFloat = 28.0
 
     // Column visibility - persisted in SwiftData
     @Query private var userPreferences: [UserPreferences]
