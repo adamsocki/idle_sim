@@ -348,12 +348,17 @@ struct TerminalInputView: View {
         let technical: [String] = [
             "help", "list", "list --filter=active", "list --filter=dormant",
             "create city --name=NAME", "select [00]", "start [00]", "stop [00]",
-            "delete [00]", "stats", "export --format=json", "clear"
+            "delete [00]", "stats", "export --format=json", "clear",
+            "create thought", "create thought --type=memory", "create thought --type=request",
+            "create thought --type=dream", "create thought --type=warning",
+            "items", "items [00]", "items --filter=memory", "items --filter=request",
+            "items --filter=pending", "respond [00] \"text\"", "dismiss [00]"
         ]
 
         let poetic: [String] = [
             "awaken consciousness --name=NAME", "breathe life into [00]",
-            "rest [00]", "forget [00]", "attend [00]"
+            "rest [00]", "forget [00]", "attend [00]",
+            "answer [00] \"text\"", "acknowledge [00]", "thoughts"
         ]
 
         let all = technical + poetic

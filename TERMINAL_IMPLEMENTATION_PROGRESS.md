@@ -4,12 +4,12 @@
 
 ---
 
-## Status: Phase 2.0 Complete ✅
+## Status: Phase 5 (Terminal UI Components) Complete ✅
 
-**Date**: October 12, 2025
-**Implementation Time**: ~3 hours
+**Date**: October 13, 2025
+**Implementation Time**: ~7 hours (Phase 1: ~3h, Phase 2: ~2h, Phase 5: ~2h)
 **Feature Flag**: `@AppStorage("useTerminalCommandBar")` - Default: `true`
-**Latest Update**: Terminal moved to middle column (main workspace)
+**Latest Update**: Added terminal UI components and settings view
 
 ---
 
@@ -39,6 +39,13 @@
 | `start [00]` | `wake`, `activate`, `breathe` | Start city simulation |
 | `stop [00]` | `sleep`, `pause`, `rest` | Stop city simulation |
 | `delete [00]` | `forget`, `release`, `dissolve` | Delete city |
+| `create thought` | - | Create thought for selected city |
+| `create thought --type=TYPE` | - | Create specific type (memory/request/dream/warning) |
+| `items` | `thoughts` | List thoughts for selected city |
+| `items [00]` | - | List thoughts for specific city |
+| `items --filter=TYPE` | - | Filter by type or status |
+| `respond [00] "text"` | `answer`, `reply` | Respond to thought by index |
+| `dismiss [00]` | `acknowledge`, `close` | Dismiss thought by index |
 | `stats` | `status`, `inspect` | Show global statistics |
 | `stats [00]` | - | Show city-specific statistics |
 | `export --format=json` | `save`, `archive` | Export data (placeholder) |
@@ -46,16 +53,28 @@
 
 **Examples**:
 ```bash
-# Technical syntax
+# Technical syntax - City Management
 create city --name=ALPHA
 start [00]
 list --filter=active
 
-# Poetic syntax
+# Poetic syntax - City Management
 awaken consciousness --name=BETA
 breathe life into [00]
 rest [01]
 forget [02]
+
+# Technical syntax - Thought/Item Management
+create thought --type=memory
+items
+items --filter=pending
+respond [00] "This is my response"
+dismiss [01]
+
+# Poetic syntax - Thought/Item Management
+thoughts
+answer [00] "I hear you"
+acknowledge [01]
 ```
 
 ---
@@ -199,8 +218,16 @@ UNKNOWN_COMMAND: 'asdf' | Type 'help' for available commands.
 - **Start/Stop**: `start [00]`, `stop [00]` (or use poetic alternatives)
 - **Delete cities**: `delete [00]` (with confirmation message)
 
+### ✅ Thought/Item Management
+- **Create thoughts**: `create thought` or `create thought --type=memory`
+- **List thoughts**: `items`, `items [00]`, `items --filter=pending`
+- **Respond to thoughts**: `respond [00] "your response"` or `answer [00] "text"`
+- **Dismiss thoughts**: `dismiss [00]` or `acknowledge [00]`
+- **Visual indicators**: Type icons (◆ ? ~ !) and status markers (✓ ○)
+- **Poetic alternatives**: `thoughts` for listing, `answer` for respond, `acknowledge` for dismiss
+
 ### ✅ Information Commands
-- **Help**: `help` - Shows full command reference
+- **Help**: `help` - Shows full command reference (includes thought commands)
 - **Stats**: `stats` (global) or `stats [00]` (specific city)
 - **Clear**: `clear` - Clears output history
 
@@ -223,27 +250,81 @@ UNKNOWN_COMMAND: 'asdf' | Type 'help' for available commands.
 
 ## What Remains (Future Phases)
 
-### ⏳ Phase 2: Thought/Item Management (Not Started)
+### ✅ Phase 2: Thought/Item Management (Complete)
 **From Design**: `TERMINAL_INPUT_DESIGN.md` - Section "Thought/Item Management"
 
-**Commands to Implement**:
-- `create thought` - Create new thought for current city
-- `create thought --type=request` - Create specific thought type
-- `respond [00] "text"` - Respond to thought index
-- `dismiss [00]` - Dismiss thought
+**Implemented Commands**:
+- ✅ `create thought` - Create new thought for selected city
+- ✅ `create thought --type=TYPE` - Create specific type (memory/request/dream/warning)
+- ✅ `items` / `thoughts` - List thoughts for selected city
+- ✅ `items [00]` - List thoughts for specific city
+- ✅ `items --filter=TYPE` - Filter by type (memory/request/dream/warning/pending/responded)
+- ✅ `respond [00] "text"` / `answer` / `reply` - Respond to thought by index
+- ✅ `dismiss [00]` / `acknowledge` / `close` - Dismiss thought by index
 
-**Estimated Effort**: 2-3 hours
+**Features**:
+- Context-aware: requires city selection before creating thoughts
+- Poetic titles generated based on item type:
+  - Memory: "A fragment surfaces"
+  - Request: "The city asks"
+  - Dream: "An idle thought drifts"
+  - Warning: "Attention needed"
+- Visual indicators in list output:
+  - Type icons: ◆ (memory), ? (request), ~ (dream), ! (warning)
+  - Status: ✓ (responded), ○ (pending)
+- Item lookup by index `[00]` or partial title match
+- Updates city `lastInteraction` timestamp on response
+- Full SwiftData persistence
+
+**Output Examples**:
+```
+// Create thought
+THOUGHT_CREATED: ALPHA | TYPE: MEMORY | INDEX: [00] | A fragment surfaces
+
+// List thoughts
+THOUGHTS [3] | City: ALPHA
+  [00] ◆ ○ A fragment surfaces | MEMORY
+  [01] ? ✓ The city asks | REQUEST
+  [02] ~ ○ An idle thought drifts | DREAM
+
+// Respond to thought
+RESPONSE_RECORDED: ALPHA | 'The city asks' | The city hears you.
+
+// Dismiss thought
+THOUGHT_DISMISSED: ALPHA | 'An idle thought drifts' | The thought fades away.
+```
+
+**Actual Effort**: ~2 hours
 
 ---
 
 ### ⏳ Phase 3: Settings & Configuration (Not Started)
 **From Design**: `TERMINAL_INPUT_DESIGN.md` - Section "Settings"
 
+**Architecture**: Dual-Interface Design
+- **Terminal commands** modify shared application state
+- **Detail view UI controls** (Phase 5) will interact with the same state
+- Both interfaces provide the same functionality through different modalities
+- Power users use terminal, casual users use GUI (implemented in Phase 5)
+
 **Commands to Implement**:
-- `set coherence 0.8` - Modify city resources
-- `set trust 0.5` - Modify city trust level
-- `set crt on/off` - Toggle CRT flicker effect
-- `set font 12` - Change terminal font size
+- `set coherence 0.8` - Modify city coherence resource (0.0-1.0)
+- `set trust 0.5` - Modify city trust level (0.0-1.0)
+- `set crt on/off` - Toggle CRT flicker effect globally
+- `set font 12` - Change terminal font size (9-24pt)
+
+**Implementation Strategy**:
+1. Create or use existing shared state management (e.g., `@AppStorage`, `@Observable` models)
+2. Extract setting logic into reusable functions that both terminal and UI can call
+3. Implement terminal command handlers that call these shared functions
+4. Design with Phase 5 in mind - future toggle switches/sliders will call the same logic
+
+**Benefits**:
+- ✅ Terminal commands implemented now, GUI controls added later (Phase 5)
+- ✅ Consistent state management from the start
+- ✅ Easy to add UI controls without duplicating logic
+- ✅ Power users can script settings changes via terminal
+- ✅ Casual users can discover settings via GUI (Phase 5)
 
 **Estimated Effort**: 1-2 hours
 
@@ -264,19 +345,57 @@ UNKNOWN_COMMAND: 'asdf' | Type 'help' for available commands.
 
 ---
 
-### ⏳ Phase 5: Terminal UI Components (Not Started)
+### ✅ Phase 5: Terminal UI Components (Complete)
 **From Design**: `INTERACTIVE_TERMINAL_UI_PLAN.md` - Phases 1-6
 
-**Components to Create**:
-- `TerminalButton` - Terminal-style action buttons
-- `TerminalListRow` - Clickable list items with ASCII borders
-- `TerminalBox` - Container with ASCII borders
-- `TerminalTextField` - Terminal-style text input
-- `TerminalProgressBar` - Reusable progress bar component
-- `TerminalToggle` - ON/OFF switches
-- `TerminalDivider` - Section separators
+**Architecture**: Dual-Interface Design (GUI side)
+- **Graphical controls** in detail view (right column) that interact with same state as terminal commands
+- **Mouse-friendly** toggles, sliders, and buttons for settings (ready for Phase 3 terminal command integration)
+- Provides discoverability for users who prefer GUI over command line
+- All settings use `@AppStorage` for automatic persistence
 
-**Estimated Effort**: 4-6 hours
+**Components Created**: ✅
+- ✅ `TerminalButton.swift` - Terminal-style action buttons with 3 styles (primary/secondary/danger)
+- ✅ `TerminalBox.swift` - Container with ASCII borders (┌─┐│└┘) and optional titles
+- ✅ `TerminalToggle.swift` - ON/OFF switches with ASCII brackets
+- ✅ `TerminalSlider.swift` - Value adjusters with ASCII progress bars (█░)
+- ✅ `TerminalDivider.swift` - Section separators (3 styles: solid/dashed/dotted)
+
+**Settings View Created**: ✅
+- ✅ `TerminalSettingsView.swift` - Complete settings interface in right detail column
+  - Display Settings: CRT effect, cursor blink, font size, line spacing
+  - Simulation Settings: Auto-save, coherence, trust level, update interval
+  - Debug Settings: Verbose logging, show stats, performance monitor
+  - Action buttons: Apply, Reset to Defaults, Export Config
+
+**Integration**: ✅
+- ✅ Added toggle button in detail view (top-right corner) to switch between Help and Settings
+- ✅ Settings accessible via gear icon, Help accessible via book icon
+- ✅ All settings persist automatically via `@AppStorage`
+
+**@AppStorage Keys Created**:
+```swift
+// Display Settings
+"terminal.crtEffect" (Bool) - default: true
+"terminal.fontSize" (Double) - default: 12
+"terminal.lineSpacing" (Double) - default: 1.2
+"terminal.cursorBlink" (Bool) - default: true
+
+// Simulation Settings
+"simulation.autoSave" (Bool) - default: true
+"simulation.coherence" (Double) - default: 75
+"simulation.trustLevel" (Double) - default: 0.85
+"simulation.updateInterval" (Double) - default: 1000
+
+// Debug Settings
+"debug.verbose" (Bool) - default: false
+"debug.showStats" (Bool) - default: true
+"debug.performance" (Bool) - default: false
+```
+
+**Ready for Phase 3**: Terminal commands (`set coherence 0.8`, etc.) can now be implemented to modify the same @AppStorage keys!
+
+**Actual Effort**: ~2 hours
 
 ---
 
@@ -317,15 +436,21 @@ UNKNOWN_COMMAND: 'asdf' | Type 'help' for available commands.
 - [x] Delete command removes cities from database
 - [x] List command shows correct filtered results
 - [x] Stats command displays accurate data
-- [x] Help command shows full reference
+- [x] Help command shows full reference (including thought commands)
 - [x] Command history navigation works
 - [x] Output log scrolls correctly
 - [x] Feature flag toggle works (Cmd+Shift+T)
 - [x] Build succeeds without errors
+- [x] Thought creation works with all types
+- [x] Items list displays with correct icons and status
+- [x] Respond command updates item response
+- [x] Dismiss command removes items
+- [x] Thought commands require city selection (proper error handling)
+- [x] Item filtering works (by type and status)
+- [x] Autocomplete suggestions include thought commands
 
 ### ⏳ Remaining Tests
-- [ ] Test with large number of cities (performance)
-- [ ] Test thought/item commands (when implemented)
+- [ ] Test with large number of cities and items (performance)
 - [ ] Test settings commands (when implemented)
 - [ ] Test tab completion (when implemented)
 - [ ] Test persistent command history (when implemented)
@@ -354,11 +479,21 @@ The command bar **successfully integrates** the game's poetic, contemplative the
 - ✅ "attend" instead of "select"
 
 ### Poetic Output Messages
+
+**City Commands:**
 - ✅ "The city opens its eyes." (on creation)
 - ✅ "The city feels your presence." (on selection)
 - ✅ "The city begins to breathe." (on start)
 - ✅ "The city sleeps, dreaming of input." (on stop)
 - ✅ "The city fades into the silence. It will not return." (on delete)
+
+**Thought Commands:**
+- ✅ "A fragment surfaces" (memory thought created)
+- ✅ "The city asks" (request thought created)
+- ✅ "An idle thought drifts" (dream thought created)
+- ✅ "Attention needed" (warning thought created)
+- ✅ "The city hears you." (on respond)
+- ✅ "The thought fades away." (on dismiss)
 
 ### Terminal Aesthetic
 - ✅ Pure black background with phosphor green text
@@ -377,14 +512,21 @@ The command bar **successfully integrates** the game's poetic, contemplative the
 idle_01/
 ├── ui/
 │   ├── terminal/
-│   │   ├── TerminalCommandParser.swift       [NEW Phase 1] ✅
+│   │   ├── components/
+│   │   │   ├── TerminalToggle.swift          [NEW Phase 5] ✅
+│   │   │   ├── TerminalSlider.swift          [NEW Phase 5] ✅
+│   │   │   ├── TerminalButton.swift          [NEW Phase 5] ✅
+│   │   │   ├── TerminalBox.swift             [NEW Phase 5] ✅
+│   │   │   └── TerminalDivider.swift         [NEW Phase 5] ✅
+│   │   ├── TerminalCommandParser.swift       [NEW Phase 1, MODIFIED Phase 2] ✅
 │   │   ├── TerminalCommandBar.swift          [DEPRECATED] ⚠️
-│   │   ├── TerminalInputView.swift           [NEW Phase 1.5, MODIFIED Phase 2.0] ✅
+│   │   ├── TerminalInputView.swift           [NEW Phase 1.5, MODIFIED Phase 2] ✅
 │   │   ├── TerminalHelpView.swift            [NEW Phase 2.0] ✅
-│   │   └── TerminalCommandExecutor.swift     [NEW Phase 1] ✅
-│   ├── SimulatorView.swift                   [MODIFIED Phase 2.0] ✅
+│   │   ├── TerminalSettingsView.swift        [NEW Phase 5] ✅
+│   │   └── TerminalCommandExecutor.swift     [NEW Phase 1, MODIFIED Phase 2] ✅
+│   ├── SimulatorView.swift                   [MODIFIED Phase 5] ✅
 │   └── GlobalDashboardView.swift             [UNCHANGED]
-└── TERMINAL_IMPLEMENTATION_PROGRESS.md       [MODIFIED Phase 2.0] ✅
+└── TERMINAL_IMPLEMENTATION_PROGRESS.md       [MODIFIED Phase 5] ✅
 ```
 
 **Note**: `TerminalCommandBar.swift` is still present but no longer used. It can be removed in a future cleanup. The functionality has been moved to `TerminalInputView.swift` with improvements.
@@ -411,27 +553,28 @@ idle_01/
 
 **Basic Commands**:
 ```bash
-# Create a new city
+# City Management
 create city --name=METROPOLIS
 awaken consciousness --name=EDEN
-
-# List cities
 list
 list --filter=active
-
-# Select and control cities
 select [00]
 start [00]
 stop [01]
+delete [02]
 
-# Get information
+# Thought/Item Management
+create thought --type=memory
+items
+items --filter=pending
+respond [00] "This is my response"
+dismiss [01]
+
+# Information
 help
 stats
 stats [00]
-
-# Clean up
 clear
-delete [02]
 ```
 
 **Keyboard Shortcuts**:
@@ -499,24 +642,30 @@ private func handleNewCommand(parameter: String) -> CommandOutput {
 
 ### Recommended Implementation Order:
 
-1. **Phase 2: Thought/Item Management** (2-3 hours)
+1. ✅ **Phase 2: Thought/Item Management** (2 hours) - COMPLETE
    - Most useful for actual gameplay
    - Completes command bar functionality
 
-2. **Phase 3: Settings Commands** (1-2 hours)
-   - Nice QoL improvements
-   - Easy to implement
+2. ✅ **Phase 5: Terminal UI Components** (2 hours) - COMPLETE
+   - Created reusable components for settings interface
+   - Settings view with @AppStorage integration
+   - Ready for Phase 3 terminal commands
 
-3. **Phase 4: Advanced Features** (3-4 hours)
+3. ⏳ **Phase 3: Settings Commands** (1-2 hours) - NEXT
+   - Implement terminal commands to modify same @AppStorage keys
+   - `set coherence 0.8`, `set crt on/off`, etc.
+   - Both GUI and terminal will work together
+
+4. **Phase 4: Advanced Features** (3-4 hours)
    - Polish and user experience
    - Tab completion most important
 
-4. **Phase 5-6: Terminal UI Components & Views** (12-18 hours)
+5. **Phase 6: Terminal Views** (12-18 hours)
    - Major UI transformation
    - Requires more design work
    - Could be split into multiple sessions
 
-5. **Phase 7: Polish & Effects** (4-6 hours)
+6. **Phase 7: Polish & Effects** (4-6 hours)
    - Optional visual enhancements
    - Should be last priority
 
@@ -524,39 +673,65 @@ private func handleNewCommand(parameter: String) -> CommandOutput {
 
 ## Conclusion
 
-**Phase 2.0 is complete and fully functional!** 🎉
+**Phase 5 (Terminal UI Components) is complete and fully functional!** 🎉
 
-The terminal input view is now:
-- ✅ Fully integrated with SwiftData
-- ✅ Occupies the **middle column (main workspace)**
-- ✅ Much wider for better readability
-- ✅ Supports both technical and poetic syntax
-- ✅ Matches the game's contemplative theme
-- ✅ Non-intrusive (feature flag toggle)
-- ✅ Improved UI/UX (larger fonts, better cursor, fixed controls)
-- ✅ Fixed line wrapping for long output
-- ✅ Help view in right column for quick reference
-- ✅ Ready for user testing
+The terminal system now has a complete dual-interface architecture:
 
-### What Changed in Phase 2.0:
-1. **Layout**: Terminal moved from left sidebar to **middle column (main workspace)**
-2. **Three-column design**: CityList (left) | Terminal (middle) | Detail/Help (right)
-3. **Width**: Much wider terminal for better readability
-4. **Font controls**: Fixed visibility issue - controls no longer scale with terminal font
-5. **Line wrapping**: Proper text wrapping for long output lines
-6. **Help view**: Added TerminalHelpView for quick command reference
-7. **Context**: City list always visible on left for reference
+### Command Line Interface (Phases 1-2):
+- ✅ **Complete city management** - create, list, select, start/stop, delete cities
+- ✅ **Full thought/item management** - create, list, respond, dismiss thoughts
+- ✅ **Poetic command alternatives** - technical and contemplative syntax options
+- ✅ **Visual indicators** - type icons (◆ ? ~ !) and status markers (✓ ○)
+- ✅ **Context-aware execution** - works with selected city or explicit targeting
+- ✅ **SwiftData integration** - full persistence for all operations
+- ✅ **Help system** - comprehensive command reference
+- ✅ **Autocomplete** - suggestions for all commands
+- ✅ **Error handling** - clear, poetic error messages
+- ✅ **Command history** - navigate with ↑/↓ arrows
+- ✅ **Feature flag** - toggle terminal UI on/off
+
+### Graphical Interface (Phase 5):
+- ✅ **5 reusable components** - TerminalToggle, TerminalSlider, TerminalButton, TerminalBox, TerminalDivider
+- ✅ **Settings view** - Complete settings interface with organized sections
+- ✅ **@AppStorage integration** - 11 persistent settings across display/simulation/debug
+- ✅ **Toggle between Help/Settings** - Gear icon button in detail view
+- ✅ **ASCII-styled controls** - All components match terminal aesthetic
+- ✅ **Mouse-friendly** - Point-and-click alternative to terminal commands
+
+### What Was Added in Phase 5:
+1. **TerminalToggle**: ON/OFF switches with ASCII brackets `[ON ]` / `[OFF]`
+2. **TerminalSlider**: Value adjusters with ASCII progress bars `[████████░░░░]`
+3. **TerminalButton**: Action buttons with 3 styles (primary/secondary/danger)
+4. **TerminalBox**: Container with ASCII borders (┌─┐│└┘) and optional titles
+5. **TerminalDivider**: Section separators (solid/dashed/dotted styles)
+6. **TerminalSettingsView**: Full settings interface with 11 configurable settings
+7. **Help/Settings Toggle**: Button to switch between views in detail column
+8. **@AppStorage Keys**: 11 persistent settings ready for terminal command integration
 
 ### Evolution Timeline:
-- **Phase 1**: Terminal as bottom bar across entire app
-- **Phase 1.5**: Terminal in left sidebar (too narrow)
+- **Phase 1**: Terminal as bottom bar across entire app ✅
+- **Phase 1.5**: Terminal in left sidebar (too narrow) ✅
 - **Phase 2.0**: Terminal in middle column (optimal layout) ✅
+- **Phase 2**: Thought/Item Management commands ✅
+- **Phase 5**: Terminal UI Components & Settings View ✅
 
-Users can now interact with cities using terminal commands in a spacious main workspace, with the city list on the left for context and help/details on the right. The poetic command alternatives add a unique flavor that aligns perfectly with the game's narrative about consciousness and digital twilight.
+### Next Recommended Phase:
+**Phase 3: Settings & Configuration Commands** (1-2 hours)
+- `set coherence 0.8` - Modify simulation.coherence @AppStorage
+- `set trust 0.5` - Modify simulation.trustLevel @AppStorage
+- `set crt on/off` - Modify terminal.crtEffect @AppStorage
+- `set font 12` - Modify terminal.fontSize @AppStorage
+- Both GUI toggles/sliders and terminal commands will modify the same shared state!
+
+Users now have **two ways to interact** with the system:
+1. **Power users**: Type commands in terminal (fast, scriptable)
+2. **Casual users**: Click toggles/sliders in settings view (discoverable, visual)
+
+Both interfaces are production-ready and demonstrate how a contemplative game can embrace retro terminal aesthetics while providing modern GUI accessibility.
 
 ---
 
-**IMPLEMENTATION_STATUS: PHASE_2.0_COMPLETE**
-**NEXT_PHASE: THOUGHT_ITEM_MANAGEMENT**
-**TOTAL_EFFORT: ~3_HOURS**
+**IMPLEMENTATION_STATUS: PHASE_5_COMPLETE**
+**NEXT_PHASE: SETTINGS_COMMANDS (Phase 3)**
+**TOTAL_EFFORT: ~7_HOURS (Phase 1: ~3h, Phase 2: ~2h, Phase 5: ~2h)**
 **// █**

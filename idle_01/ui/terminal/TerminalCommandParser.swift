@@ -97,6 +97,29 @@ struct TerminalCommandParser {
             return .set(key: key, value: value)
         }
 
+        // MARK: - Respond Commands (for items/thoughts)
+        if verb == "respond" || verb == "answer" || verb == "reply" {
+            guard components.count > 2 else { return .unknown(input) }
+            let target = components[1]
+            // Join remaining components as the response text
+            let responseText = components.dropFirst(2).joined(separator: " ")
+            return .respond(target: target, text: responseText)
+        }
+
+        // MARK: - Dismiss Commands (for items/thoughts)
+        if verb == "dismiss" || verb == "close" || verb == "acknowledge" {
+            guard components.count > 1 else { return .unknown(input) }
+            let target = components[1]
+            return .dismiss(target: target)
+        }
+
+        // MARK: - List Items Command
+        if verb == "items" || verb == "thoughts" {
+            let filter = extractFlag(from: components, flag: "--filter")
+            let target = components.count > 1 && !components[1].hasPrefix("--") ? components[1] : nil
+            return .listItems(target: target, filter: filter)
+        }
+
         // MARK: - Clear Command
         if verb == "clear" || verb == "cls" {
             return .clear
@@ -140,6 +163,9 @@ enum TerminalCommand: Equatable {
     case export(target: String?, format: String)
     case stats(target: String?)
     case set(key: String, value: String)
+    case respond(target: String, text: String)
+    case dismiss(target: String)
+    case listItems(target: String?, filter: String?)
     case clear
     case unknown(String)
 }

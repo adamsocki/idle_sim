@@ -27,6 +27,7 @@ struct SimulatorView: View {
     @State private var commandHistory: [String] = []
     @State private var outputHistory: [CommandOutput] = []
     @State private var terminalFontSize: CGFloat = 28.0
+    @State private var showSettings: Bool = false
 
     // Column visibility - persisted in SwiftData
     @Query private var userPreferences: [UserPreferences]
@@ -82,7 +83,38 @@ struct SimulatorView: View {
                 } else {
                     // Terminal help/context when nothing selected
                     if useTerminalCommandBar {
-                        TerminalHelpView()
+                        ZStack(alignment: .topTrailing) {
+                            // Show either settings or help
+                            if showSettings {
+                                TerminalSettingsView()
+                            } else {
+                                TerminalHelpView()
+                            }
+
+                            // Toggle button in top-right corner
+                            Button(action: { showSettings.toggle() }) {
+                                HStack(spacing: 4) {
+                                    Text("[")
+                                        .foregroundStyle(Color.green.opacity(0.6))
+
+                                    Image(systemName: showSettings ? "book.fill" : "gearshape.fill")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(Color.green.opacity(0.9))
+
+                                    Text("]")
+                                        .foregroundStyle(Color.green.opacity(0.6))
+                                }
+                                .font(.system(size: 12, design: .monospaced))
+                                .padding(8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color.green.opacity(0.08))
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .help(showSettings ? "Show Help" : "Show Settings")
+                            .padding(16)
+                        }
                     } else {
                         // Empty state
                         VStack(spacing: 16) {

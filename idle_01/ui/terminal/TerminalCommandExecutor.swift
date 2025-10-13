@@ -59,6 +59,18 @@ class TerminalCommandExecutor {
         case .export(let target, let format):
             return handleExport(target: target, format: format)
 
+        case .createThought(let type):
+            return handleCreateThought(type: type, selectedCityID: selectedCityID)
+
+        case .listItems(let target, let filter):
+            return handleListItems(target: target, filter: filter, selectedCityID: selectedCityID)
+
+        case .respond(let target, let text):
+            return handleRespond(target: target, text: text, selectedCityID: selectedCityID)
+
+        case .dismiss(let target):
+            return handleDismiss(target: target, selectedCityID: selectedCityID)
+
         case .clear:
             return CommandOutput(text: "// SCREEN_CLEARED", isError: false)
 
@@ -101,6 +113,16 @@ class TerminalCommandExecutor {
         ║                                                              ║
         ║  delete [00]             - Delete city                       ║
         ║  forget [00]             - (Poetic: release from memory)     ║
+        ║                                                              ║
+        ║ THOUGHT_MANAGEMENT                                           ║
+        ║  create thought          - Create thought for selected city  ║
+        ║  create thought --type=X - Create specific type (memory/     ║
+        ║                            request/dream/warning)            ║
+        ║  items                   - List thoughts for selected city   ║
+        ║  items [00]              - List thoughts for specific city   ║
+        ║  items --filter=TYPE     - Filter by type or status          ║
+        ║  respond [00] "text"     - Respond to thought by index       ║
+        ║  dismiss [00]            - Dismiss thought by index          ║
         ║                                                              ║
         ║ INFORMATION                                                  ║
         ║  stats                   - Show global statistics            ║
@@ -371,6 +393,214 @@ class TerminalCommandExecutor {
         return CommandOutput(text: stats)
     }
 
+    // MARK: - Item/Thought Management
+
+    private func handleCreateThought(type: String?, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        // Parse item type from string
+        let itemType: ItemType
+        switch type?.lowercased() {
+        case "memory":
+            itemType = .memory
+        case "request", "question":
+            itemType = .request
+        case "dream":
+            itemType = .dream
+        case "warning":
+            itemType = .warning
+        default:
+            itemType = .request  // Default to request
+        }
+
+        // Generate poetic title based on type
+        let title: String
+        switch itemType {
+        case .memory:
+            title = "A fragment surfaces"
+        case .request:
+            title = "The city asks"
+        case .dream:
+            title = "An idle thought drifts"
+        case .warning:
+            title = "Attention needed"
+        }
+
+        let item = Item(timestamp: Date(), title: title, city: city, itemType: itemType, urgency: 0.5)
+        city.items.append(item)
+
+        do {
+            try modelContext.save()
+            let itemIndex = city.items.count - 1
+            return CommandOutput(
+                text: "THOUGHT_CREATED: \(city.name.uppercased()) | TYPE: \(itemType.rawValue.uppercased()) | INDEX: [\(String(format: "%02d", itemIndex))] | \(title)"
+            )
+        } catch {
+            return CommandOutput(
+                text: "ERROR_CREATING_THOUGHT: \(error.localizedDescription)",
+                isError: true
+            )
+        }
+    }
+
+    private func handleListItems(target: String?, filter: String?, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        let city: City?
+
+        if let target = target {
+            city = findCity(by: target)
+        } else if let selectedCityID = selectedCityID {
+            city = allCities.first { $0.persistentModelID == selectedCityID }
+        } else {
+            return CommandOutput(
+                text: "NO_TARGET_SPECIFIED | Usage: items [00] or select a city first",
+                isError: true
+            )
+        }
+
+        guard let city = city else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Use 'list' to see available nodes.",
+                isError: true
+            )
+        }
+
+        let items = city.items
+        let filtered: [Item]
+
+        switch filter?.lowercased() {
+        case "memory":
+            filtered = items.filter { $0.itemType == .memory }
+        case "request":
+            filtered = items.filter { $0.itemType == .request }
+        case "dream":
+            filtered = items.filter { $0.itemType == .dream }
+        case "warning":
+            filtered = items.filter { $0.itemType == .warning }
+        case "answered", "responded":
+            filtered = items.filter { $0.response != nil }
+        case "pending", "unanswered":
+            filtered = items.filter { $0.response == nil }
+        default:
+            filtered = items
+        }
+
+        if filtered.isEmpty {
+            return CommandOutput(text: "NO_THOUGHTS_FOUND | City: \(city.name.uppercased()) | Filter: \(filter ?? "none")")
+        }
+
+        var output = "THOUGHTS [\(filtered.count)] | City: \(city.name.uppercased())\n"
+        for (index, item) in filtered.enumerated() {
+            let typeIcon: String
+            switch item.itemType {
+            case .memory: typeIcon = "◆"
+            case .request: typeIcon = "?"
+            case .dream: typeIcon = "~"
+            case .warning: typeIcon = "!"
+            }
+
+            let status = item.response != nil ? "✓" : "○"
+            output += "  [\(String(format: "%02d", index))] \(typeIcon) \(status) \(item.title ?? "Untitled") | \(item.itemType.rawValue.uppercased())\n"
+        }
+
+        return CommandOutput(text: output.trimmingCharacters(in: .newlines))
+    }
+
+    private func handleRespond(target: String, text: String, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        guard let item = findItem(in: city, by: target) else {
+            return CommandOutput(
+                text: "THOUGHT_NOT_FOUND: '\(target)' | Use 'items' to see available thoughts",
+                isError: true
+            )
+        }
+
+        if item.response != nil {
+            return CommandOutput(
+                text: "ALREADY_RESPONDED: This thought has already been acknowledged.",
+                isError: false
+            )
+        }
+
+        item.response = text
+        city.lastInteraction = Date()
+
+        do {
+            try modelContext.save()
+            return CommandOutput(
+                text: "RESPONSE_RECORDED: \(city.name.uppercased()) | '\(item.title ?? "Untitled")' | The city hears you."
+            )
+        } catch {
+            return CommandOutput(
+                text: "ERROR_RESPONDING: \(error.localizedDescription)",
+                isError: true
+            )
+        }
+    }
+
+    private func handleDismiss(target: String, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        guard let item = findItem(in: city, by: target) else {
+            return CommandOutput(
+                text: "THOUGHT_NOT_FOUND: '\(target)' | Use 'items' to see available thoughts",
+                isError: true
+            )
+        }
+
+        let title = item.title ?? "Untitled"
+        city.items.removeAll { $0.persistentModelID == item.persistentModelID }
+        modelContext.delete(item)
+
+        do {
+            try modelContext.save()
+            return CommandOutput(
+                text: "THOUGHT_DISMISSED: \(city.name.uppercased()) | '\(title)' | The thought fades away."
+            )
+        } catch {
+            return CommandOutput(
+                text: "ERROR_DISMISSING: \(error.localizedDescription)",
+                isError: true
+            )
+        }
+    }
+
     // MARK: - Export
 
     private func handleExport(target: String?, format: String) -> CommandOutput {
@@ -396,6 +626,24 @@ class TerminalCommandExecutor {
 
         // Try to find by name (case-insensitive)
         return cities.first { $0.name.lowercased() == target.lowercased() }
+    }
+
+    private func findItem(in city: City, by target: String) -> Item? {
+        let items = city.items
+
+        // Try to find by index [00]
+        if target.hasPrefix("[") && target.hasSuffix("]") {
+            let indexString = target.dropFirst().dropLast()
+            if let index = Int(indexString), index >= 0 && index < items.count {
+                return items[index]
+            }
+        }
+
+        // Try to find by title (case-insensitive partial match)
+        return items.first { item in
+            guard let title = item.title else { return false }
+            return title.lowercased().contains(target.lowercased())
+        }
     }
 
     private func formatTime(_ interval: TimeInterval) -> String {
