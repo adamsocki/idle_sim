@@ -14,63 +14,98 @@ public class SimulationEngine {
     init(context: ModelContext) { self.context = context }
 
     func run(_ city: City) async {
+        // Get simulation settings
+        let updateInterval = UserDefaults.standard.double(forKey: "simulation.updateInterval")
+        let intervalMs = updateInterval > 0 ? updateInterval : 1000.0
+        let intervalNs = UInt64(intervalMs * 1_000_000) // Convert ms to nanoseconds
+
+        let autoSave = UserDefaults.standard.bool(forKey: "simulation.autoSave")
+        let verbose = UserDefaults.standard.bool(forKey: "debug.verbose")
+
         for tick in 1...100 {
             // Update city consciousness every tick
             updateCityConsciousness(city, tick: tick)
-            
+
             // Narrative events every 10 ticks
             if tick % 10 == 0 {
                 NarrativeEngine().evolve(city)
             }
 
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+            try? await Task.sleep(nanoseconds: intervalNs)
             city.progress += 0.01
-            city.log.append("Tick \(tick): progress = \(city.progress)")
+
+            if verbose {
+                city.log.append("Tick \(tick): progress = \(city.progress)")
+            }
+
+            // Auto-save if enabled
+            if autoSave && tick % 10 == 0 {
+                try? context.save()
+            }
+
             if city.progress >= 1.0 { break }
         }
-        
+
         // Final mood assessment
         assessFinalMood(city)
         try? context.save()
     }
     
     private func updateCityConsciousness(_ city: City, tick: Int) {
+        // Get simulation settings
+        let targetCoherence = UserDefaults.standard.double(forKey: "simulation.coherence") / 100.0 // Convert 0-100 to 0-1
+        let targetTrust = UserDefaults.standard.double(forKey: "simulation.trustLevel")
+
+        // Use defaults if not set
+        let coherenceTarget = targetCoherence > 0 ? targetCoherence : 0.75
+        let trustTarget = targetTrust > 0 ? targetTrust : 0.85
+
         // Calculate abandonment time
         let abandonmentHours = Date().timeIntervalSince(city.lastInteraction) / 3600
-        
+
         // Attention decays over time without interaction
         let decayRate = 0.001
         city.attentionLevel = max(0.0, city.attentionLevel - decayRate)
-        
+
         // Update resources based on player engagement
         let unansweredRequests = city.items.filter { $0.response == nil }.count
         let answeredRequests = city.items.filter { $0.response != nil }.count
-        
-        // Coherence: affected by progress and attention
+
+        // Coherence: affected by progress and attention, gravitates toward target
         if city.attentionLevel > 0.7 {
-            city.resources["coherence"] = min(1.0, (city.resources["coherence"] ?? 1.0) + 0.001)
+            let currentCoherence = city.resources["coherence"] ?? 1.0
+            let coherenceChange = (coherenceTarget - currentCoherence) * 0.01
+            city.resources["coherence"] = max(0.0, min(1.0, currentCoherence + coherenceChange))
         } else if city.attentionLevel < 0.3 {
             city.resources["coherence"] = max(0.0, (city.resources["coherence"] ?? 1.0) - 0.002)
         }
-        
+
         // Memory: accumulates with progress
         city.resources["memory"] = min(1.0, city.progress * 0.8 + Double(answeredRequests) * 0.05)
-        
-        // Trust: based on response rate and time since interaction
+
+        // Trust: based on response rate, time since interaction, and gravitates toward target
         if answeredRequests > 0 {
             let responseRate = Double(answeredRequests) / Double(max(1, city.items.count))
-            city.resources["trust"] = min(1.0, responseRate * 0.7 + (abandonmentHours < 1 ? 0.3 : 0.0))
+            let baseTrust = responseRate * 0.7 + (abandonmentHours < 1 ? 0.3 : 0.0)
+            let currentTrust = city.resources["trust"] ?? 0.5
+            // Blend current trust toward target
+            city.resources["trust"] = min(1.0, (baseTrust + currentTrust + trustTarget) / 3.0)
         } else if abandonmentHours > 24 {
             city.resources["trust"] = max(0.0, (city.resources["trust"] ?? 0.5) - 0.01)
+        } else {
+            // Gradually move toward trust target when idle
+            let currentTrust = city.resources["trust"] ?? 0.5
+            let trustChange = (trustTarget - currentTrust) * 0.005
+            city.resources["trust"] = max(0.0, min(1.0, currentTrust + trustChange))
         }
-        
+
         // Autonomy: grows with time and when ignored
         if abandonmentHours > 12 {
             city.resources["autonomy"] = min(1.0, (city.resources["autonomy"] ?? 0.0) + 0.005)
         } else if answeredRequests > 3 {
             city.resources["autonomy"] = max(0.0, (city.resources["autonomy"] ?? 0.0) - 0.002)
         }
-        
+
         // Update mood based on resources and state
         updateMood(city, abandonmentHours: abandonmentHours, unansweredRequests: unansweredRequests)
     }

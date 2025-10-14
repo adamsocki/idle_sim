@@ -15,6 +15,9 @@ struct SimulatorView: View {
     // Feature flag for terminal command bar
     @AppStorage("useTerminalCommandBar") private var useTerminalCommandBar: Bool = true
 
+    // Terminal settings from @AppStorage
+    @AppStorage("terminal.fontSize") private var terminalFontSize: Double = 12
+
     // Selections
     @State private var selectedCityID: PersistentIdentifier? = nil
     @State private var selectedItemID: PersistentIdentifier? = nil
@@ -26,8 +29,10 @@ struct SimulatorView: View {
     @State private var commandText: String = ""
     @State private var commandHistory: [String] = []
     @State private var outputHistory: [CommandOutput] = []
-    @State private var terminalFontSize: CGFloat = 28.0
     @State private var showSettings: Bool = false
+
+    // Command history persistence key
+    private let commandHistoryKey = "terminal.commandHistory"
 
     // Column visibility - persisted in SwiftData
     @Query private var userPreferences: [UserPreferences]
@@ -50,33 +55,35 @@ struct SimulatorView: View {
     }
 
     var body: some View {
-        // Main 3-column split view
-        NavigationSplitView(columnVisibility: $columnVisibility) {
-            // Left column: City List
-            CityListView(selectedCityID: $selectedCityID)
-        } content: {
-            // Middle column: Terminal (main workspace)
-            if useTerminalCommandBar {
-                TerminalInputView(
-                    commandText: $commandText,
-                    terminalFontSize: $terminalFontSize,
-                    commandHistory: $commandHistory,
-                    outputHistory: $outputHistory,
-                    onExecute: { command in
-                        executeTerminalCommand(command)
-                    }
-                )
-            } else {
-                // Fallback to original views if terminal is disabled
-                Group {
-                    if let city = selectedCity {
-                        CityView(city: city, selectedItemID: $selectedItemID)
-                    } else {
-                        GlobalDashboardView()
+        ZStack {
+            // Main 3-column split view
+            NavigationSplitView(columnVisibility: $columnVisibility) {
+                // Left column: City List
+                CityListView(selectedCityID: $selectedCityID)
+            } content: {
+                // Middle column: Terminal (main workspace)
+                if useTerminalCommandBar {
+                    TerminalInputView(
+                        commandText: $commandText,
+                        terminalFontSize: $terminalFontSize,
+                        commandHistory: $commandHistory,
+                        outputHistory: $outputHistory,
+                        selectedCityName: selectedCity?.name,
+                        onExecute: { command in
+                            executeTerminalCommand(command)
+                        }
+                    )
+                } else {
+                    // Fallback to original views if terminal is disabled
+                    Group {
+                        if let city = selectedCity {
+                            CityView(city: city, selectedItemID: $selectedItemID)
+                        } else {
+                            GlobalDashboardView()
+                        }
                     }
                 }
-            }
-        } detail: {
+            } detail: {
             Group {
                 if let item = selectedItem {
                     DetailView(item: item)
@@ -136,15 +143,23 @@ struct SimulatorView: View {
                 }
             }
             .navigationSplitViewColumnWidth(min: 250, ideal: 300, max: 400)
-        }
-        // Hidden toggle for feature flag (Cmd+T)
-        .background(
-            Button("") {
-                useTerminalCommandBar.toggle()
             }
-            .keyboardShortcut("t", modifiers: [.command, .shift])
-            .hidden()
-        )
+            // Hidden toggle for feature flag (Cmd+T)
+            .background(
+                Button("") {
+                    useTerminalCommandBar.toggle()
+                }
+                .keyboardShortcut("t", modifiers: [.command, .shift])
+                .hidden()
+            )
+
+            // Debug stats overlay
+            DebugStatsOverlay(cities: allCities)
+                .allowsHitTesting(false)
+        }
+        .onAppear {
+            loadCommandHistory()
+        }
     }
 
     // MARK: - Command Execution
@@ -158,7 +173,11 @@ struct SimulatorView: View {
             return
         }
 
-        // Execute command
+        // First, echo the command that was entered
+        let commandEcho = CommandOutput(text: "> \(command)", isError: false)
+        outputHistory.append(commandEcho)
+
+        // Execute command and append result
         let result = executor.execute(command, selectedCityID: &selectedCityID)
         outputHistory.append(result)
 
@@ -166,6 +185,24 @@ struct SimulatorView: View {
         if outputHistory.count > 50 {
             outputHistory = Array(outputHistory.suffix(50))
         }
+
+        // Save command history
+        saveCommandHistory()
+    }
+
+    // MARK: - Command History Persistence
+
+    private func loadCommandHistory() {
+        if let savedHistory = UserDefaults.standard.stringArray(forKey: commandHistoryKey) {
+            // Limit to last 100 commands
+            commandHistory = Array(savedHistory.suffix(100))
+        }
+    }
+
+    private func saveCommandHistory() {
+        // Save last 100 commands
+        let historyToSave = Array(commandHistory.suffix(100))
+        UserDefaults.standard.set(historyToSave, forKey: commandHistoryKey)
     }
 }
 

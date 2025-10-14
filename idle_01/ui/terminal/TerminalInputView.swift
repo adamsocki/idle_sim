@@ -10,16 +10,41 @@ import SwiftData
 
 struct TerminalInputView: View {
     @Binding var commandText: String
-    @Binding var terminalFontSize: CGFloat
+    @Binding var terminalFontSize: Double
     @Binding var commandHistory: [String]
     @Binding var outputHistory: [CommandOutput]
 
     @State private var historyIndex: Int = 0
     @State private var cursorBlink: Bool = false
     @State private var suggestions: [String] = []
+    @State private var crtFlicker: Double = 1.0
+    @State private var suggestionIndex: Int = 0
     @FocusState private var isInputFocused: Bool
 
+    // Settings from @AppStorage
+    @AppStorage("terminal.crtEffect") private var crtEffectEnabled: Bool = true
+    @AppStorage("terminal.cursorBlink") private var cursorBlinkEnabled: Bool = true
+    @AppStorage("terminal.lineSpacing") private var lineSpacing: Double = 1.2
+
+    // Optional context for placeholder text
+    let selectedCityName: String?
     let onExecute: (String) -> Void
+
+    init(
+        commandText: Binding<String>,
+        terminalFontSize: Binding<Double>,
+        commandHistory: Binding<[String]>,
+        outputHistory: Binding<[CommandOutput]>,
+        selectedCityName: String? = nil,
+        onExecute: @escaping (String) -> Void
+    ) {
+        self._commandText = commandText
+        self._terminalFontSize = terminalFontSize
+        self._commandHistory = commandHistory
+        self._outputHistory = outputHistory
+        self.selectedCityName = selectedCityName
+        self.onExecute = onExecute
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,12 +52,14 @@ struct TerminalInputView: View {
             inputBarView
         }
         .background(Color.black)
+        .opacity(crtEffectEnabled ? crtFlicker : 1.0)
         .onAppear {
             cursorBlink = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 cursorBlink = true
             }
             isInputFocused = true
+            startCRTFlicker()
         }
         .onKeyPress(.upArrow) {
             navigateHistory(direction: .up)
@@ -40,6 +67,10 @@ struct TerminalInputView: View {
         }
         .onKeyPress(.downArrow) {
             navigateHistory(direction: .down)
+            return .handled
+        }
+        .onKeyPress(.tab) {
+            handleTabCompletion()
             return .handled
         }
         .background(
@@ -66,7 +97,7 @@ struct TerminalInputView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
                     if outputHistory.isEmpty {
-                        welcomeMessage
+//                        welcomeMessage
                     } else {
                         outputList
                     }
@@ -118,11 +149,12 @@ struct TerminalInputView: View {
             Text(output.text)
                 .font(terminalFont(10))
                 .foregroundStyle(output.isError ? Color.orange.opacity(0.8) : Color.green.opacity(0.7))
+                .lineSpacing(lineSpacing)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 1)
+        .padding(.vertical, CGFloat(lineSpacing))
     }
 
     // MARK: - Input Bar
@@ -181,15 +213,22 @@ struct TerminalInputView: View {
     private var inputField: some View {
         ZStack(alignment: .leading) {
             if commandText.isEmpty {
-                Text("COMMAND_INPUT...")
+                Text(placeholderText)
                     .font(terminalFont(12))
                     .foregroundStyle(Color.green.opacity(0.3))
+            }
+
+            // Syntax-highlighted overlay (visual feedback)
+            if !commandText.isEmpty {
+                Text(syntaxHighlightedText)
+                    .font(terminalFont(12))
+                    .allowsHitTesting(false)
             }
 
             TextField("", text: $commandText)
                 .textFieldStyle(.plain)
                 .font(terminalFont(12))
-                .foregroundStyle(Color.green.opacity(0.9))
+                .foregroundStyle(Color.clear) // Make actual text transparent so highlighted version shows
                 .focused($isInputFocused)
                 .onSubmit {
                     executeCommand()
@@ -200,23 +239,121 @@ struct TerminalInputView: View {
         }
     }
 
+    // Context-aware placeholder text
+    private var placeholderText: String {
+        if let cityName = selectedCityName {
+            return "ATTENDING: \(cityName.uppercased()) | Type 'items' or 'create thought'..."
+        } else {
+            return "COMMAND_INPUT | Type 'help' or 'list'..."
+        }
+    }
+
+    // Syntax highlighting for command text
+    private var syntaxHighlightedText: AttributedString {
+        var result = AttributedString(commandText)
+
+        let components = commandText.split(separator: " ", omittingEmptySubsequences: false).map { String($0) }
+        guard let firstWord = components.first?.lowercased() else { return result }
+
+        // Command verbs (primary commands)
+        let commandVerbs = ["help", "list", "create", "select", "start", "stop", "delete", "stats", "export", "clear", "items", "respond", "dismiss", "set", "awaken", "breathe", "rest", "forget", "attend", "answer", "acknowledge", "thoughts"]
+
+        // Aliases
+        let aliases = ["ls", "ll", "la", "cc", "ct", "new", "sel", "cd", "run", "pause", "rm", "del", "i", "t", "r", "d", "s", "st", "cls", "clr", "?", "h"]
+
+        var currentIndex = result.startIndex
+
+        for (index, component) in components.enumerated() {
+            let componentLower = component.lowercased()
+            let range = findRange(of: component, in: result, startingFrom: currentIndex)
+
+            guard let range = range else { continue }
+
+            if index == 0 {
+                // First word: command verb or alias
+                if commandVerbs.contains(componentLower) {
+                    result[range].foregroundColor = .green.opacity(0.95) // Bright green for commands
+                } else if aliases.contains(componentLower) {
+                    result[range].foregroundColor = .cyan.opacity(0.9) // Cyan for aliases
+                } else {
+                    result[range].foregroundColor = .orange.opacity(0.8) // Orange for unknown
+                }
+            } else if component.hasPrefix("--") {
+                // Flags
+                result[range].foregroundColor = .yellow.opacity(0.85)
+            } else if component.hasPrefix("[") && component.hasSuffix("]") {
+                // Indices like [00]
+                result[range].foregroundColor = .blue.opacity(0.9)
+            } else if component.hasPrefix("\"") || component.hasSuffix("\"") {
+                // String literals
+                result[range].foregroundColor = .green.opacity(0.6)
+            } else if Int(component) != nil || Double(component) != nil {
+                // Numbers
+                result[range].foregroundColor = .purple.opacity(0.85)
+            } else {
+                // Arguments
+                result[range].foregroundColor = .green.opacity(0.7)
+            }
+
+            currentIndex = range.upperBound
+        }
+
+        return result
+    }
+
+    // Helper to find range of substring
+    private func findRange(of substring: String, in attributedString: AttributedString, startingFrom: AttributedString.Index) -> Range<AttributedString.Index>? {
+        let remainingString = String(attributedString[startingFrom...].characters)
+        guard let range = remainingString.range(of: substring) else { return nil }
+
+        let startOffset = remainingString.distance(from: remainingString.startIndex, to: range.lowerBound)
+        let endOffset = startOffset + substring.count
+
+        var currentIndex = startingFrom
+        for _ in 0..<startOffset {
+            currentIndex = attributedString.index(afterCharacter: currentIndex)
+        }
+
+        var endIndex = currentIndex
+        for _ in 0..<substring.count {
+            endIndex = attributedString.index(afterCharacter: endIndex)
+        }
+
+        return currentIndex..<endIndex
+    }
+
     @ViewBuilder
     private var cursorView: some View {
         if isInputFocused {
             Text("█")
                 .font(terminalFont(12))
                 .foregroundStyle(Color.green)
-                .opacity(cursorBlink ? 0.9 : 0.0)
+                .opacity(cursorBlinkEnabled ? (cursorBlink ? 0.9 : 0.0) : 0.9)
                 .fixedSize()
                 .onAppear {
-                    startCursorBlink()
+                    if cursorBlinkEnabled {
+                        startCursorBlink()
+                    }
                 }
         }
     }
 
     private func startCursorBlink() {
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            cursorBlink.toggle()
+            if cursorBlinkEnabled {
+                cursorBlink.toggle()
+            }
+        }
+    }
+
+    private func startCRTFlicker() {
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            if crtEffectEnabled {
+                // Random subtle flicker between 0.95 and 1.0
+                crtFlicker = Double.random(in: 0.8...1.0)
+            } else {
+                crtFlicker = 1.0
+            }
         }
     }
 
@@ -337,9 +474,22 @@ struct TerminalInputView: View {
         case up, down
     }
 
+    // MARK: - Tab Completion
+
+    private func handleTabCompletion() {
+        guard !commandText.isEmpty, !suggestions.isEmpty else { return }
+
+        // Cycle through suggestions with repeated tab presses
+        commandText = suggestions[suggestionIndex % suggestions.count]
+        suggestionIndex = (suggestionIndex + 1) % suggestions.count
+    }
+
     // MARK: - Autocomplete Suggestions
 
     private func updateSuggestions(for text: String) {
+        // Reset suggestion index when text changes
+        suggestionIndex = 0
+
         if text.isEmpty {
             suggestions = []
             return
@@ -361,7 +511,15 @@ struct TerminalInputView: View {
             "answer [00] \"text\"", "acknowledge [00]", "thoughts"
         ]
 
-        let all = technical + poetic
+        let settings: [String] = [
+            "set crt on", "set crt off", "set font 12", "set cursor on", "set cursor off",
+            "set linespacing 1.2", "set coherence 75", "set trust 0.85",
+            "set autosave on", "set autosave off", "set interval 1000",
+            "set verbose on", "set verbose off", "set stats on", "set stats off",
+            "set performance on", "set performance off"
+        ]
+
+        let all = technical + poetic + settings
         suggestions = all.filter { $0.lowercased().contains(text.lowercased()) }
     }
 
@@ -385,7 +543,7 @@ struct TerminalInputView: View {
 
 #Preview {
     @Previewable @State var commandText: String = ""
-    @Previewable @State var fontSize: CGFloat = 12
+    @Previewable @State var fontSize: Double = 12
     @Previewable @State var history: [String] = []
     @Previewable @State var output: [CommandOutput] = []
 

@@ -59,6 +59,9 @@ class TerminalCommandExecutor {
         case .export(let target, let format):
             return handleExport(target: target, format: format)
 
+        case .set(let key, let value):
+            return handleSet(key: key, value: value)
+
         case .createThought(let type):
             return handleCreateThought(type: type, selectedCityID: selectedCityID)
 
@@ -123,6 +126,19 @@ class TerminalCommandExecutor {
         ║  items --filter=TYPE     - Filter by type or status          ║
         ║  respond [00] "text"     - Respond to thought by index       ║
         ║  dismiss [00]            - Dismiss thought by index          ║
+        ║                                                              ║
+        ║ SETTINGS                                                     ║
+        ║  set crt on/off          - Toggle CRT flicker effect         ║
+        ║  set font 12             - Set terminal font size (9-24)     ║
+        ║  set cursor on/off       - Toggle cursor blink               ║
+        ║  set linespacing 1.2     - Set line spacing (1.0-2.0)        ║
+        ║  set coherence 75        - Set coherence level (0-100)       ║
+        ║  set trust 0.85          - Set trust level (0.0-1.0)         ║
+        ║  set autosave on/off     - Toggle auto-save                  ║
+        ║  set interval 1000       - Set update interval (100-10000ms) ║
+        ║  set verbose on/off      - Toggle verbose logging            ║
+        ║  set stats on/off        - Toggle statistics display         ║
+        ║  set performance on/off  - Toggle performance monitor        ║
         ║                                                              ║
         ║ INFORMATION                                                  ║
         ║  stats                   - Show global statistics            ║
@@ -609,6 +625,222 @@ class TerminalCommandExecutor {
             text: "EXPORT_NOT_IMPLEMENTED | Format: \(format.uppercased())",
             isError: false
         )
+    }
+
+    // MARK: - Settings
+
+    private func handleSet(key: String, value: String) -> CommandOutput {
+        let normalizedKey = key.lowercased()
+
+        switch normalizedKey {
+        // Display Settings
+        case "crt":
+            return handleSetCRT(value: value)
+        case "font", "fontsize":
+            return handleSetFontSize(value: value)
+        case "cursor", "cursorblink":
+            return handleSetCursorBlink(value: value)
+        case "linespacing", "line-spacing":
+            return handleSetLineSpacing(value: value)
+
+        // Simulation Settings
+        case "coherence":
+            return handleSetCoherence(value: value)
+        case "trust":
+            return handleSetTrust(value: value)
+        case "autosave", "auto-save":
+            return handleSetAutoSave(value: value)
+        case "interval", "updateinterval", "update-interval":
+            return handleSetUpdateInterval(value: value)
+
+        // Debug Settings
+        case "verbose":
+            return handleSetVerbose(value: value)
+        case "stats", "showstats", "show-stats":
+            return handleSetShowStats(value: value)
+        case "performance", "performancemonitor", "performance-monitor":
+            return handleSetPerformance(value: value)
+
+        default:
+            return CommandOutput(
+                text: "UNKNOWN_SETTING: '\(key)' | Available: crt, font, cursor, linespacing, coherence, trust, autosave, interval, verbose, stats, performance",
+                isError: true
+            )
+        }
+    }
+
+    // MARK: - Display Settings Handlers
+
+    private func handleSetCRT(value: String) -> CommandOutput {
+        guard let boolValue = parseBool(value) else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: on/off or true/false",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(boolValue, forKey: "terminal.crtEffect")
+        return CommandOutput(
+            text: "CRT_EFFECT_SET: \(boolValue ? "ENABLED" : "DISABLED") | The screen \(boolValue ? "flickers to life" : "stabilizes")."
+        )
+    }
+
+    private func handleSetFontSize(value: String) -> CommandOutput {
+        guard let fontSize = Double(value), fontSize >= 9, fontSize <= 24 else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: number between 9 and 24",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(fontSize, forKey: "terminal.fontSize")
+        return CommandOutput(
+            text: "FONT_SIZE_SET: \(Int(fontSize))pt | Text \(fontSize > 12 ? "expands" : "contracts")."
+        )
+    }
+
+    private func handleSetCursorBlink(value: String) -> CommandOutput {
+        guard let boolValue = parseBool(value) else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: on/off or true/false",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(boolValue, forKey: "terminal.cursorBlink")
+        return CommandOutput(
+            text: "CURSOR_BLINK_SET: \(boolValue ? "ENABLED" : "DISABLED") | The cursor \(boolValue ? "pulses" : "holds steady")."
+        )
+    }
+
+    private func handleSetLineSpacing(value: String) -> CommandOutput {
+        guard let spacing = Double(value), spacing >= 1.0, spacing <= 2.0 else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: number between 1.0 and 2.0",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(spacing, forKey: "terminal.lineSpacing")
+        return CommandOutput(
+            text: "LINE_SPACING_SET: \(String(format: "%.1f", spacing)) | Lines \(spacing > 1.2 ? "breathe deeper" : "draw closer")."
+        )
+    }
+
+    // MARK: - Simulation Settings Handlers
+
+    private func handleSetCoherence(value: String) -> CommandOutput {
+        guard let coherence = Double(value), coherence >= 0, coherence <= 100 else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: number between 0 and 100",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(coherence, forKey: "simulation.coherence")
+        return CommandOutput(
+            text: "COHERENCE_SET: \(String(format: "%.1f", coherence))% | The city's thoughts \(coherence > 75 ? "align" : coherence > 50 ? "waver" : "scatter")."
+        )
+    }
+
+    private func handleSetTrust(value: String) -> CommandOutput {
+        guard let trust = Double(value), trust >= 0.0, trust <= 1.0 else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: number between 0.0 and 1.0",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(trust, forKey: "simulation.trustLevel")
+        return CommandOutput(
+            text: "TRUST_LEVEL_SET: \(String(format: "%.2f", trust)) | The city \(trust > 0.75 ? "opens" : trust > 0.5 ? "hesitates" : "withdraws")."
+        )
+    }
+
+    private func handleSetAutoSave(value: String) -> CommandOutput {
+        guard let boolValue = parseBool(value) else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: on/off or true/false",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(boolValue, forKey: "simulation.autoSave")
+        return CommandOutput(
+            text: "AUTO_SAVE_SET: \(boolValue ? "ENABLED" : "DISABLED") | Changes \(boolValue ? "persist automatically" : "require manual save")."
+        )
+    }
+
+    private func handleSetUpdateInterval(value: String) -> CommandOutput {
+        guard let interval = Double(value), interval >= 100, interval <= 10000 else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: number between 100 and 10000 (milliseconds)",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(interval, forKey: "simulation.updateInterval")
+        return CommandOutput(
+            text: "UPDATE_INTERVAL_SET: \(Int(interval))ms | The city's heartbeat \(interval < 1000 ? "quickens" : "slows")."
+        )
+    }
+
+    // MARK: - Debug Settings Handlers
+
+    private func handleSetVerbose(value: String) -> CommandOutput {
+        guard let boolValue = parseBool(value) else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: on/off or true/false",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(boolValue, forKey: "debug.verbose")
+        return CommandOutput(
+            text: "VERBOSE_LOGGING_SET: \(boolValue ? "ENABLED" : "DISABLED") | The system \(boolValue ? "speaks in detail" : "falls quiet")."
+        )
+    }
+
+    private func handleSetShowStats(value: String) -> CommandOutput {
+        guard let boolValue = parseBool(value) else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: on/off or true/false",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(boolValue, forKey: "debug.showStats")
+        return CommandOutput(
+            text: "SHOW_STATS_SET: \(boolValue ? "ENABLED" : "DISABLED") | Statistics \(boolValue ? "reveal themselves" : "fade from view")."
+        )
+    }
+
+    private func handleSetPerformance(value: String) -> CommandOutput {
+        guard let boolValue = parseBool(value) else {
+            return CommandOutput(
+                text: "INVALID_VALUE: '\(value)' | Expected: on/off or true/false",
+                isError: true
+            )
+        }
+
+        UserDefaults.standard.set(boolValue, forKey: "debug.performance")
+        return CommandOutput(
+            text: "PERFORMANCE_MONITOR_SET: \(boolValue ? "ENABLED" : "DISABLED") | The system's pulse \(boolValue ? "becomes visible" : "returns to shadow")."
+        )
+    }
+
+    // MARK: - Setting Helpers
+
+    private func parseBool(_ value: String) -> Bool? {
+        let normalized = value.lowercased()
+        switch normalized {
+        case "true", "on", "yes", "1", "enabled":
+            return true
+        case "false", "off", "no", "0", "disabled":
+            return false
+        default:
+            return nil
+        }
     }
 
     // MARK: - Helpers

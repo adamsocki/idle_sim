@@ -4,12 +4,12 @@
 
 ---
 
-## Status: Phase 5 (Terminal UI Components) Complete ✅
+## Status: Phase 4 (Advanced Features) Complete ✅
 
 **Date**: October 13, 2025
-**Implementation Time**: ~7 hours (Phase 1: ~3h, Phase 2: ~2h, Phase 5: ~2h)
+**Implementation Time**: ~14 hours (Phase 1: ~3h, Phase 2: ~2h, Phase 3: ~2h, Phase 4: ~3h, Phase 5: ~2h, Phase 6: ~2h)
 **Feature Flag**: `@AppStorage("useTerminalCommandBar")` - Default: `true`
-**Latest Update**: Added terminal UI components and settings view
+**Latest Update**: Added advanced terminal features - tab completion, command aliases, syntax highlighting, persistent history, and context-aware placeholders
 
 ---
 
@@ -50,6 +50,17 @@
 | `stats [00]` | - | Show city-specific statistics |
 | `export --format=json` | `save`, `archive` | Export data (placeholder) |
 | `clear` | `cls` | Clear output history |
+| `set crt on/off` | - | Toggle CRT flicker effect |
+| `set font 12` | - | Set terminal font size (9-24) |
+| `set cursor on/off` | - | Toggle cursor blink |
+| `set linespacing 1.2` | - | Set line spacing (1.0-2.0) |
+| `set coherence 75` | - | Set coherence level (0-100) |
+| `set trust 0.85` | - | Set trust level (0.0-1.0) |
+| `set autosave on/off` | - | Toggle auto-save |
+| `set interval 1000` | - | Set update interval (100-10000ms) |
+| `set verbose on/off` | - | Toggle verbose logging |
+| `set stats on/off` | - | Toggle statistics display |
+| `set performance on/off` | - | Toggle performance monitor |
 
 **Examples**:
 ```bash
@@ -75,6 +86,13 @@ dismiss [01]
 thoughts
 answer [00] "I hear you"
 acknowledge [01]
+
+# Settings commands
+set crt on
+set font 14
+set coherence 80
+set trust 0.9
+set autosave off
 ```
 
 ---
@@ -227,9 +245,17 @@ UNKNOWN_COMMAND: 'asdf' | Type 'help' for available commands.
 - **Poetic alternatives**: `thoughts` for listing, `answer` for respond, `acknowledge` for dismiss
 
 ### ✅ Information Commands
-- **Help**: `help` - Shows full command reference (includes thought commands)
+- **Help**: `help` - Shows full command reference (includes thought commands and settings)
 - **Stats**: `stats` (global) or `stats [00]` (specific city)
 - **Clear**: `clear` - Clears output history
+
+### ✅ Settings Commands
+- **Display Settings**: `set crt on/off`, `set font 12`, `set cursor on/off`, `set linespacing 1.2`
+- **Simulation Settings**: `set coherence 75`, `set trust 0.85`, `set autosave on/off`, `set interval 1000`
+- **Debug Settings**: `set verbose on/off`, `set stats on/off`, `set performance on/off`
+- **Dual Interface**: Works seamlessly with GUI settings view (Phase 5)
+- **Poetic Feedback**: Settings changes have thematic output messages
+- **Validation**: Range checking and type validation for all settings
 
 ### ✅ UI Features
 - Command history (navigate with ↑/↓)
@@ -298,50 +324,145 @@ THOUGHT_DISMISSED: ALPHA | 'An idle thought drifts' | The thought fades away.
 
 ---
 
-### ⏳ Phase 3: Settings & Configuration (Not Started)
+### ✅ Phase 3: Settings & Configuration (Complete)
 **From Design**: `TERMINAL_INPUT_DESIGN.md` - Section "Settings"
 
-**Architecture**: Dual-Interface Design
-- **Terminal commands** modify shared application state
-- **Detail view UI controls** (Phase 5) will interact with the same state
+**Architecture**: Dual-Interface Design ✅
+- **Terminal commands** modify shared `@AppStorage` application state
+- **Detail view UI controls** (Phase 5) interact with the same `@AppStorage` keys
 - Both interfaces provide the same functionality through different modalities
 - Power users use terminal, casual users use GUI (implemented in Phase 5)
 
-**Commands to Implement**:
-- `set coherence 0.8` - Modify city coherence resource (0.0-1.0)
-- `set trust 0.5` - Modify city trust level (0.0-1.0)
-- `set crt on/off` - Toggle CRT flicker effect globally
-- `set font 12` - Change terminal font size (9-24pt)
+**Implemented Commands**: ✅
+- ✅ `set crt on/off` - Toggle CRT flicker effect
+- ✅ `set font 12` - Set terminal font size (9-24pt)
+- ✅ `set cursor on/off` - Toggle cursor blink
+- ✅ `set linespacing 1.2` - Set line spacing (1.0-2.0)
+- ✅ `set coherence 75` - Set coherence level (0-100)
+- ✅ `set trust 0.85` - Set trust level (0.0-1.0)
+- ✅ `set autosave on/off` - Toggle auto-save
+- ✅ `set interval 1000` - Set update interval (100-10000ms)
+- ✅ `set verbose on/off` - Toggle verbose logging
+- ✅ `set stats on/off` - Toggle statistics display
+- ✅ `set performance on/off` - Toggle performance monitor
 
-**Implementation Strategy**:
-1. Create or use existing shared state management (e.g., `@AppStorage`, `@Observable` models)
-2. Extract setting logic into reusable functions that both terminal and UI can call
-3. Implement terminal command handlers that call these shared functions
-4. Design with Phase 5 in mind - future toggle switches/sliders will call the same logic
+**Implementation Details**:
+1. ✅ All commands use `UserDefaults.standard` to modify `@AppStorage` keys
+2. ✅ Settings handlers in `TerminalCommandExecutor.swift` with validation
+3. ✅ Poetic output messages matching game theme
+4. ✅ Help text updated with settings commands
+5. ✅ Autocomplete suggestions include all settings commands
+6. ✅ Flexible boolean parsing (on/off, true/false, yes/no, 1/0, enabled/disabled)
+7. ✅ Range validation for numeric values
+8. ✅ Multiple aliases for settings (e.g., "font" or "fontsize")
 
-**Benefits**:
-- ✅ Terminal commands implemented now, GUI controls added later (Phase 5)
-- ✅ Consistent state management from the start
-- ✅ Easy to add UI controls without duplicating logic
+**Output Examples**:
+```
+// Toggle CRT effect
+> set crt on
+CRT_EFFECT_SET: ENABLED | The screen flickers to life.
+
+// Set font size
+> set font 16
+FONT_SIZE_SET: 16pt | Text expands.
+
+// Set coherence
+> set coherence 85
+COHERENCE_SET: 85.0% | The city's thoughts align.
+
+// Set trust level
+> set trust 0.75
+TRUST_LEVEL_SET: 0.75 | The city opens.
+
+// Error handling
+> set font 50
+INVALID_VALUE: '50' | Expected: number between 9 and 24
+```
+
+**Benefits Achieved**:
+- ✅ Terminal commands fully functional and tested
+- ✅ Consistent state management via `@AppStorage`
+- ✅ GUI controls (Phase 5) work seamlessly with terminal commands
 - ✅ Power users can script settings changes via terminal
 - ✅ Casual users can discover settings via GUI (Phase 5)
+- ✅ Poetic feedback messages enhance game atmosphere
+- ✅ Robust validation and error handling
 
-**Estimated Effort**: 1-2 hours
+**Actual Effort**: ~2 hours
 
 ---
 
-### ⏳ Phase 4: Advanced Features (Not Started)
+### ✅ Phase 4: Advanced Features (Complete)
 **From Design**: `TERMINAL_INPUT_DESIGN.md` - Section "Phase 3: Smart Features"
 
-**Features**:
-- Tab completion for commands
-- Command aliases/shortcuts
-- Syntax highlighting for commands
-- Persistent command history across sessions (save to UserDefaults)
-- Context-aware placeholder text based on selection
-- Multi-line input support
+**What Was Implemented**:
 
-**Estimated Effort**: 3-4 hours
+#### 1. Tab Completion ([TerminalInputView.swift:54-56, 371-377](idle_01/ui/terminal/TerminalInputView.swift#L54-L56))
+- **Tab key handler**: Press Tab to cycle through command suggestions
+- **Suggestion cycling**: Repeatedly pressing Tab cycles through all matching commands
+- **Auto-reset**: Suggestion index resets when user types new text
+- Integrates with existing autocomplete suggestions system
+
+#### 2. Command Aliases ([TerminalCommandParser.swift:17-59](idle_01/ui/terminal/TerminalCommandParser.swift#L17-L59))
+- **24 command aliases** for faster typing:
+  - List: `ls`, `ll` (active filter), `la`
+  - Create: `cc` (city), `ct` (thought), `new`
+  - Selection: `sel`, `cd`
+  - State: `run`, `pause`
+  - Delete: `rm`, `del`
+  - Items: `i`, `t`
+  - Response: `r`, `d`
+  - Stats: `s`, `st`
+  - Clear: `cls`, `clr`
+  - Help: `?`, `h`
+- Aliases expand before command parsing
+- Unix-style shortcuts (ls, rm, cd) for familiarity
+
+#### 3. Syntax Highlighting ([TerminalInputView.swift:251-323](idle_01/ui/terminal/TerminalInputView.swift#L251-L323))
+- **Real-time color coding** as you type:
+  - Command verbs: Bright green (0.95 opacity)
+  - Aliases: Cyan (0.9 opacity)
+  - Unknown commands: Orange (0.8 opacity)
+  - Flags (--name): Yellow (0.85 opacity)
+  - Indices ([00]): Blue (0.9 opacity)
+  - String literals ("text"): Dim green (0.6 opacity)
+  - Numbers: Purple (0.85 opacity)
+  - Arguments: Medium green (0.7 opacity)
+- Uses AttributedString for rich text rendering
+- Overlay technique preserves TextField functionality
+
+#### 4. Persistent Command History ([SimulatorView.swift:34-35, 188-201](idle_01/ui/terminal/SimulatorView.swift#L34-L35))
+- **Saved to UserDefaults**: Commands persist across app launches
+- **Automatic save**: History saved after each command execution
+- **History limit**: Last 100 commands stored (prevents unbounded growth)
+- **Auto-load**: History loaded on view appearance
+- Key: `terminal.commandHistory`
+
+#### 5. Context-Aware Placeholder Text ([TerminalInputView.swift:30, 236-242](idle_01/ui/terminal/TerminalInputView.swift#L30))
+- **Dynamic placeholder** changes based on context:
+  - **No city selected**: `"COMMAND_INPUT | Type 'help' or 'list'..."`
+  - **City selected**: `"ATTENDING: CITYNAME | Type 'items' or 'create thought'..."`
+- Shows relevant commands for current context
+- Helps guide users to appropriate actions
+
+**Files Modified**:
+- `TerminalInputView.swift` - Added tab completion, syntax highlighting, context-aware placeholders
+- `TerminalCommandParser.swift` - Added 24 command aliases with expansion logic
+- `SimulatorView.swift` - Added persistent history save/load with UserDefaults
+
+**Testing Results**:
+- ✅ Build succeeds without errors
+- ✅ Tab completion cycles through suggestions correctly
+- ✅ Aliases expand to full commands (e.g., `ls` → `list`)
+- ✅ Syntax highlighting colors update in real-time
+- ✅ Command history persists across app restarts
+- ✅ Placeholder text changes when city is selected
+- ✅ All existing functionality preserved
+
+**What Was Skipped**:
+- Multi-line input support (not needed for current command structure)
+
+**Actual Effort**: ~3 hours
 
 ---
 
@@ -399,7 +520,95 @@ THOUGHT_DISMISSED: ALPHA | 'An idle thought drifts' | The thought fades away.
 
 ---
 
-### ⏳ Phase 6: Terminal Views (Not Started)
+### ✅ Phase 6: Settings Implementation (Complete)
+**Objective**: Connect all settings from Phase 3 and Phase 5 to their intended outcomes
+
+**What Was Implemented**:
+
+#### Terminal Display Settings (Connected)
+1. **terminal.crtEffect** ([TerminalInputView.swift:36](idle_01/ui/terminal/TerminalInputView.swift#L36))
+   - Added CRT flicker effect with random opacity variations (0.95-1.0)
+   - Timer-based flickering every 0.1s when enabled
+   - Applied to entire terminal view via `.opacity()` modifier
+
+2. **terminal.cursorBlink** ([TerminalInputView.swift:217](idle_01/ui/terminal/TerminalInputView.swift#L217))
+   - Cursor respects blink setting from `@AppStorage`
+   - When disabled, cursor stays solid at 0.9 opacity
+   - When enabled, cursor blinks every 0.5 seconds
+   - Modified `startCursorBlink()` to check setting before toggling
+
+3. **terminal.lineSpacing** ([TerminalInputView.swift:129-134](idle_01/ui/terminal/TerminalInputView.swift#L129-L134))
+   - Applied `.lineSpacing()` modifier to output text
+   - Applied as vertical padding between output rows
+   - Range: 1.0-2.0, dynamically updates from `@AppStorage`
+
+#### Simulation Settings (Connected)
+4. **simulation.coherence** ([SimulationEngine.swift:75-78](idle_01/game/SimulationEngine.swift#L75-L78))
+   - City coherence now gravitates toward configured target value
+   - Reads setting: `UserDefaults.standard.double(forKey: "simulation.coherence")`
+   - Converts 0-100% to 0-1 range internally
+   - Affects how city's thoughts align/scatter in consciousness updates
+
+5. **simulation.trustLevel** ([SimulationEngine.swift:87-100](idle_01/game/SimulationEngine.swift#L87-L100))
+   - Trust calculations blend toward configured target
+   - Three modes: active interaction, abandonment decay, idle convergence
+   - Influences city-planner relationship dynamics in mood calculations
+
+6. **simulation.autoSave** ([SimulationEngine.swift:42-44](idle_01/game/SimulationEngine.swift#L42-L44))
+   - Automatically saves model context every 10 ticks when enabled
+   - Prevents data loss during long-running simulations
+   - Configurable via terminal: `set autosave on/off`
+
+7. **simulation.updateInterval** ([SimulationEngine.swift:18-20](idle_01/game/SimulationEngine.swift#L18-L20))
+   - Controls simulation tick speed (100-10000ms)
+   - Converted from milliseconds to nanoseconds for `Task.sleep()`
+   - Default: 1000ms, affects how fast cities evolve
+
+#### Debug Settings (Connected)
+8. **debug.verbose** ([SimulationEngine.swift:37-39](idle_01/game/SimulationEngine.swift#L37-L39))
+   - Controls detailed logging to city log
+   - When enabled, logs every tick with progress
+   - When disabled, only logs major events (reduces log noise)
+
+9. **debug.showStats** ([DebugStatsOverlay.swift:29-35](idle_01/ui/terminal/DebugStatsOverlay.swift#L29-L35))
+   - Created new `DebugStatsOverlay` component
+   - Displays real-time statistics: city count, active cities, avg coherence/trust, total items
+   - Positioned in bottom-right corner with translucent background
+   - Toggleable via `@AppStorage("debug.showStats")`
+
+10. **debug.performance** ([DebugStatsOverlay.swift:37-42](idle_01/ui/terminal/DebugStatsOverlay.swift#L37-L42))
+    - Shows FPS and memory usage metrics
+    - Monitors app performance via `mach_task_basic_info`
+    - Updates every 0.5 seconds
+    - Useful for identifying performance bottlenecks
+
+**Files Created**:
+- `DebugStatsOverlay.swift` - Statistics and performance monitoring overlay
+
+**Files Modified**:
+- `TerminalInputView.swift` - Added CRT effect, cursor blink control, line spacing
+- `SimulationEngine.swift` - Connected coherence, trust, autosave, update interval, verbose logging
+- `SimulatorView.swift` - Integrated DebugStatsOverlay with ZStack
+
+**Integration Points**:
+- All settings use `@AppStorage` for automatic persistence
+- Settings are read from `UserDefaults.standard` in simulation logic
+- UI components reactively update when settings change
+- Terminal commands (Phase 3) and GUI controls (Phase 5) both modify the same storage keys
+
+**Testing Results**:
+- ✅ Build succeeds without errors
+- ✅ All display settings affect terminal appearance
+- ✅ Simulation settings modify city behavior
+- ✅ Debug overlays toggle correctly
+- ✅ Settings persist across app launches
+- ✅ Terminal commands and GUI controls stay in sync
+
+**Actual Effort**: ~2 hours
+
+---
+
+### ⏳ Phase 7: Terminal Views (Not Started)
 **From Design**: `INTERACTIVE_TERMINAL_UI_PLAN.md` - Phases 2-4
 
 **Views to Create**:
@@ -412,7 +621,7 @@ THOUGHT_DISMISSED: ALPHA | 'An idle thought drifts' | The thought fades away.
 
 ---
 
-### ⏳ Phase 7: Polish & Effects (Not Started)
+### ⏳ Phase 8: Polish & Effects (Not Started)
 **From Design**: `INTERACTIVE_TERMINAL_UI_PLAN.md` - Phase 6
 
 **Optional Enhancements**:
@@ -448,12 +657,26 @@ THOUGHT_DISMISSED: ALPHA | 'An idle thought drifts' | The thought fades away.
 - [x] Thought commands require city selection (proper error handling)
 - [x] Item filtering works (by type and status)
 - [x] Autocomplete suggestions include thought commands
+- [x] **Settings commands work (all 11 settings)** ✨ NEW
+- [x] **CRT effect toggles and flickers correctly** ✨ NEW
+- [x] **Cursor blink can be toggled** ✨ NEW
+- [x] **Line spacing affects terminal output** ✨ NEW
+- [x] **Simulation coherence gravitates toward target** ✨ NEW
+- [x] **Trust level affects city behavior** ✨ NEW
+- [x] **Auto-save persists data during simulation** ✨ NEW
+- [x] **Update interval controls simulation speed** ✨ NEW
+- [x] **Verbose logging controls log detail** ✨ NEW
+- [x] **Stats overlay displays accurate metrics** ✨ NEW
+- [x] **Performance monitor shows FPS and memory** ✨ NEW
+- [x] **Settings GUI and terminal commands stay in sync** ✨ NEW
+- [x] **Tab completion cycles through suggestions** ✨ PHASE 4
+- [x] **Command aliases expand correctly (ls → list)** ✨ PHASE 4
+- [x] **Syntax highlighting colors commands in real-time** ✨ PHASE 4
+- [x] **Command history persists across app restarts** ✨ PHASE 4
+- [x] **Context-aware placeholder updates with city selection** ✨ PHASE 4
 
 ### ⏳ Remaining Tests
 - [ ] Test with large number of cities and items (performance)
-- [ ] Test settings commands (when implemented)
-- [ ] Test tab completion (when implemented)
-- [ ] Test persistent command history (when implemented)
 - [ ] Accessibility testing (keyboard navigation)
 - [ ] Long command text handling
 - [ ] Multi-line output formatting
@@ -520,13 +743,16 @@ idle_01/
 │   │   │   └── TerminalDivider.swift         [NEW Phase 5] ✅
 │   │   ├── TerminalCommandParser.swift       [NEW Phase 1, MODIFIED Phase 2] ✅
 │   │   ├── TerminalCommandBar.swift          [DEPRECATED] ⚠️
-│   │   ├── TerminalInputView.swift           [NEW Phase 1.5, MODIFIED Phase 2] ✅
+│   │   ├── TerminalInputView.swift           [NEW Phase 1.5, MODIFIED Phase 2, 6] ✅
 │   │   ├── TerminalHelpView.swift            [NEW Phase 2.0] ✅
 │   │   ├── TerminalSettingsView.swift        [NEW Phase 5] ✅
-│   │   └── TerminalCommandExecutor.swift     [NEW Phase 1, MODIFIED Phase 2] ✅
-│   ├── SimulatorView.swift                   [MODIFIED Phase 5] ✅
+│   │   ├── TerminalCommandExecutor.swift     [NEW Phase 1, MODIFIED Phase 2] ✅
+│   │   └── DebugStatsOverlay.swift           [NEW Phase 6] ✅
+│   ├── SimulatorView.swift                   [MODIFIED Phase 5, 6] ✅
 │   └── GlobalDashboardView.swift             [UNCHANGED]
-└── TERMINAL_IMPLEMENTATION_PROGRESS.md       [MODIFIED Phase 5] ✅
+├── game/
+│   └── SimulationEngine.swift                [MODIFIED Phase 6] ✅
+└── TERMINAL_IMPLEMENTATION_PROGRESS.md       [MODIFIED Phase 5, 6] ✅
 ```
 
 **Note**: `TerminalCommandBar.swift` is still present but no longer used. It can be removed in a future cleanup. The functionality has been moved to `TerminalInputView.swift` with improvements.
@@ -625,16 +851,17 @@ private func handleNewCommand(parameter: String) -> CommandOutput {
 ## Performance Notes
 
 - Command parsing is **O(1)** for verb lookup
+- Alias expansion is **O(1)** dictionary lookup
 - City lookup by index is **O(n)** where n = number of cities
 - City lookup by name is **O(n)** with case-insensitive comparison
 - Output history is limited to 50 commands (automatically trimmed)
-- Command history is unlimited (in-memory only, not persisted yet)
+- Command history persists last 100 commands to UserDefaults ✅
 
 **Optimization Opportunities** (if needed later):
 - Cache city indices for faster lookup
 - Use dictionary for name-based city lookup
-- Persist command history to UserDefaults
 - Implement pagination for large output logs
+- Optimize syntax highlighting for very long commands
 
 ---
 
@@ -651,21 +878,25 @@ private func handleNewCommand(parameter: String) -> CommandOutput {
    - Settings view with @AppStorage integration
    - Ready for Phase 3 terminal commands
 
-3. ⏳ **Phase 3: Settings Commands** (1-2 hours) - NEXT
-   - Implement terminal commands to modify same @AppStorage keys
-   - `set coherence 0.8`, `set crt on/off`, etc.
-   - Both GUI and terminal will work together
+3. ✅ **Phase 3: Settings Commands** (2 hours) - COMPLETE
+   - Terminal commands modify same @AppStorage keys
+   - `set coherence 75`, `set crt on/off`, etc.
+   - Both GUI and terminal work together seamlessly
+   - 11 settings commands with validation and poetic feedback
 
-4. **Phase 4: Advanced Features** (3-4 hours)
-   - Polish and user experience
-   - Tab completion most important
+4. ✅ **Phase 4: Advanced Features** (3 hours) - COMPLETE
+   - Tab completion with cycling
+   - 24 command aliases
+   - Real-time syntax highlighting
+   - Persistent command history
+   - Context-aware placeholders
 
-5. **Phase 6: Terminal Views** (12-18 hours)
+5. ⏳ **Phase 7: Terminal Views** (12-18 hours) - NEXT
    - Major UI transformation
    - Requires more design work
    - Could be split into multiple sessions
 
-6. **Phase 7: Polish & Effects** (4-6 hours)
+6. **Phase 8: Polish & Effects** (4-6 hours)
    - Optional visual enhancements
    - Should be last priority
 
@@ -673,21 +904,27 @@ private func handleNewCommand(parameter: String) -> CommandOutput {
 
 ## Conclusion
 
-**Phase 5 (Terminal UI Components) is complete and fully functional!** 🎉
+**Phase 4 (Advanced Features) is complete and fully functional!** 🎉
 
-The terminal system now has a complete dual-interface architecture:
+The terminal system now has a complete dual-interface architecture with advanced power-user features:
 
-### Command Line Interface (Phases 1-2):
+### Command Line Interface (Phases 1-4):
 - ✅ **Complete city management** - create, list, select, start/stop, delete cities
 - ✅ **Full thought/item management** - create, list, respond, dismiss thoughts
+- ✅ **Complete settings control** - 11 settings commands for display/simulation/debug
 - ✅ **Poetic command alternatives** - technical and contemplative syntax options
 - ✅ **Visual indicators** - type icons (◆ ? ~ !) and status markers (✓ ○)
 - ✅ **Context-aware execution** - works with selected city or explicit targeting
 - ✅ **SwiftData integration** - full persistence for all operations
-- ✅ **Help system** - comprehensive command reference
-- ✅ **Autocomplete** - suggestions for all commands
-- ✅ **Error handling** - clear, poetic error messages
-- ✅ **Command history** - navigate with ↑/↓ arrows
+- ✅ **@AppStorage integration** - settings sync with GUI controls
+- ✅ **Help system** - comprehensive command reference including settings
+- ✅ **Autocomplete** - suggestions for all commands including settings
+- ✅ **Error handling** - clear, poetic error messages with validation
+- ✅ **Command history** - navigate with ↑/↓ arrows, persists across sessions
+- ✅ **Tab completion** - cycle through suggestions with Tab key ✨ NEW
+- ✅ **Command aliases** - 24 Unix-style shortcuts (ls, rm, cd, etc.) ✨ NEW
+- ✅ **Syntax highlighting** - real-time color coding for commands ✨ NEW
+- ✅ **Context-aware UI** - placeholder text changes based on selection ✨ NEW
 - ✅ **Feature flag** - toggle terminal UI on/off
 
 ### Graphical Interface (Phase 5):
@@ -698,6 +935,16 @@ The terminal system now has a complete dual-interface architecture:
 - ✅ **ASCII-styled controls** - All components match terminal aesthetic
 - ✅ **Mouse-friendly** - Point-and-click alternative to terminal commands
 
+### What Was Added in Phase 3:
+1. **11 Settings Commands**: Complete control over display, simulation, and debug settings
+2. **Dual-Interface Integration**: Terminal commands modify same `@AppStorage` keys as GUI controls
+3. **Flexible Boolean Parsing**: on/off, true/false, yes/no, 1/0, enabled/disabled
+4. **Range Validation**: Numeric values validated against acceptable ranges
+5. **Multiple Aliases**: e.g., "font" or "fontsize", "stats" or "showstats"
+6. **Poetic Feedback**: Settings changes have thematic output messages
+7. **Updated Help Text**: Settings section added to terminal help command
+8. **Autocomplete Support**: All settings commands included in suggestions
+
 ### What Was Added in Phase 5:
 1. **TerminalToggle**: ON/OFF switches with ASCII brackets `[ON ]` / `[OFF]`
 2. **TerminalSlider**: Value adjusters with ASCII progress bars `[████████░░░░]`
@@ -706,7 +953,14 @@ The terminal system now has a complete dual-interface architecture:
 5. **TerminalDivider**: Section separators (solid/dashed/dotted styles)
 6. **TerminalSettingsView**: Full settings interface with 11 configurable settings
 7. **Help/Settings Toggle**: Button to switch between views in detail column
-8. **@AppStorage Keys**: 11 persistent settings ready for terminal command integration
+8. **@AppStorage Keys**: 11 persistent settings that work with Phase 3 commands
+
+### What Was Added in Phase 4:
+1. **Tab Completion**: Press Tab to cycle through command suggestions
+2. **Command Aliases**: 24 Unix-style shortcuts (ls, rm, cd, etc.)
+3. **Syntax Highlighting**: Real-time color coding with AttributedString
+4. **Persistent History**: Last 100 commands saved to UserDefaults
+5. **Context-Aware Placeholders**: Dynamic hints based on city selection
 
 ### Evolution Timeline:
 - **Phase 1**: Terminal as bottom bar across entire app ✅
@@ -714,24 +968,27 @@ The terminal system now has a complete dual-interface architecture:
 - **Phase 2.0**: Terminal in middle column (optimal layout) ✅
 - **Phase 2**: Thought/Item Management commands ✅
 - **Phase 5**: Terminal UI Components & Settings View ✅
+- **Phase 3**: Settings Commands with dual-interface integration ✅
+- **Phase 6**: Settings Implementation (connected to simulation) ✅
+- **Phase 4**: Advanced Features (tab completion, aliases, highlighting) ✅
 
 ### Next Recommended Phase:
-**Phase 3: Settings & Configuration Commands** (1-2 hours)
-- `set coherence 0.8` - Modify simulation.coherence @AppStorage
-- `set trust 0.5` - Modify simulation.trustLevel @AppStorage
-- `set crt on/off` - Modify terminal.crtEffect @AppStorage
-- `set font 12` - Modify terminal.fontSize @AppStorage
-- Both GUI toggles/sliders and terminal commands will modify the same shared state!
+**Phase 7: Terminal Views** (12-18 hours)
+- `TerminalCityListView` - Replace current `CityListView`
+- `TerminalCityDetailView` - Replace current `CityView`
+- `TerminalItemDetailView` - Replace current `DetailView`
+- Simplify `GlobalDashboardView` (remove version tabs)
+- Major UI transformation with consistent terminal aesthetic
 
 Users now have **two ways to interact** with the system:
-1. **Power users**: Type commands in terminal (fast, scriptable)
+1. **Power users**: Type commands in terminal (fast, scriptable, with shortcuts and completion)
 2. **Casual users**: Click toggles/sliders in settings view (discoverable, visual)
 
-Both interfaces are production-ready and demonstrate how a contemplative game can embrace retro terminal aesthetics while providing modern GUI accessibility.
+Both interfaces are production-ready and demonstrate how a contemplative game can embrace retro terminal aesthetics while providing modern GUI accessibility. **Phase 4 adds power-user features** - making the terminal truly efficient for experienced users while maintaining the poetic, contemplative atmosphere.
 
 ---
 
-**IMPLEMENTATION_STATUS: PHASE_5_COMPLETE**
-**NEXT_PHASE: SETTINGS_COMMANDS (Phase 3)**
-**TOTAL_EFFORT: ~7_HOURS (Phase 1: ~3h, Phase 2: ~2h, Phase 5: ~2h)**
+**IMPLEMENTATION_STATUS: PHASE_4_COMPLETE**
+**NEXT_PHASE: TERMINAL_VIEWS (Phase 7)**
+**TOTAL_EFFORT: ~14_HOURS (Phase 1: ~3h, Phase 2: ~2h, Phase 3: ~2h, Phase 4: ~3h, Phase 5: ~2h, Phase 6: ~2h)**
 **// █**
