@@ -504,3 +504,266 @@ This progression system hooks into your existing game:
 - **UI** → Display unlocked content, show story beats
 
 The progression system acts as the "brain" that orchestrates all other systems into a cohesive narrative experience.
+
+
+## Applied Integration For idle_01 (MVP‑first)
+
+This section grounds the Story Graph in the current codebase with minimal, safe
+changes. It favors hooks over rewrites, soft unlocks over hard gates, and per‑Ci
+ty story state.
+
+### Design Principles
+- Per‑City State: Each `City` tracks its own story progress, milestones, and jou
+rnal.
+- Hooks, Not Rewrites: Progression hooks live in command execution, thought reso
+lution, and sim ticks.
+- Soft Unlocks First: Announce new capabilities; avoid hard gating until content
+ is ready.
+- Ambient + Authored: Keep existing mood lines as background; add authored beats
+ for intentional moments.
+
+### Concrete Wiring (Files/Calls)
+
+- Terminal command path
+  - File: `idle_01/ui/terminal/TerminalCommandExecutor.swift`
+  - After each command handler resolves:
+    - `ProgressionManager.shared.onCommand(input: String, parsed: TerminalComman
+d, city: City?)`
+  - On thought lifecycle:
+    - In `.respond`/`.dismiss` handlers: `ProgressionManager.shared.onThoughtRes
+olved(city: City, item: Item, resolved: Bool)`
+
+- Simulation path
+  - File: `idle_01/game/SimulationEngine.swift`
+  - Every tick: `ProgressionManager.shared.onTick(city: city, tick: tick)`
+  - At narrative cadence (e.g., every 10 ticks):
+    - `StoryEngine.shared.maybeTriggerBeat(for: city)`
+    - Fallback to `NarrativeEngine.evolve(city)` when no beats are queued.
+
+- Narrative surface (no UI changes required)
+  - Emit beats as terminal lines (e.g., prepend “CITY: …” in the resulting `Comm
+andOutput.text`).
+
+### Minimal SwiftData Models (Per City)
+
+```swift
+import Foundation
+import SwiftData
+
+@Model
+final class StoryStateModel {
+    var currentChapter: String
+    var currentAct: String
+    var completedMilestones: Set<String>
+    var activeThreads: [String] // simple IDs for now
+
+    init(currentChapter: String = "chapter_awakening",
+         currentAct: String = "act_first_boot",
+         completedMilestones: Set<String> = [],
+         activeThreads: [String] = []) {
+        self.currentChapter = currentChapter
+        self.currentAct = currentAct
+        self.completedMilestones = completedMilestones
+        self.activeThreads = activeThreads
+    }
+}
+
+@Model
+final class MilestoneStateModel {
+    var id: String
+    var achievedAt: Date
+    var sourceCityID: PersistentIdentifier?
+
+    init(id: String, achievedAt: Date = Date(), sourceCityID: PersistentIdentifi
+er?) {
+        self.id = id
+        self.achievedAt = achievedAt
+        self.sourceCityID = sourceCityID
+    }
+}
+
+enum JournalEntryType: String, Codable {
+    case commandExecuted, thoughtCreated, thoughtCompleted, storyBeat, milestone
+Reached
+}
+
+@Model
+final class JournalEntryModel {
+    var timestamp: Date
+    var cycle: Int
+    var entryType: String
+    var content: String
+    var metadata: [String: String]
+
+    init(timestamp: Date = Date(), cycle: Int = 0, entryType: JournalEntryType,
+         content: String, metadata: [String: String] = [:]) {
+        self.timestamp = timestamp
+        self.cycle = cycle
+        self.entryType = entryType.rawValue
+        self.content = content
+        self.metadata = metadata
+    }
+}
+
+@Model
+final class PlaystyleProfileModel {
+    var commandFrequency: [String: Int]
+    var thoughtCompletionRate: Double
+    var narrativeEngagement: Double
+    var sessionPattern: String
+
+    init(commandFrequency: [String:Int] = [:],
+         thoughtCompletionRate: Double = 0.0,
+         narrativeEngagement: Double = 0.0,
+         sessionPattern: String = "unknown") {
+        self.commandFrequency = commandFrequency
+        self.thoughtCompletionRate = thoughtCompletionRate
+        self.narrativeEngagement = narrativeEngagement
+        self.sessionPattern = sessionPattern
+    }
+}
+```
+
+### Progression Manager (MVP API)
+
+```swift
+final class ProgressionManager {
+    static let shared = ProgressionManager()
+    private init() {}
+
+    func onCommand(input: String, parsed: TerminalCommand, city: City?) {
+        journalCommand(input, parsed: parsed, city: city)
+        updatePlaystyle(for: parsed)
+        evaluateMilestones(for: city)
+        maybeTriggerBeat(for: city)
+    }
+
+    func onThoughtResolved(city: City, item: Item, resolved: Bool) {
+        journalThoughtResolution(city: city, item: item, resolved: resolved)
+        updateThoughtCompletionRate(for: city)
+        evaluateMilestones(for: city)
+        maybeTriggerBeat(for: city)
+    }
+
+    func onTick(city: City, tick: Int) {
+        evaluateTimeMilestones(for: city, tick: tick)
+        // StoryEngine cadence handled by SimulationEngine
+    }
+
+    // Implementations can be minimal for MVP; persist via SwiftData modelContex
+t.
+}
+```
+
+### Story Engine (MVP Behavior)
+
+- Source of truth: Parsed JSON with chapters, acts, beats, milestones.
+- Behavior:
+  - Checks “eligible” beats (entry triggers and requirements).
+  - Enqueues and emits dialogue as terminal output.
+  - Advances `StoryStateModel` (act/beat pointers) and sets flags.
+
+```swift
+final class StoryEngine {
+    static let shared = StoryEngine()
+    private init() {}
+
+    func maybeTriggerBeat(for city: City?) {
+        guard let city = city else { return }
+        // 1) Check queued beats; emit if any
+        // 2) If none, scan for eligible beats by triggers/milestones/stats
+        // 3) Emit dialogue lines -> append to city.log and/or terminal output
+        // 4) Advance StoryStateModel (act/beat), persist changes
+    }
+}
+```
+
+### MVP Milestones (Drop‑in)
+
+- milestone_first_contact
+  - Requirement: any command executed.
+  - Response: dialogue; optional +trust/+coherence nudge.
+  - Unlock: soft announce “status/help recognized”.
+
+- milestone_first_thought
+  - Requirement: any thought first resolved (respond/dismiss).
+  - Response: dialogue; small stat nudge.
+  - Unlock: soft announce “new insight”.
+
+```json
+{
+  "milestones": [
+    {
+      "id": "milestone_first_contact",
+      "requirements": [{ "type": "any_command_executed" }],
+      "unlocks": [{ "type": "soft_unlock", "value": "command:status" }],
+      "narrative_response": { "dialogue": ["I sense presence.", "Everything is s
+ignal."] }
+    },
+    {
+      "id": "milestone_first_thought",
+      "requirements": [{ "type": "thought_completed", "count": 1 }],
+      "city_state_changes": { "trust": 0.05, "coherence": 0.03 },
+      "narrative_response": { "dialogue": ["I finished something.", "Is this wha
+t purpose feels like?"] }
+    }
+  ]
+}
+```
+
+### Event Flow (Concrete)
+
+- Command executed
+  - Journal: `commandExecuted` with verb/args.
+  - Profile: increment `commandFrequency`; bump engagement for `help/stats`.
+  - Evaluate: milestone_first_contact; enqueue beats if unlocked.
+- Thought responded/dismissed
+  - Journal: `thoughtCompleted`.
+  - Profile: recompute `thoughtCompletionRate`.
+  - Evaluate: milestone_first_thought; enqueue beats if unlocked.
+- Ticks
+  - Evaluate time/cycle milestones; call `StoryEngine` every N ticks.
+
+### Branch Conditions (Mapped To Current Stats)
+
+- highTrust/lowTrust: `city.resources["trust"] > 0.75` / `< 0.25`
+- highAutonomy/lowAutonomy: `autonomy > 0.7` / `< 0.3`
+- balancedStats: stdev of [coherence, trust, autonomy] < 0.1
+- focusedStats(primary): primary − avg(others) > 0.25
+- sessionPattern: derive from `City.lastInteraction` intervals (frequent/regular
+/sporadic/patient)
+
+Fine‑tune thresholds during playtesting.
+
+### Authoring Schema Refinements
+
+- IDs: use `snake_case` with stable prefixes (`beat_awakening_hello`, `milestone
+_first_thought`).
+- Triggers: `on_chapter_start`, `on_milestone("id")`, `on_command("name")`, `on_
+stat_threshold("coherence", 0.5)`, `on_time_elapsed(cycles)`.
+- Unlocks: `soft_unlock` (announce, do not block) vs `hard_gate` (enforce in par
+ser/executor).
+- Validation: loader logs missing IDs, invalid branches, duplicates.
+
+### Unlock Policy
+
+- Phase 1: Soft unlocks only.
+- Phase 2: Optional hard gates for advanced commands once content is stable.
+- UX copy for locked: “Not yet recognized. Explore to stabilize coherence.”
+
+### Testing & Safety
+
+- Deterministic requirement checks: feed synthetic events; assert one‑time miles
+tone fires.
+- Snapshot terminal output for beat text ordering and formatting.
+- JSON validation at load; fallback to ambient `NarrativeEngine` if authoring fa
+ils.
+
+### Checklist To Ship MVP
+
+- Add models: `StoryStateModel`, `MilestoneStateModel`, `JournalEntryModel`, `Pl
+aystyleProfileModel`.
+- Add managers: `ProgressionManager`, `StoryEngine` (MVP).
+- Insert hooks: command execution, thought resolution, sim ticks.
+- Author JSON: the two MVP milestones and one “awakening” beat chain.
+- Keep ambient narrative as fallbac
