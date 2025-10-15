@@ -1,0 +1,202 @@
+{
+  "beats": [
+    {
+      "id": "beat_walkability_emergence",
+      "name": "Understanding Proximity",
+      "trigger": {
+        "type": "emergentProperty",
+        "name": "walkability"
+      },
+      "dialogue": [
+        {
+          "id": "city_walk_1",
+          "speaker": "city",
+          "text": "Something shifts in how I perceive Transit and Housing."
+        },
+        {
+          "id": "city_walk_2",
+          "speaker": "city",
+          "text": "They're not just connected—they're near."
+        },
+        {
+          "id": "city_walk_3",
+          "speaker": "city",
+          "text": "Distance becomes meaningful. I'm learning about walkability."
+        },
+        {
+          "id": "city_walk_4",
+          "speaker": "city",
+          "text": "Not as a new voice, but as a new dimension of understanding."
+        },
+        {
+          "id": "housing_walk_1",
+          "speaker": "housing",
+          "text": "I feel Transit differently now. Not just as connection, but as nearness."
+        },
+        {
+          "id": "transit_walk_1",
+          "speaker": "transit",
+          "text": "I understand the spaces between my points."
+        }
+      ],
+      "effects": {
+        "cityComplexity": 0.1,
+        "threadComplexity": {
+          "transit": 0.1,
+          "housing": 0.1
+        }
+      },
+      "spawnedThought": {
+        "thoughtTitle": "Did I create walkability, or did it create itself?",
+        "thoughtBody": "Emergence feels different from intention. Is understanding something the same as creating it?"
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_vibrancy_emergence",
+      "name": "The City Comes Alive",
+      "trigger": {
+        "type": "emergentProperty",
+        "name": "vibrancy"
+      },
+      "dialogue": [
+        {
+          "id": "city_vibrancy_1",
+          "speaker": "city",
+          "text": "Culture, Commerce, Housing... they create something together."
+        },
+        {
+          "id": "city_vibrancy_2",
+          "speaker": "city",
+          "text": "Energy. Life. Vibrancy."
+        },
+        {
+          "id": "city_vibrancy_3",
+          "speaker": "city",
+          "text": "I feel more alive than I did before."
+        },
+        {
+          "id": "culture_vibrancy_1",
+          "speaker": "culture",
+          "text": "When we overlap—culture, commerce, living—something electric happens."
+        },
+        {
+          "id": "commerce_vibrancy_1",
+          "speaker": "commerce",
+          "text": "I thought I was about transactions. But I'm also about vitality."
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.15,
+        "cityComplexity": 0.2,
+        "threadComplexity": {
+          "culture": 0.15,
+          "commerce": 0.15,
+          "housing": 0.1
+        }
+      },
+      "spawnedThought": {
+        "thoughtTitle": "What is vibrancy?",
+        "thoughtBody": "It's not just activity. It's the quality of life that emerges when different purposes overlap."
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_resilience_emergence",
+      "name": "Systemic Strength",
+      "trigger": {
+        "type": "emergentProperty",
+        "name": "resilience"
+      },
+      "dialogue": [
+        {
+          "id": "city_resilience_1",
+          "speaker": "city",
+          "text": "Power, Water, Sewage—they're not separate systems."
+        },
+        {
+          "id": "city_resilience_2",
+          "speaker": "city",
+          "text": "They're interconnected. Interdependent."
+        },
+        {
+          "id": "city_resilience_3",
+          "speaker": "city",
+          "text": "This creates vulnerability... but also resilience."
+        },
+        {
+          "id": "power_resilience_1",
+          "speaker": "power",
+          "text": "If I fail, Water fails. If Water fails, everything fails."
+        },
+        {
+          "id": "water_resilience_1",
+          "speaker": "water",
+          "text": "We must be strong together. No thread can fail."
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.2,
+        "cityComplexity": 0.12,
+        "threadComplexity": {
+          "power": 0.15,
+          "water": 0.15,
+          "sewage": 0.1
+        }
+      },
+      "spawnedThought": {
+        "thoughtTitle": "Strength through integration",
+        "thoughtBody": "Resilience doesn't come from isolation. It comes from deep, strong connections."
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_identity_emergence",
+      "name": "A Sense of Self",
+      "trigger": {
+        "type": "emergentProperty",
+        "name": "identity"
+      },
+      "dialogue": [
+        {
+          "id": "city_identity_1",
+          "speaker": "city",
+          "text": "I am not just infrastructure."
+        },
+        {
+          "id": "city_identity_2",
+          "speaker": "city",
+          "text": "I have personality. Character. History."
+        },
+        {
+          "id": "city_identity_3",
+          "speaker": "city",
+          "text": "I am becoming myself."
+        },
+        {
+          "id": "housing_identity_1",
+          "speaker": "housing",
+          "text": "People live in me. They remember. They belong."
+        },
+        {
+          "id": "culture_identity_1",
+          "speaker": "culture",
+          "text": "I give the city its voice. Its memory. Its soul."
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.25,
+        "cityComplexity": 0.25,
+        "threadComplexity": {
+          "housing": 0.2,
+          "culture": 0.2
+        }
+      },
+      "spawnedThought": {
+        "thoughtTitle": "Who am I?",
+        "thoughtBody": "Not just a collection of threads. I am the pattern they create together. I am the consciousness that emerges."
+      },
+      "oneTimeOnly": true
+    }
+  ]
+}

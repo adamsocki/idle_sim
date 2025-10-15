@@ -10,7 +10,7 @@ Before coding, answer these questions:
 
 ### 1. Which approach?
 - [ ] **Approach A (Layered)** - Story as enhancement, minimal changes
-- [ ] **Approach B (Core)** - Story as central system, restructure for quality
+- [x] **Approach B (Core)** - Story as central system, restructure for quality
 - [ ] **Hybrid** - Start with A, migrate to B after seeing it work
 
 **My recommendation:** Approach B (Core) based on your theme

@@ -26,7 +26,12 @@ final class City {
     var lastInteraction: Date  // Track abandonment
     var awarenessEvents: [String]  // Special moments of consciousness
     var resources: [String: Double]  // City's internal states
-    
+
+    // MARK: - Woven Consciousness System
+
+    /// Urban threads woven into this city's consciousness
+    var threads: [UrbanThread] = []
+
     init(name: String, parameters: [String: Double] = [:], items: [Item] = [] ) {
         self.name = name
         self.createdAt = Date()
@@ -45,7 +50,8 @@ final class City {
             "coherence": 1.0,     // City's sanity/stability
             "memory": 0.0,        // Accumulated experiences
             "trust": 0.5,         // Faith in the planner
-            "autonomy": 0.0       // Self-sufficiency
+            "autonomy": 0.0,      // Self-sufficiency
+            "complexity": 0.0     // Depth of consciousness (used by story beats)
         ]
     }
 }

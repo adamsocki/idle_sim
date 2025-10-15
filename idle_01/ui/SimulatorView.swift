@@ -177,17 +177,43 @@ struct SimulatorView: View {
         let commandEcho = CommandOutput(text: "> \(command)", isError: false)
         outputHistory.append(commandEcho)
 
-        // Execute command and append result
-        let result = executor.execute(command, selectedCityID: &selectedCityID)
-        outputHistory.append(result)
+        // Check if this is a weave command (needs async handling)
+        let components = command.split(separator: " ").map { String($0) }
+        if let firstWord = components.first?.lowercased(),
+           (firstWord == "weave" || firstWord == "thread") && components.count > 1 {
+            let threadType = components[1]
 
-        // Limit output history to last 50 commands
-        if outputHistory.count > 50 {
-            outputHistory = Array(outputHistory.suffix(50))
+            // Execute async and append results
+            Task { @MainActor in
+                let results = await executor.executeWeaveThreadAsync(
+                    type: threadType,
+                    selectedCityID: selectedCityID
+                )
+
+                for result in results {
+                    outputHistory.append(result)
+                }
+
+                // Limit output history to last 50 commands
+                if outputHistory.count > 50 {
+                    outputHistory = Array(outputHistory.suffix(50))
+                }
+
+                saveCommandHistory()
+            }
+        } else {
+            // Execute command synchronously and append result
+            let result = executor.execute(command, selectedCityID: &selectedCityID)
+            outputHistory.append(result)
+
+            // Limit output history to last 50 commands
+            if outputHistory.count > 50 {
+                outputHistory = Array(outputHistory.suffix(50))
+            }
+
+            // Save command history
+            saveCommandHistory()
         }
-
-        // Save command history
-        saveCommandHistory()
     }
 
     // MARK: - Command History Persistence

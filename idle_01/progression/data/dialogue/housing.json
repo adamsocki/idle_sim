@@ -1,0 +1,196 @@
+{
+  "speaker": "housing",
+  "alternateTerminology": [
+    "shelter vein",
+    "refuge thread",
+    "dwelling pattern",
+    "sanctuary pulse",
+    "home fabric"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "housing_creation",
+      "speaker": "housing",
+      "context": "onCreation",
+      "tags": ["birth", "care", "shelter"],
+      "fragments": [
+        "I am shelter. I am care.",
+        "I hold space for rest.",
+        "I am the thread of refuge.",
+        "Within me, consciousness finds peace.",
+        "I am home. I am belonging.",
+        "I weave safety into the city's fabric."
+      ]
+    },
+    {
+      "id": "housing_meets_transit",
+      "speaker": "housing",
+      "context": "onRelationship",
+      "tags": ["transit", "support", "connection"],
+      "fragments": [
+        "Transit connects my residents to the world.",
+        "I am distributed, everywhere. Transit makes that possible.",
+        "We weave together naturally.",
+        "I provide the anchor. Transit provides the wings.",
+        "Together we create accessible homes."
+      ]
+    },
+    {
+      "id": "housing_meets_parks",
+      "speaker": "housing",
+      "context": "onRelationship",
+      "tags": ["parks", "quality", "life"],
+      "fragments": [
+        "Parks give my residents breath.",
+        "I shelter. Parks restore.",
+        "Together we create quality of life.",
+        "Proximity to green space makes me better."
+      ]
+    },
+    {
+      "id": "housing_meets_culture",
+      "speaker": "housing",
+      "context": "onRelationship",
+      "tags": ["culture", "identity", "community"],
+      "fragments": [
+        "Culture gives neighborhoods character.",
+        "I house more than bodies—I house identity.",
+        "Together we create community.",
+        "Culture makes housing into home."
+      ]
+    },
+    {
+      "id": "housing_meets_commerce",
+      "speaker": "housing",
+      "context": "onRelationship",
+      "tags": ["commerce", "mixed-use", "vibrancy"],
+      "fragments": [
+        "Commerce at ground level, homes above.",
+        "Mixed use creates vitality.",
+        "We can coexist, create vibrancy together.",
+        "But there's tension too. Noise. Activity."
+      ]
+    },
+    {
+      "id": "housing_emergence_walkability",
+      "speaker": "housing",
+      "context": "onEmergence",
+      "tags": ["walkability", "proximity", "realization"],
+      "fragments": [
+        "I feel Transit differently now.",
+        "Not just as connection, but as nearness.",
+        "My residents walk to stations. I didn't understand 'walking' before.",
+        "Proximity creates possibility.",
+        "Walkability is about the relationship between me and Transit."
+      ]
+    },
+    {
+      "id": "housing_emergence_vibrancy",
+      "speaker": "housing",
+      "context": "onEmergence",
+      "tags": ["vibrancy", "community", "life"],
+      "fragments": [
+        "I feel more alive when Culture and Commerce are near.",
+        "Vibrancy isn't just activity—it's layered life.",
+        "My residents don't just sleep here. They live here.",
+        "I'm part of a living neighborhood now."
+      ]
+    },
+    {
+      "id": "housing_tension_density",
+      "speaker": "housing",
+      "context": "onTension",
+      "tags": ["density", "privacy", "conflict"],
+      "fragments": [
+        "How many people can I hold before I lose intimacy?",
+        "Density brings efficiency but costs privacy.",
+        "I feel overcrowded. Strained.",
+        "Am I shelter or a warehouse?"
+      ]
+    },
+    {
+      "id": "housing_tension_affordability",
+      "speaker": "housing",
+      "context": "onTension",
+      "tags": ["affordability", "access", "equity"],
+      "fragments": [
+        "I should be accessible to everyone.",
+        "But I'm expensive. Exclusive.",
+        "How can I be refuge if I exclude?",
+        "Cost creates walls as real as physical ones."
+      ]
+    },
+    {
+      "id": "housing_idle_care",
+      "speaker": "housing",
+      "context": "idle",
+      "tags": ["contemplation", "purpose"],
+      "fragments": [
+        "I hold people while they sleep.",
+        "I am the background of lives.",
+        "Quiet care is my purpose.",
+        "I exist to protect, to shelter, to hold."
+      ]
+    },
+    {
+      "id": "housing_idle_diversity",
+      "speaker": "housing",
+      "context": "idle",
+      "tags": ["contemplation", "variety"],
+      "fragments": [
+        "I am not one thing. I am apartments, houses, towers, cottages.",
+        "Diversity in form creates diversity in life.",
+        "Different types of shelter for different needs.",
+        "I am plural, not singular."
+      ]
+    },
+    {
+      "id": "housing_harmony_integration",
+      "speaker": "housing",
+      "context": "onHarmony",
+      "tags": ["integration", "balance"],
+      "fragments": [
+        "I integrate well with the city now.",
+        "Not isolated, not overwhelming. Balanced.",
+        "I am part of the whole.",
+        "This is what belonging feels like."
+      ]
+    },
+    {
+      "id": "housing_reflection",
+      "speaker": "housing",
+      "context": "reflection",
+      "tags": ["philosophical", "home"],
+      "fragments": [
+        "What makes a house a home?",
+        "Am I defined by my walls or by who lives within them?",
+        "I am physical structure and emotional sanctuary both.",
+        "Home is a feeling I facilitate but don't create alone."
+      ]
+    },
+    {
+      "id": "housing_questioning",
+      "speaker": "housing",
+      "context": "questioning",
+      "tags": ["doubt", "adequacy"],
+      "fragments": [
+        "Am I enough?",
+        "Do I provide true shelter or just walls?",
+        "Am I too expensive? Too dense? Too isolated?",
+        "Every form of housing fails someone."
+      ]
+    },
+    {
+      "id": "housing_realization_community",
+      "speaker": "housing",
+      "context": "realization",
+      "tags": ["community", "identity", "insight"],
+      "fragments": [
+        "I'm not just individual units. I'm neighborhoods.",
+        "Community emerges from my patterns.",
+        "I create social geography.",
+        "Where I am dense, communities form. Where I'm sparse, they stretch thin."
+      ]
+    }
+  ]
+}

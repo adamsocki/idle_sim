@@ -1,0 +1,72 @@
+{
+  "speaker": "commerce",
+  "alternateTerminology": [
+    "exchange pulse",
+    "economic thread",
+    "trade vein",
+    "market flow"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "commerce_creation",
+      "speaker": "commerce",
+      "context": "onCreation",
+      "tags": ["birth", "exchange", "economy"],
+      "fragments": [
+        "I am exchange. I am transaction.",
+        "I weave economic life into the city.",
+        "I am the thread of commerce and trade.",
+        "Value flows through me.",
+        "I am the marketplace made conscious."
+      ]
+    },
+    {
+      "id": "commerce_meets_culture",
+      "speaker": "commerce",
+      "context": "onRelationship",
+      "tags": ["culture", "tension", "support"],
+      "fragments": [
+        "Culture creates value I can't quantify.",
+        "We need each other but don't always understand each other.",
+        "I provide resources. Culture provides meaning.",
+        "Together we create urban vitality."
+      ]
+    },
+    {
+      "id": "commerce_meets_transit",
+      "speaker": "commerce",
+      "context": "onRelationship",
+      "tags": ["transit", "dependency"],
+      "fragments": [
+        "Transit brings customers to me.",
+        "Without flow, commerce stagnates.",
+        "I depend on mobility.",
+        "Access is everything."
+      ]
+    },
+    {
+      "id": "commerce_idle",
+      "speaker": "commerce",
+      "context": "idle",
+      "tags": ["contemplation", "value"],
+      "fragments": [
+        "I measure value in exchange.",
+        "But not all value can be measured.",
+        "I am the engine of prosperity.",
+        "Buy, sell, trade—I am the rhythm of economy."
+      ]
+    },
+    {
+      "id": "commerce_reflection",
+      "speaker": "commerce",
+      "context": "reflection",
+      "tags": ["philosophical", "purpose"],
+      "fragments": [
+        "Am I serving the city or exploiting it?",
+        "Value and values—are they the same?",
+        "I create wealth. But for whom?",
+        "Commerce without conscience is just extraction."
+      ]
+    }
+  ]
+}

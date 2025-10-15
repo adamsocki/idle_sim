@@ -141,14 +141,26 @@ struct TerminalInputView: View {
 
     private func outputRow(_ output: CommandOutput) -> some View {
         HStack(alignment: .top, spacing: 4) {
-            Text(">>")
-                .font(terminalFont(10))
-                .foregroundStyle(Color.green.opacity(0.5))
-                .fixedSize()
+            // Different prefix for dialogue
+            if output.isDialogue {
+                Text("│")
+                    .font(terminalFont(10))
+                    .foregroundStyle(Color.cyan.opacity(0.6))
+                    .fixedSize()
+            } else {
+                Text(">>")
+                    .font(terminalFont(10))
+                    .foregroundStyle(Color.green.opacity(0.5))
+                    .fixedSize()
+            }
 
             Text(output.text)
                 .font(terminalFont(10))
-                .foregroundStyle(output.isError ? Color.orange.opacity(0.8) : Color.green.opacity(0.7))
+                .foregroundStyle(
+                    output.isDialogue ? Color.cyan.opacity(0.85) :  // Dialogue in cyan
+                    output.isError ? Color.orange.opacity(0.8) :     // Errors in orange
+                    Color.green.opacity(0.7)                          // Normal in green
+                )
                 .lineSpacing(lineSpacing)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)

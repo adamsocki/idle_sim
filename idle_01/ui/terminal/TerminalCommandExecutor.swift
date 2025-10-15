@@ -74,6 +74,15 @@ class TerminalCommandExecutor {
         case .dismiss(let target):
             return handleDismiss(target: target, selectedCityID: selectedCityID)
 
+        case .weaveThread(let type):
+            return handleWeaveThread(type: type, selectedCityID: selectedCityID)
+
+        case .listThreads(let target, let filter):
+            return handleListThreads(target: target, filter: filter, selectedCityID: selectedCityID)
+
+        case .inspectThread(let target):
+            return handleInspectThread(target: target, selectedCityID: selectedCityID)
+
         case .clear:
             return CommandOutput(text: "// SCREEN_CLEARED", isError: false)
 
@@ -126,6 +135,15 @@ class TerminalCommandExecutor {
         ║  items --filter=TYPE     - Filter by type or status          ║
         ║  respond [00] "text"     - Respond to thought by index       ║
         ║  dismiss [00]            - Dismiss thought by index          ║
+        ║                                                              ║
+        ║ THREAD_MANAGEMENT (Woven Consciousness)                      ║
+        ║  weave <type>            - Create thread (transit/housing/   ║
+        ║                            culture/commerce/parks/water/     ║
+        ║                            power/sewage/knowledge)           ║
+        ║  threads                 - List threads for selected city    ║
+        ║  threads [00]            - List threads for specific city    ║
+        ║  threads --filter=TYPE   - Filter by thread type             ║
+        ║  inspect thread [00]     - Show thread details & relations   ║
         ║                                                              ║
         ║ SETTINGS                                                     ║
         ║  set crt on/off          - Toggle CRT flicker effect         ║
@@ -376,7 +394,7 @@ class TerminalCommandExecutor {
         let timeSinceInteraction = Date().timeIntervalSince(city.lastInteraction)
         let status = city.isRunning ? "ACTIVE" : "DORMANT"
 
-        let stats = """
+        var stats = """
         ╔═══ \(city.name.uppercased()) ═══════════════════════════════════╗
         ║ STATUS.............: \(status.padding(toLength: 30, withPad: " ", startingAt: 0))║
         ║ MOOD...............: \(city.cityMood.uppercased().padding(toLength: 30, withPad: " ", startingAt: 0))║
@@ -386,8 +404,20 @@ class TerminalCommandExecutor {
         ║ AUTONOMY...........: \(String(format: "%.4f", autonomy).padding(toLength: 30, withPad: " ", startingAt: 0))║
         ║ ATTENTION_LEVEL....: \(String(format: "%.1f%%", city.attentionLevel * 100).padding(toLength: 30, withPad: " ", startingAt: 0))║
         ║ LAST_INTERACTION...: \(formatTime(timeSinceInteraction).padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║ THREADS............: \(String(format: "%03d", city.threads.count).padding(toLength: 30, withPad: " ", startingAt: 0))║
         ╚══════════════════════════════════════════════════════════════╝
         """
+
+        // Add recent log entries
+        if !city.log.isEmpty {
+            stats += "\n\n╔═══ RECENT_LOG ═══════════════════════════════════════════════╗\n"
+            let recentLog = city.log.suffix(10) // Show last 10 entries
+            for (index, entry) in recentLog.enumerated() {
+                stats += "║ [\(String(format: "%02d", city.log.count - recentLog.count + index))] \(entry)\n"
+            }
+            stats += "╚══════════════════════════════════════════════════════════════╝"
+        }
+
         return CommandOutput(text: stats)
     }
 
@@ -614,6 +644,329 @@ class TerminalCommandExecutor {
                 text: "ERROR_DISMISSING: \(error.localizedDescription)",
                 isError: true
             )
+        }
+    }
+
+    // MARK: - Thread Management
+
+    private func handleWeaveThread(type: String, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        // Parse thread type from string
+        let threadType: ThreadType
+        switch type.lowercased() {
+        case "transit":
+            threadType = .transit
+        case "housing":
+            threadType = .housing
+        case "culture":
+            threadType = .culture
+        case "commerce":
+            threadType = .commerce
+        case "parks":
+            threadType = .parks
+        case "water":
+            threadType = .water
+        case "power":
+            threadType = .power
+        case "sewage":
+            threadType = .sewage
+        case "knowledge":
+            threadType = .knowledge
+        default:
+            return CommandOutput(
+                text: "INVALID_THREAD_TYPE: '\(type)' | Available: transit, housing, culture, commerce, parks, water, power, sewage, knowledge",
+                isError: true
+            )
+        }
+
+        // Note: This executes synchronously, but dialogue will be added via callback
+        // The actual dialogue will be handled by the view layer
+        return CommandOutput(
+            text: "WEAVING_THREAD: \(city.name.uppercased()) | TYPE: \(threadType.rawValue.uppercased())",
+            isError: false
+        )
+    }
+
+    // New async version that returns dialogue
+    func executeWeaveThreadAsync(type: String, selectedCityID: PersistentIdentifier?) async -> [CommandOutput] {
+        guard let selectedCityID = selectedCityID else {
+            return [CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )]
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return [CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )]
+        }
+
+        // Parse thread type from string
+        let threadType: ThreadType
+        switch type.lowercased() {
+        case "transit":
+            threadType = .transit
+        case "housing":
+            threadType = .housing
+        case "culture":
+            threadType = .culture
+        case "commerce":
+            threadType = .commerce
+        case "parks":
+            threadType = .parks
+        case "water":
+            threadType = .water
+        case "power":
+            threadType = .power
+        case "sewage":
+            threadType = .sewage
+        case "knowledge":
+            threadType = .knowledge
+        default:
+            return [CommandOutput(
+                text: "INVALID_THREAD_TYPE: '\(type)' | Available: transit, housing, culture, commerce, parks, water, power, sewage, knowledge",
+                isError: true
+            )]
+        }
+
+        // Weave the thread and get dialogue
+        let weaver = ThreadWeaver()
+        let result = await weaver.weaveThread(
+            type: threadType,
+            into: city,
+            context: modelContext
+        )
+
+        // Save the context
+        do {
+            try modelContext.save()
+        } catch {
+            return [CommandOutput(
+                text: "ERROR_SAVING_THREAD: \(error.localizedDescription)",
+                isError: true
+            )]
+        }
+
+        // Build output array with confirmation and dialogue
+        var outputs: [CommandOutput] = []
+
+        // Confirmation message
+        outputs.append(CommandOutput(
+            text: "THREAD_WOVEN: \(city.name.uppercased()) | TYPE: \(threadType.rawValue.uppercased())",
+            isError: false
+        ))
+
+        // Add dialogue if present
+        if let dialogue = result.dialogue {
+            outputs.append(CommandOutput(
+                text: "🗣️ \(threadType.rawValue.uppercased()): \"\(dialogue)\"",
+                isError: false,
+                isDialogue: true
+            ))
+        }
+
+        // Check for story beats
+        let beatManager = StoryBeatManager()
+        let triggeredBeats = await beatManager.checkTriggers(city: city)
+
+        for beat in triggeredBeats {
+            // Add story beat marker
+            outputs.append(CommandOutput(
+                text: "━━━ STORY BEAT: \(beat.name.uppercased()) ━━━",
+                isError: false
+            ))
+
+            // Add all dialogue lines from the beat
+            for dialogueLine in beat.dialogue {
+                let speaker = dialogueLine.speaker.rawValue.uppercased()
+                outputs.append(CommandOutput(
+                    text: "\(speaker): \(dialogueLine.text)",
+                    isError: false,
+                    isDialogue: true
+                ))
+            }
+
+            // Apply effects if present
+            if let effects = beat.effects {
+                await beatManager.applyEffects(effects, to: city)
+                outputs.append(CommandOutput(
+                    text: "// Effects applied to city consciousness",
+                    isError: false
+                ))
+            }
+
+            // Add thought spawner if present
+            if let thought = beat.spawnedThought {
+                outputs.append(CommandOutput(
+                    text: "💭 THOUGHT: \(thought.thoughtTitle)",
+                    isError: false
+                ))
+                outputs.append(CommandOutput(
+                    text: "   \(thought.thoughtBody)",
+                    isError: false
+                ))
+            }
+        }
+
+        // Save any changes from effects
+        do {
+            try modelContext.save()
+        } catch {
+            outputs.append(CommandOutput(
+                text: "// Warning: Could not save story beat effects",
+                isError: false
+            ))
+        }
+
+        return outputs
+    }
+
+    private func handleListThreads(target: String?, filter: String?, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        let city: City?
+
+        if let target = target {
+            city = findCity(by: target)
+        } else if let selectedCityID = selectedCityID {
+            city = allCities.first { $0.persistentModelID == selectedCityID }
+        } else {
+            return CommandOutput(
+                text: "NO_TARGET_SPECIFIED | Usage: threads [00] or select a city first",
+                isError: true
+            )
+        }
+
+        guard let city = city else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Use 'list' to see available nodes.",
+                isError: true
+            )
+        }
+
+        let threads = city.threads
+        let filtered: [UrbanThread]
+
+        if let filter = filter?.lowercased() {
+            // Try to parse as ThreadType
+            if let filterType = parseThreadType(filter) {
+                filtered = threads.filter { $0.type == filterType }
+            } else {
+                filtered = threads
+            }
+        } else {
+            filtered = threads
+        }
+
+        if filtered.isEmpty {
+            return CommandOutput(text: "NO_THREADS_FOUND | City: \(city.name.uppercased()) | Filter: \(filter ?? "none")")
+        }
+
+        var output = "WOVEN_THREADS [\(filtered.count)] | City: \(city.name.uppercased())\n"
+        for (index, thread) in filtered.enumerated() {
+            let coherence = String(format: "%.2f", thread.coherence)
+            let relationCount = thread.relationships.count
+            output += "  [\(String(format: "%02d", index))] \(thread.displayName) | COH: \(coherence) | REL: \(relationCount)\n"
+        }
+
+        return CommandOutput(text: output.trimmingCharacters(in: .newlines))
+    }
+
+    private func handleInspectThread(target: String, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        guard let thread = findThread(in: city, by: target) else {
+            return CommandOutput(
+                text: "THREAD_NOT_FOUND: '\(target)' | Use 'threads' to see available threads",
+                isError: true
+            )
+        }
+
+        let synergy = String(format: "%.2f", thread.averageSynergy)
+        let integration = String(format: "%.2f", thread.integrationLevel)
+
+        var output = """
+        ╔═══ \(thread.displayName.uppercased()) ═══════════════════════════════════╗
+        ║ TYPE...............: \(thread.type.rawValue.uppercased().padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║ COHERENCE..........: \(String(format: "%.4f", thread.coherence).padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║ AUTONOMY...........: \(String(format: "%.4f", thread.autonomy).padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║ COMPLEXITY.........: \(String(format: "%.4f", thread.complexity).padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║ INTEGRATION........: \(integration.padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║ SYNERGY............: \(synergy.padding(toLength: 30, withPad: " ", startingAt: 0))║
+        ║                                                              ║
+        ║ RELATIONSHIPS [\(String(format: "%02d", thread.relationships.count))]                                        ║
+        """
+
+        // Add relationship details
+        for relationship in thread.relationships.sorted(by: { $0.strength > $1.strength }) {
+            if let otherThread = city.threads.first(where: { $0.id == relationship.otherThreadID }) {
+                let relType = relationship.relationType.rawValue.uppercased()
+                let strength = String(format: "%.2f", relationship.strength)
+                let relSynergy = String(format: "%.2f", relationship.synergy)
+                output += "\n║  • \(otherThread.displayName.padding(toLength: 15, withPad: " ", startingAt: 0)) | \(relType.padding(toLength: 10, withPad: " ", startingAt: 0)) | STR: \(strength) SYN: \(relSynergy) ║"
+            }
+        }
+
+        output += "\n╚══════════════════════════════════════════════════════════════╝"
+
+        return CommandOutput(text: output)
+    }
+
+    private func findThread(in city: City, by target: String) -> UrbanThread? {
+        let threads = city.threads
+
+        // Try to find by index [00]
+        if target.hasPrefix("[") && target.hasSuffix("]") {
+            let indexString = target.dropFirst().dropLast()
+            if let index = Int(indexString), index >= 0 && index < threads.count {
+                return threads[index]
+            }
+        }
+
+        // Try to find by display name or type (case-insensitive partial match)
+        return threads.first { thread in
+            thread.displayName.lowercased().contains(target.lowercased()) ||
+            thread.type.rawValue.lowercased().contains(target.lowercased())
+        }
+    }
+
+    private func parseThreadType(_ string: String) -> ThreadType? {
+        switch string.lowercased() {
+        case "transit": return .transit
+        case "housing": return .housing
+        case "culture": return .culture
+        case "commerce": return .commerce
+        case "parks": return .parks
+        case "water": return .water
+        case "power": return .power
+        case "sewage": return .sewage
+        case "knowledge": return .knowledge
+        default: return nil
         }
     }
 

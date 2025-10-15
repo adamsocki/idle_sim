@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct TerminalSettingsView: View {
     // Display Settings
@@ -25,6 +26,9 @@ struct TerminalSettingsView: View {
     @AppStorage("debug.verbose") private var verboseLogging: Bool = false
     @AppStorage("debug.showStats") private var showStats: Bool = true
     @AppStorage("debug.performance") private var performanceMonitor: Bool = false
+
+    @Environment(\.modelContext) private var modelContext
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         ScrollView {
@@ -52,12 +56,27 @@ struct TerminalSettingsView: View {
                 // Action Buttons
                 actionButtonsSection
 
+                #if DEBUG
+                TerminalDivider(label: "Developer")
+
+                // Developer Section (Debug only)
+                developerSection
+                #endif
+
                 Spacer()
             }
             .padding(16)
         }
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .alert("Delete All Data?", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete All", role: .destructive) {
+                deleteAllSwiftData()
+            }
+        } message: {
+            Text("This will permanently delete all SwiftData from the app. This action cannot be undone.")
+        }
     }
 
     // MARK: - Sections
@@ -189,6 +208,38 @@ struct TerminalSettingsView: View {
         // TODO: Implement config export functionality
         print("Export config not yet implemented")
     }
+
+    #if DEBUG
+    private var developerSection: some View {
+        TerminalBox(title: "Developer Tools") {
+            VStack(spacing: 12) {
+                TerminalButton(
+                    label: "⚠️ Delete All SwiftData",
+                    action: { showDeleteConfirmation = true },
+                    style: .secondary
+                )
+                .foregroundStyle(Color.red.opacity(0.8))
+
+                Text("Deletes all persistent SwiftData from the app")
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundStyle(Color.green.opacity(0.4))
+            }
+        }
+    }
+
+    private func deleteAllSwiftData() {
+        do {
+            // Delete all data for each model in your schema
+            try modelContext.delete(model: City.self)
+            // Add more delete calls for each of your SwiftData models if needed
+            
+            try modelContext.save()
+            print("✅ All SwiftData deleted successfully")
+        } catch {
+            print("❌ Error deleting SwiftData: \(error.localizedDescription)")
+        }
+    }
+    #endif
 }
 
 #Preview {

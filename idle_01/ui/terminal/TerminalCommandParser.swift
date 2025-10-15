@@ -137,8 +137,21 @@ struct TerminalCommandParser {
             return .export(target: target, format: format)
         }
 
+        // MARK: - Inspect Commands (must come before stats)
+        if verb == "inspect" {
+            guard expandedComponents.count > 2 else { return .unknown(input) }
+            let subtype = expandedComponents[1].lowercased()
+            let target = expandedComponents[2]
+
+            if subtype == "thread" {
+                return .inspectThread(target: target)
+            }
+
+            return .unknown(input)
+        }
+
         // MARK: - Stats Commands
-        if verb == "stats" || verb == "status" || verb == "inspect" {
+        if verb == "stats" || verb == "status" {
             let target = expandedComponents.count > 1 ? expandedComponents[1] : nil
             return .stats(target: target)
         }
@@ -172,6 +185,19 @@ struct TerminalCommandParser {
             let filter = extractFlag(from: expandedComponents, flag: "--filter")
             let target = expandedComponents.count > 1 && !expandedComponents[1].hasPrefix("--") ? expandedComponents[1] : nil
             return .listItems(target: target, filter: filter)
+        }
+
+        // MARK: - Thread Commands
+        if verb == "weave" || verb == "thread" {
+            guard expandedComponents.count > 1 else { return .unknown(input) }
+            let threadType = expandedComponents[1].lowercased()
+            return .weaveThread(type: threadType)
+        }
+
+        if verb == "threads" {
+            let filter = extractFlag(from: expandedComponents, flag: "--filter")
+            let target = expandedComponents.count > 1 && !expandedComponents[1].hasPrefix("--") ? expandedComponents[1] : nil
+            return .listThreads(target: target, filter: filter)
         }
 
         // MARK: - Clear Command
@@ -220,6 +246,9 @@ enum TerminalCommand: Equatable {
     case respond(target: String, text: String)
     case dismiss(target: String)
     case listItems(target: String?, filter: String?)
+    case weaveThread(type: String)
+    case listThreads(target: String?, filter: String?)
+    case inspectThread(target: String)
     case clear
     case unknown(String)
 }
@@ -230,11 +259,13 @@ struct CommandOutput: Identifiable, Equatable {
     let id = UUID()
     let text: String
     let isError: Bool
+    let isDialogue: Bool  // Special formatting for dialogue from threads/city
     let timestamp: Date
 
-    init(text: String, isError: Bool = false) {
+    init(text: String, isError: Bool = false, isDialogue: Bool = false) {
         self.text = text
         self.isError = isError
+        self.isDialogue = isDialogue
         self.timestamp = Date()
     }
 
