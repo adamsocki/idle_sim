@@ -15,8 +15,42 @@ struct StoryBeat: Codable, Identifiable {
     var dialogue: [DialogueLine]
     var effects: BeatEffects?
     var spawnedThought: ThoughtSpawner?
-    var oneTimeOnly: Bool = true
-    var hasOccurred: Bool = false
+    var oneTimeOnly: Bool
+    var hasOccurred: Bool
+    
+    // Custom decoding to handle optional fields in JSON
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.id = try container.decode(String.self, forKey: .id)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.trigger = try container.decode(BeatTrigger.self, forKey: .trigger)
+        self.dialogue = try container.decode([DialogueLine].self, forKey: .dialogue)
+        self.effects = try container.decodeIfPresent(BeatEffects.self, forKey: .effects)
+        self.spawnedThought = try container.decodeIfPresent(ThoughtSpawner.self, forKey: .spawnedThought)
+        
+        // Optional fields with defaults
+        self.oneTimeOnly = try container.decodeIfPresent(Bool.self, forKey: .oneTimeOnly) ?? true
+        self.hasOccurred = try container.decodeIfPresent(Bool.self, forKey: .hasOccurred) ?? false
+    }
+    
+    // Custom encoding
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(trigger, forKey: .trigger)
+        try container.encode(dialogue, forKey: .dialogue)
+        try container.encodeIfPresent(effects, forKey: .effects)
+        try container.encodeIfPresent(spawnedThought, forKey: .spawnedThought)
+        try container.encode(oneTimeOnly, forKey: .oneTimeOnly)
+        try container.encode(hasOccurred, forKey: .hasOccurred)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, name, trigger, dialogue, effects, spawnedThought, oneTimeOnly, hasOccurred
+    }
 }
 
 /// Triggers that determine when a story beat fires
@@ -157,6 +191,6 @@ struct ThoughtSpawner: Codable {
 }
 
 /// Container for loading story beats from JSON
-struct StoryBeatCollection: Codable {
+struct StoryBeatCollection: Codable, Sendable {
     var beats: [StoryBeat]
 }

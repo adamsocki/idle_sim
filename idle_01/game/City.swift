@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-
+@MainActor
 final class City {
     var name: String
     var createdAt: Date

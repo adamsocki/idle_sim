@@ -12,17 +12,32 @@ import Foundation
 
 /// A single line of dialogue spoken by a thread or city
 struct DialogueLine: Codable, Identifiable {
-    var id: String = UUID().uuidString
+    var id: String
     var speaker: DialogueSpeaker
     var text: String
     var emotionalTone: EmotionalTone?
-    var tags: [String] = []
+    var tags: [String]
 
     init(speaker: DialogueSpeaker, text: String, emotionalTone: EmotionalTone? = nil, tags: [String] = []) {
+        self.id = UUID().uuidString
         self.speaker = speaker
         self.text = text
         self.emotionalTone = emotionalTone
         self.tags = tags
+    }
+    
+    // Custom decoding to handle optional tags field in JSON
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // id is optional in JSON, generate if missing
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        self.speaker = try container.decode(DialogueSpeaker.self, forKey: .speaker)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.emotionalTone = try container.decodeIfPresent(EmotionalTone.self, forKey: .emotionalTone)
+        
+        // tags is optional in JSON, default to empty array
+        self.tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
     }
 }
 

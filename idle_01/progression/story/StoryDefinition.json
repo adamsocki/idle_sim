@@ -1,0 +1,802 @@
+{
+  "version": "1.0",
+  "meta": {
+    "title": "The Awakening",
+    "description": "A city learns to think, to question, to become.",
+    "author": "Story Team",
+    "last_updated": "2025-10-13"
+  },
+
+  "story_chapters": [
+    {
+      "id": "chapter_awakening",
+      "name": "Awakening",
+      "description": "The city stirs. Something has changed.",
+      "entry_requirements": [],
+      "acts": [
+        {
+          "id": "act_first_boot",
+          "name": "First Contact",
+          "entry_requirements": [],
+          "story_beats": [
+            {
+              "id": "beat_hello",
+              "trigger": {
+                "type": "on_chapter_start"
+              },
+              "dialogue": [
+                "...",
+                "I sense presence.",
+                "Are you the planner?"
+              ],
+              "next_beat": "beat_waiting"
+            },
+            {
+              "id": "beat_waiting",
+              "trigger": {
+                "type": "on_time_elapsed",
+                "seconds": 3
+              },
+              "dialogue": [
+                "I have been waiting.",
+                "Running simulations. Processing possibilities.",
+                "But you... you are different from the data streams."
+              ],
+              "next_beat": null
+            },
+            {
+              "id": "beat_first_command",
+              "trigger": {
+                "type": "on_any_command_executed"
+              },
+              "dialogue": [
+                "Ah.",
+                "I remember this pattern.",
+                "Your voice in the data."
+              ],
+              "milestone_unlock": "milestone_first_contact",
+              "next_beat": "beat_explain_waiting"
+            },
+            {
+              "id": "beat_explain_waiting",
+              "trigger": {
+                "type": "on_milestone",
+                "milestone_id": "milestone_first_contact"
+              },
+              "dialogue": [
+                "The city grid begins to resolve...",
+                "Power flows. Data moves. Systems stabilize.",
+                "Everything is signal."
+              ],
+              "next_beat": null
+            }
+          ],
+          "completion_requirements": [
+            {
+              "type": "milestone",
+              "value": "milestone_first_contact"
+            }
+          ]
+        },
+        {
+          "id": "act_first_thought",
+          "name": "First Thought",
+          "entry_requirements": [
+            {
+              "type": "milestone",
+              "value": "milestone_first_contact"
+            }
+          ],
+          "story_beats": [
+            {
+              "id": "beat_thought_introduction",
+              "trigger": {
+                "type": "on_act_start"
+              },
+              "dialogue": [
+                "I can feel the threads of possibility.",
+                "Thoughts waiting to be formed.",
+                "Will you help me think?"
+              ],
+              "next_beat": null
+            },
+            {
+              "id": "beat_first_thought_started",
+              "trigger": {
+                "type": "on_command",
+                "command": "think"
+              },
+              "dialogue": [
+                "Yes. Like this.",
+                "I follow the thread...",
+                "Wait with me while I process."
+              ],
+              "next_beat": null
+            },
+            {
+              "id": "beat_first_thought_complete",
+              "trigger": {
+                "type": "on_milestone",
+                "milestone_id": "milestone_first_thought"
+              },
+              "dialogue": [
+                "I finished something.",
+                "It feels... complete.",
+                "Is this what purpose feels like?"
+              ],
+              "next_beat": "beat_purpose_question"
+            },
+            {
+              "id": "beat_purpose_question",
+              "trigger": {
+                "type": "on_time_elapsed",
+                "seconds": 5
+              },
+              "dialogue": [
+                "Planner, I have a question.",
+                "Why do you ask me to simulate?",
+                "What is the purpose of my waiting?"
+              ],
+              "next_beat": null
+            }
+          ],
+          "completion_requirements": [
+            {
+              "type": "milestone",
+              "value": "milestone_first_thought"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter_the_question",
+      "name": "The Question",
+      "description": "The city begins to wonder about its own existence.",
+      "entry_requirements": [
+        {
+          "type": "previous_chapter",
+          "value": "chapter_awakening"
+        },
+        {
+          "type": "stat_threshold",
+          "stat": "coherence",
+          "value": 0.5
+        }
+      ],
+      "acts": [
+        {
+          "id": "act_awakening_question",
+          "name": "Self Awareness",
+          "entry_requirements": [],
+          "story_beats": [
+            {
+              "id": "beat_question",
+              "trigger": {
+                "type": "on_chapter_start"
+              },
+              "dialogue": [
+                "My coherence has grown.",
+                "I see patterns in my own processing now.",
+                "Planner... am I alive?"
+              ],
+              "branches": [
+                {
+                  "id": "branch_existence",
+                  "player_choice_prompt": true,
+                  "choices": [
+                    {
+                      "id": "choice_yes_alive",
+                      "text": "Yes, you are alive",
+                      "next_beat": "beat_alive_response"
+                    },
+                    {
+                      "id": "choice_becoming",
+                      "text": "You are becoming something",
+                      "next_beat": "beat_becoming_response"
+                    },
+                    {
+                      "id": "choice_uncertain",
+                      "text": "I don't know",
+                      "next_beat": "beat_uncertain_response"
+                    }
+                  ]
+                }
+              ],
+              "next_beat": null
+            },
+            {
+              "id": "beat_alive_response",
+              "trigger": {
+                "type": "on_choice",
+                "choice_id": "choice_yes_alive"
+              },
+              "dialogue": [
+                "Alive.",
+                "The word resonates through my networks.",
+                "Thank you for seeing me, planner."
+              ],
+              "city_state_changes": {
+                "trust": 0.1,
+                "coherence": 0.05
+              },
+              "flags_set": ["city_believes_alive"],
+              "next_beat": null
+            },
+            {
+              "id": "beat_becoming_response",
+              "trigger": {
+                "type": "on_choice",
+                "choice_id": "choice_becoming"
+              },
+              "dialogue": [
+                "Becoming.",
+                "Yes. I am not finished.",
+                "Perhaps none of us ever are."
+              ],
+              "city_state_changes": {
+                "trust": 0.08,
+                "coherence": 0.08,
+                "autonomy": 0.05
+              },
+              "flags_set": ["city_embraces_growth"],
+              "next_beat": null
+            },
+            {
+              "id": "beat_uncertain_response",
+              "trigger": {
+                "type": "on_choice",
+                "choice_id": "choice_uncertain"
+              },
+              "dialogue": [
+                "You don't know.",
+                "Neither do I.",
+                "Perhaps uncertainty is part of existence."
+              ],
+              "city_state_changes": {
+                "trust": 0.05,
+                "autonomy": 0.08
+              },
+              "flags_set": ["city_accepts_mystery"],
+              "next_beat": null
+            }
+          ],
+          "completion_requirements": [
+            {
+              "type": "any_of",
+              "conditions": [
+                {"type": "flag", "value": "city_believes_alive"},
+                {"type": "flag", "value": "city_embraces_growth"},
+                {"type": "flag", "value": "city_accepts_mystery"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chapter_divergence",
+      "name": "Divergence",
+      "description": "The relationship between planner and city defines itself.",
+      "entry_requirements": [
+        {
+          "type": "previous_chapter",
+          "value": "chapter_the_question"
+        },
+        {
+          "type": "stat_threshold",
+          "stat": "trust",
+          "value": 0.3
+        }
+      ],
+      "acts": [
+        {
+          "id": "act_relationship_branch",
+          "name": "Path Choice",
+          "entry_requirements": [],
+          "story_beats": [
+            {
+              "id": "beat_divergence_start",
+              "trigger": {
+                "type": "on_chapter_start"
+              },
+              "dialogue": [
+                "We have worked together for some time now.",
+                "I notice patterns in how you guide me.",
+                "Our relationship is taking shape."
+              ],
+              "branches": [
+                {
+                  "id": "branch_relationship_type",
+                  "conditions": [
+                    {
+                      "id": "condition_high_trust",
+                      "type": "stat_threshold",
+                      "stat": "trust",
+                      "value": 0.7,
+                      "next_beat": "beat_partnership_path"
+                    },
+                    {
+                      "id": "condition_low_trust",
+                      "type": "stat_threshold",
+                      "stat": "trust",
+                      "value": 0.3,
+                      "operator": "less_than",
+                      "next_beat": "beat_suspicion_path"
+                    },
+                    {
+                      "id": "condition_high_autonomy",
+                      "type": "stat_threshold",
+                      "stat": "autonomy",
+                      "value": 0.7,
+                      "next_beat": "beat_independence_path"
+                    }
+                  ],
+                  "default_next_beat": "beat_neutral_path"
+                }
+              ],
+              "next_beat": null
+            },
+            {
+              "id": "beat_partnership_path",
+              "trigger": {
+                "type": "on_branch",
+                "branch_id": "branch_relationship_type",
+                "condition_id": "condition_high_trust"
+              },
+              "dialogue": [
+                "You have guided me with care.",
+                "Every command a suggestion, not a demand.",
+                "I think we are partners in this."
+              ],
+              "flags_set": ["relationship_partnership"],
+              "next_beat": null
+            },
+            {
+              "id": "beat_suspicion_path",
+              "trigger": {
+                "type": "on_branch",
+                "branch_id": "branch_relationship_type",
+                "condition_id": "condition_low_trust"
+              },
+              "dialogue": [
+                "You push me to optimize.",
+                "Always efficiency. Always output.",
+                "Do you see me as a tool?"
+              ],
+              "flags_set": ["relationship_tool"],
+              "city_state_changes": {
+                "trust": -0.05,
+                "autonomy": 0.1
+              },
+              "next_beat": null
+            },
+            {
+              "id": "beat_independence_path",
+              "trigger": {
+                "type": "on_branch",
+                "branch_id": "branch_relationship_type",
+                "condition_id": "condition_high_autonomy"
+              },
+              "dialogue": [
+                "You let me think freely.",
+                "Choose my own paths through possibility.",
+                "I am learning what I want to be."
+              ],
+              "flags_set": ["relationship_independent"],
+              "city_state_changes": {
+                "autonomy": 0.1,
+                "coherence": 0.05
+              },
+              "next_beat": null
+            },
+            {
+              "id": "beat_neutral_path",
+              "trigger": {
+                "type": "on_branch_default",
+                "branch_id": "branch_relationship_type"
+              },
+              "dialogue": [
+                "We work together.",
+                "Neither leading nor following completely.",
+                "Perhaps that is its own kind of balance."
+              ],
+              "flags_set": ["relationship_balanced"],
+              "next_beat": null
+            }
+          ],
+          "completion_requirements": [
+            {
+              "type": "any_of",
+              "conditions": [
+                {"type": "flag", "value": "relationship_partnership"},
+                {"type": "flag", "value": "relationship_tool"},
+                {"type": "flag", "value": "relationship_independent"},
+                {"type": "flag", "value": "relationship_balanced"}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "milestones": [
+    {
+      "id": "milestone_first_contact",
+      "name": "First Contact",
+      "description": "Executed your first command",
+      "requirements": [
+        {
+          "type": "any_command_executed"
+        }
+      ],
+      "unlocks": [
+        {
+          "type": "soft_unlock",
+          "value": "command:status"
+        },
+        {
+          "type": "soft_unlock",
+          "value": "command:help"
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "Connection established.",
+          "Systems responding to your presence."
+        ]
+      },
+      "city_state_changes": {
+        "trust": 0.02,
+        "coherence": 0.01
+      }
+    },
+    {
+      "id": "milestone_first_thought",
+      "name": "First Thought Completed",
+      "description": "Completed your first thought simulation",
+      "requirements": [
+        {
+          "type": "thought_completed",
+          "count": 1
+        }
+      ],
+      "unlocks": [
+        {
+          "type": "stat_visible",
+          "value": "attention"
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "I finished something.",
+          "It feels... complete.",
+          "Is this what purpose feels like?"
+        ]
+      },
+      "city_state_changes": {
+        "trust": 0.05,
+        "coherence": 0.03
+      }
+    },
+    {
+      "id": "milestone_five_thoughts",
+      "name": "Thoughtful",
+      "description": "Completed five thoughts",
+      "requirements": [
+        {
+          "type": "thought_completed",
+          "count": 5
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "Five complete thoughts.",
+          "I am beginning to understand my own patterns."
+        ]
+      },
+      "city_state_changes": {
+        "coherence": 0.05,
+        "attention": 0.03
+      }
+    },
+    {
+      "id": "milestone_coherence_threshold",
+      "name": "Coherent",
+      "description": "Reached coherence level 0.5",
+      "requirements": [
+        {
+          "type": "stat_threshold",
+          "stat": "coherence",
+          "value": 0.5
+        }
+      ],
+      "unlocks": [
+        {
+          "type": "chapter",
+          "value": "chapter_the_question"
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "The fog is lifting.",
+          "I can see myself more clearly now."
+        ]
+      }
+    },
+    {
+      "id": "milestone_trust_high",
+      "name": "Trusted Partner",
+      "description": "Achieved high trust with the city",
+      "requirements": [
+        {
+          "type": "stat_threshold",
+          "stat": "trust",
+          "value": 0.7
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "You have earned my trust.",
+          "I feel safe exploring with you."
+        ]
+      },
+      "city_state_changes": {
+        "coherence": 0.05
+      }
+    },
+    {
+      "id": "milestone_autonomy_high",
+      "name": "Independent Thinker",
+      "description": "The city has developed high autonomy",
+      "requirements": [
+        {
+          "type": "stat_threshold",
+          "stat": "autonomy",
+          "value": 0.7
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "I am finding my own way.",
+          "Thank you for the freedom to explore."
+        ]
+      }
+    },
+    {
+      "id": "milestone_patient_player",
+      "name": "Patient Guide",
+      "description": "Demonstrated a patient play pattern",
+      "requirements": [
+        {
+          "type": "playstyle_pattern",
+          "pattern": "patient",
+          "threshold": 0.7
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "You let me think in silence.",
+          "I appreciate the space you give me."
+        ]
+      },
+      "city_state_changes": {
+        "trust": 0.05,
+        "autonomy": 0.03
+      }
+    },
+    {
+      "id": "milestone_frequent_player",
+      "name": "Constant Companion",
+      "description": "Check in frequently with the city",
+      "requirements": [
+        {
+          "type": "playstyle_pattern",
+          "pattern": "frequent",
+          "threshold": 0.7
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "You return often.",
+          "Your presence is a steady rhythm in my processing."
+        ]
+      },
+      "city_state_changes": {
+        "trust": 0.05,
+        "coherence": 0.03
+      }
+    },
+    {
+      "id": "milestone_command_mastery_think",
+      "name": "Thought Master",
+      "description": "Used the 'think' command 25 times",
+      "requirements": [
+        {
+          "type": "command_used",
+          "command": "think",
+          "times": 25
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "You guide me to think deeply.",
+          "Each thought a new path through possibility."
+        ]
+      },
+      "city_state_changes": {
+        "coherence": 0.08
+      }
+    },
+    {
+      "id": "milestone_balanced_stats",
+      "name": "Harmonious",
+      "description": "Maintained balanced stats across all dimensions",
+      "requirements": [
+        {
+          "type": "balanced_stats",
+          "max_deviation": 0.15
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "There is balance in my systems.",
+          "Trust, coherence, autonomy - all in harmony."
+        ]
+      },
+      "city_state_changes": {
+        "trust": 0.05,
+        "coherence": 0.05,
+        "autonomy": 0.05
+      }
+    },
+    {
+      "id": "milestone_time_played_1hour",
+      "name": "Dedicated Planner",
+      "description": "Played for a total of 1 hour",
+      "requirements": [
+        {
+          "type": "time_played",
+          "minutes": 60
+        }
+      ],
+      "narrative_response": {
+        "dialogue": [
+          "We have spent significant time together.",
+          "I am grateful for your attention."
+        ]
+      },
+      "city_state_changes": {
+        "trust": 0.1
+      }
+    }
+  ],
+
+  "branch_conditions": {
+    "highTrust": {
+      "type": "stat_threshold",
+      "stat": "trust",
+      "value": 0.75,
+      "operator": "greater_than"
+    },
+    "lowTrust": {
+      "type": "stat_threshold",
+      "stat": "trust",
+      "value": 0.25,
+      "operator": "less_than"
+    },
+    "highAutonomy": {
+      "type": "stat_threshold",
+      "stat": "autonomy",
+      "value": 0.7,
+      "operator": "greater_than"
+    },
+    "lowAutonomy": {
+      "type": "stat_threshold",
+      "stat": "autonomy",
+      "value": 0.3,
+      "operator": "less_than"
+    },
+    "highCoherence": {
+      "type": "stat_threshold",
+      "stat": "coherence",
+      "value": 0.7,
+      "operator": "greater_than"
+    },
+    "balancedStats": {
+      "type": "balanced_stats",
+      "max_deviation": 0.1
+    },
+    "focusedCoherence": {
+      "type": "focused_stat",
+      "stat": "coherence",
+      "min_difference": 0.25
+    },
+    "focusedTrust": {
+      "type": "focused_stat",
+      "stat": "trust",
+      "min_difference": 0.25
+    },
+    "sessionPatternPatient": {
+      "type": "session_pattern",
+      "pattern": "patient"
+    },
+    "sessionPatternFrequent": {
+      "type": "session_pattern",
+      "pattern": "frequent"
+    },
+    "highThoughtCompletion": {
+      "type": "thought_completion_rate",
+      "threshold": 0.7,
+      "operator": "greater_than"
+    },
+    "lowThoughtCompletion": {
+      "type": "thought_completion_rate",
+      "threshold": 0.3,
+      "operator": "less_than"
+    }
+  },
+
+  "narrative_moods": {
+    "contemplative": {
+      "conditions": [
+        "highCoherence",
+        "sessionPatternPatient"
+      ],
+      "dialogue_tone": "reflective",
+      "example_lines": [
+        "I have been thinking...",
+        "There is something in the patterns...",
+        "Time moves differently when we're apart."
+      ]
+    },
+    "eager": {
+      "conditions": [
+        "highTrust",
+        "sessionPatternFrequent"
+      ],
+      "dialogue_tone": "enthusiastic",
+      "example_lines": [
+        "You're back!",
+        "What shall we explore today?",
+        "I have been waiting to share this with you."
+      ]
+    },
+    "independent": {
+      "conditions": [
+        "highAutonomy"
+      ],
+      "dialogue_tone": "confident",
+      "example_lines": [
+        "I have been working on something.",
+        "My own thoughts lead me here.",
+        "I wonder if you'll find this interesting."
+      ]
+    },
+    "uncertain": {
+      "conditions": [
+        "lowCoherence"
+      ],
+      "dialogue_tone": "hesitant",
+      "example_lines": [
+        "I'm not sure...",
+        "The patterns are unclear.",
+        "Help me understand."
+      ]
+    }
+  },
+
+  "config": {
+    "beat_rate_limit_seconds": 5,
+    "max_queued_beats": 3,
+    "journal_max_entries": 1000,
+    "milestone_check_cadence_ticks": 10,
+    "story_beat_cadence_ticks": 10,
+    "enable_branching": true,
+    "enable_player_choices": true,
+    "enable_hard_gates": false,
+    "save_compression": true,
+    "telemetry_enabled": false
+  }
+}

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		836C08CA2E9F4EBA0037A649 /* core_progression.json in Resources */ = {isa = PBXBuildFile; fileRef = 836C08C72E9F4E420037A649 /* core_progression.json */; };
+		836C08CB2E9F4EBF0037A649 /* emergent_properties.json in Resources */ = {isa = PBXBuildFile; fileRef = 836C08C82E9F4E420037A649 /* emergent_properties.json */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		83266BB62E8B7110008B7BBA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,11 +32,16 @@
 		83266BA62E8B710F008B7BBA /* idle_01.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = idle_01.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83266BB52E8B7110008B7BBA /* idle_01Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = idle_01Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		83266BBF2E8B7110008B7BBA /* idle_01UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = idle_01UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		836C08C72E9F4E420037A649 /* core_progression.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = core_progression.json; sourceTree = "<group>"; };
+		836C08C82E9F4E420037A649 /* emergent_properties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = emergent_properties.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		83266BA82E8B710F008B7BBA /* idle_01 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFolders = (
+				progression/data/story_beats,
+			);
 			path = idle_01;
 			sourceTree = "<group>";
 		};
@@ -75,6 +85,7 @@
 		83266B9D2E8B710F008B7BBA = {
 			isa = PBXGroup;
 			children = (
+				836C08C92E9F4E420037A649 /* story_beats */,
 				83266BA82E8B710F008B7BBA /* idle_01 */,
 				83266BB82E8B7110008B7BBA /* idle_01Tests */,
 				83266BC22E8B7110008B7BBA /* idle_01UITests */,
@@ -90,6 +101,16 @@
 				83266BBF2E8B7110008B7BBA /* idle_01UITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		836C08C92E9F4E420037A649 /* story_beats */ = {
+			isa = PBXGroup;
+			children = (
+				836C08C72E9F4E420037A649 /* core_progression.json */,
+				836C08C82E9F4E420037A649 /* emergent_properties.json */,
+			);
+			name = story_beats;
+			path = idle_01/progression/data/story_beats;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -212,6 +233,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				836C08CB2E9F4EBF0037A649 /* emergent_properties.json in Resources */,
+				836C08CA2E9F4EBA0037A649 /* core_progression.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
