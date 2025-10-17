@@ -118,26 +118,37 @@ actor StoryBeatManager {
         var triggeredBeats: [StoryBeat] = []
 
         let threadCount = await MainActor.run { city.threads.count }
+        let alreadyTriggered = await MainActor.run { city.triggeredStoryBeats }
+
         print("[StoryBeatManager] Checking triggers for city with \(threadCount) threads")
+        print("[StoryBeatManager] Already triggered beats: \(alreadyTriggered)")
         print("[StoryBeatManager] Evaluating \(allBeats.count) total beats")
 
         for i in allBeats.indices {
-            // Skip if already occurred and is one-time-only
-            if allBeats[i].hasOccurred && allBeats[i].oneTimeOnly {
-                print("[StoryBeatManager] Skipping beat '\(allBeats[i].id)' - already occurred")
+            // Skip if already occurred and is one-time-only (check persistent city state)
+            if allBeats[i].oneTimeOnly && alreadyTriggered.contains(allBeats[i].id) {
+                print("[StoryBeatManager] Skipping beat '\(allBeats[i].id)' - already occurred in city history")
                 continue
             }
 
             print("[StoryBeatManager] Evaluating beat '\(allBeats[i].id)' with trigger: \(allBeats[i].trigger)")
             if await evaluateTrigger(allBeats[i].trigger, city: city) {
                 print("[StoryBeatManager] ✅ Beat '\(allBeats[i].id)' triggered!")
-                allBeats[i].hasOccurred = true
+
+                // Mark as triggered in city's persistent state
+                if allBeats[i].oneTimeOnly {
+                    let beatID = allBeats[i].id
+                    await MainActor.run {
+                        city.triggeredStoryBeats.append(beatID)
+                    }
+                }
+
                 triggeredBeats.append(allBeats[i])
             } else {
                 print("[StoryBeatManager] ❌ Beat '\(allBeats[i].id)' did not trigger")
             }
         }
-        
+
         print("[StoryBeatManager] Returning \(triggeredBeats.count) triggered beats")
         return triggeredBeats
     }

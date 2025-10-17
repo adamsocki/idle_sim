@@ -1,0 +1,204 @@
+{
+  "emergentProperties": [
+    {
+      "name": "walkability",
+      "conditions": {
+        "requiredThreadTypes": ["transit", "housing"],
+        "minimumRelationshipStrength": 0.6
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "proximity as value",
+          "walkable distances",
+          "pedestrian experience",
+          "station as place"
+        ],
+        "expandedSelfAwareness": "I understand that nearness creates possibility. Distance is not just space—it's opportunity or barrier.",
+        "complexityIncrease": 0.15,
+        "affectedThreadTypes": ["transit", "housing"],
+        "deepenedRelationships": [
+          {
+            "type1": "transit",
+            "type2": "housing",
+            "quality": "spatial intimacy",
+            "strengthBonus": 0.15
+          }
+        ]
+      },
+      "storyBeatID": "beat_walkability_emergence"
+    },
+    {
+      "name": "vibrancy",
+      "conditions": {
+        "requiredThreadTypes": ["culture", "commerce", "housing"],
+        "minimumAverageIntegration": 0.7
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "energy of mixed use",
+          "24-hour rhythm",
+          "spontaneous interaction",
+          "urban vitality"
+        ],
+        "expandedSelfAwareness": "Life emerges when different purposes overlap. I am not just function—I am alive.",
+        "complexityIncrease": 0.2,
+        "affectedThreadTypes": ["culture", "commerce", "housing"]
+      },
+      "storyBeatID": "beat_vibrancy_emergence"
+    },
+    {
+      "name": "resilience",
+      "conditions": {
+        "requiredThreadTypes": ["power", "water", "sewage"],
+        "minimumRelationshipStrength": 0.75
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "system redundancy",
+          "failure cascades",
+          "infrastructure interdependence"
+        ],
+        "expandedSelfAwareness": "My vital systems are interconnected. Strength comes from integration, vulnerability from isolation.",
+        "complexityIncrease": 0.12,
+        "affectedThreadTypes": ["power", "water", "sewage"],
+        "deepenedRelationships": [
+          {
+            "type1": "power",
+            "type2": "water",
+            "quality": "critical dependency",
+            "strengthBonus": 0.2
+          },
+          {
+            "type1": "water",
+            "type2": "sewage",
+            "quality": "systemic flow",
+            "strengthBonus": 0.18
+          }
+        ]
+      },
+      "storyBeatID": "beat_resilience_emergence"
+    },
+    {
+      "name": "identity",
+      "conditions": {
+        "requiredThreadTypes": ["housing", "culture"],
+        "minimumThreadCount": 5,
+        "minimumCityComplexity": 0.5
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "neighborhood character",
+          "collective memory",
+          "sense of place",
+          "belonging"
+        ],
+        "expandedSelfAwareness": "I am not just infrastructure. I have personality. Character. History. I am becoming myself.",
+        "complexityIncrease": 0.25,
+        "affectedThreadTypes": ["housing", "culture"]
+      },
+      "storyBeatID": "beat_identity_emergence"
+    },
+    {
+      "name": "innovation",
+      "conditions": {
+        "requiredThreadTypes": ["knowledge", "commerce", "culture"],
+        "minimumAverageIntegration": 0.65
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "creative collision",
+          "knowledge application",
+          "experimental culture",
+          "idea exchange"
+        ],
+        "expandedSelfAwareness": "When learning, commerce, and creativity overlap, new ideas emerge. I am not just maintaining—I am inventing.",
+        "complexityIncrease": 0.18,
+        "affectedThreadTypes": ["knowledge", "commerce", "culture"],
+        "deepenedRelationships": [
+          {
+            "type1": "knowledge",
+            "type2": "commerce",
+            "quality": "applied research",
+            "strengthBonus": 0.15
+          },
+          {
+            "type1": "culture",
+            "type2": "knowledge",
+            "quality": "creative inquiry",
+            "strengthBonus": 0.15
+          }
+        ]
+      }
+    },
+    {
+      "name": "sustainability",
+      "conditions": {
+        "requiredThreadTypes": ["parks", "water", "power"],
+        "minimumThreadCount": 6,
+        "minimumRelationshipStrength": 0.65
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "ecological balance",
+          "resource cycles",
+          "natural systems integration",
+          "environmental consciousness"
+        ],
+        "expandedSelfAwareness": "I can work with nature, not against it. Green spaces and infrastructure can harmonize.",
+        "complexityIncrease": 0.16,
+        "affectedThreadTypes": ["parks", "water", "power"]
+      }
+    },
+    {
+      "name": "mobility",
+      "conditions": {
+        "requiredThreadTypes": ["transit", "commerce", "culture"],
+        "minimumRelationshipStrength": 0.7
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "transportation as enabler",
+          "accessibility to opportunity",
+          "movement patterns",
+          "transit-oriented vitality"
+        ],
+        "expandedSelfAwareness": "Transit is not just about moving—it's about connecting people to life, work, and culture.",
+        "complexityIncrease": 0.14,
+        "affectedThreadTypes": ["transit", "commerce", "culture"],
+        "deepenedRelationships": [
+          {
+            "type1": "transit",
+            "type2": "commerce",
+            "quality": "economic access",
+            "strengthBonus": 0.12
+          },
+          {
+            "type1": "transit",
+            "type2": "culture",
+            "quality": "cultural connectivity",
+            "strengthBonus": 0.12
+          }
+        ]
+      }
+    },
+    {
+      "name": "livability",
+      "conditions": {
+        "requiredThreadTypes": ["housing", "parks", "transit"],
+        "minimumThreadCount": 7,
+        "minimumAverageIntegration": 0.75
+      },
+      "consciousnessExpansion": {
+        "newPerceptions": [
+          "quality of life",
+          "human-scale design",
+          "livable neighborhoods",
+          "urban comfort"
+        ],
+        "expandedSelfAwareness": "I understand what makes a city good to live in—not just functional, but pleasant, human, whole.",
+        "complexityIncrease": 0.22,
+        "affectedThreadTypes": ["housing", "parks", "transit"]
+      }
+    }
+  ]
+}

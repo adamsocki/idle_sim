@@ -32,6 +32,18 @@ final class City {
     /// Urban threads woven into this city's consciousness
     var threads: [UrbanThread] = []
 
+    /// Emergent properties that have appeared from thread interactions
+    /// These are NOT new voices, but expanded dimensions of consciousness
+    var emergentProperties: [EmergentProperty] = []
+
+    /// New perceptions that the city has gained through emergence
+    /// Examples: "walkability", "proximity as value", "vibrancy"
+    var perceptions: [String] = []
+
+    /// Story beats that have already been triggered for this city
+    /// Used to prevent repeating one-time-only narrative events
+    var triggeredStoryBeats: [String] = []
+
     init(name: String, parameters: [String: Double] = [:], items: [Item] = [] ) {
         self.name = name
         self.createdAt = Date()

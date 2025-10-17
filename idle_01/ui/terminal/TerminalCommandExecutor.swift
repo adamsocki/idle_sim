@@ -833,7 +833,102 @@ class TerminalCommandExecutor {
             ))
         }
 
+        // Check for emergent properties
+        let emergenceDetector = EmergenceDetector()
+        let newProperties = await emergenceDetector.checkForEmergence(in: city)
+
+        for property in newProperties {
+            // Add the property to the city
+            city.emergentProperties.append(property)
+
+            // Add emergence marker
+            outputs.append(CommandOutput(
+                text: "✨ EMERGENCE: \(property.name.uppercased()) ✨",
+                isError: false
+            ))
+
+            // Apply consciousness expansion
+            if let expansion = property.consciousnessExpansion {
+                await emergenceDetector.applyConsciousnessExpansion(expansion, to: city)
+
+                outputs.append(CommandOutput(
+                    text: "CITY: \(expansion.expandedSelfAwareness)",
+                    isError: false,
+                    isDialogue: true
+                ))
+
+                // Display new perceptions
+                if !expansion.newPerceptions.isEmpty {
+                    outputs.append(CommandOutput(
+                        text: "New perceptions gained: \(expansion.newPerceptions.joined(separator: ", "))",
+                        isError: false
+                    ))
+                }
+            }
+
+            // Trigger story beat for this emergence (if one exists)
+            if let storyBeatID = await getStoryBeatIDForEmergence(property.name) {
+                let emergenceBeats = await beatManager.checkTriggers(city: city)
+                let matchingBeat = emergenceBeats.first { $0.id == storyBeatID }
+
+                if let beat = matchingBeat {
+                    outputs.append(CommandOutput(
+                        text: "━━━ STORY BEAT: \(beat.name.uppercased()) ━━━",
+                        isError: false
+                    ))
+
+                    for dialogueLine in beat.dialogue {
+                        let speaker = dialogueLine.speaker.rawValue.uppercased()
+                        outputs.append(CommandOutput(
+                            text: "\(speaker): \(dialogueLine.text)",
+                            isError: false,
+                            isDialogue: true
+                        ))
+                    }
+
+                    if let effects = beat.effects {
+                        await beatManager.applyEffects(effects, to: city)
+                    }
+
+                    if let thought = beat.spawnedThought {
+                        outputs.append(CommandOutput(
+                            text: "💭 THOUGHT: \(thought.thoughtTitle)",
+                            isError: false
+                        ))
+                        outputs.append(CommandOutput(
+                            text: "   \(thought.thoughtBody)",
+                            isError: false
+                        ))
+                    }
+                }
+            }
+        }
+
+        // Save emergence changes
+        if !newProperties.isEmpty {
+            do {
+                try modelContext.save()
+            } catch {
+                outputs.append(CommandOutput(
+                    text: "// Warning: Could not save emergent properties",
+                    isError: false
+                ))
+            }
+        }
+
         return outputs
+    }
+
+    // Helper to get story beat ID for emergence (simplified for now)
+    private func getStoryBeatIDForEmergence(_ emergenceName: String) async -> String? {
+        // Map emergence names to story beat IDs
+        let mapping: [String: String] = [
+            "walkability": "beat_walkability_emergence",
+            "vibrancy": "beat_vibrancy_emergence",
+            "resilience": "beat_resilience_emergence",
+            "identity": "beat_identity_emergence"
+        ]
+        return mapping[emergenceName]
     }
 
     private func handleListThreads(target: String?, filter: String?, selectedCityID: PersistentIdentifier?) -> CommandOutput {

@@ -19,23 +19,37 @@ actor EmergenceDetector {
     private var emergenceRules: [EmergenceRule] = []
 
     init() {
-        Task {
-            await loadEmergenceRules()
-        }
+        // Load rules synchronously on init
+        loadEmergenceRules()
     }
 
     // MARK: - Emergence Rule Loading
 
     /// Load all emergence rules from JSON files
-    @MainActor
     private func loadEmergenceRules() {
         let ruleFiles = [
             "core_emergence"
         ]
 
         for filename in ruleFiles {
-            guard let url = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: "progression/data/emergence_rules") else {
-                print("⚠️ EmergenceDetector: Could not find \(filename).json")
+            // Try multiple possible subdirectory paths
+            let possiblePaths = [
+                "emergence_rules",
+                "data/emergence_rules",
+                "progression/data/emergence_rules",
+                nil
+            ]
+            
+            var url: URL?
+            for subdirectory in possiblePaths {
+                if let foundURL = Bundle.main.url(forResource: filename, withExtension: "json", subdirectory: subdirectory) {
+                    url = foundURL
+                    break
+                }
+            }
+            
+            guard let url = url else {
+                print("⚠️ EmergenceDetector: Could not find \(filename).json in any location")
                 continue
             }
 
@@ -55,10 +69,11 @@ actor EmergenceDetector {
     /// Check for new emergent properties in the city
     /// Returns array of newly emerged properties
     @MainActor
-    func checkForEmergence(in city: City) -> [EmergentProperty] {
+    func checkForEmergence(in city: City) async -> [EmergentProperty] {
         var newProperties: [EmergentProperty] = []
 
-        for rule in emergenceRules {
+        let rules = await getRulesAndEnsureLoaded()
+        for rule in rules {
             // Skip if already emerged
             if city.emergentProperties.contains(where: { $0.name == rule.name }) {
                 continue
@@ -73,6 +88,14 @@ actor EmergenceDetector {
         }
 
         return newProperties
+    }
+
+    /// Get rules from actor, loading them if needed
+    private func getRulesAndEnsureLoaded() async -> [EmergenceRule] {
+        if emergenceRules.isEmpty {
+            loadEmergenceRules()
+        }
+        return emergenceRules
     }
 
     /// Evaluate whether emergence conditions are met

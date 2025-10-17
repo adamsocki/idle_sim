@@ -16,6 +16,7 @@ struct idle_01App: App {
             City.self,
             UserPreferences.self,
             UrbanThread.self,
+            EmergentProperty.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
