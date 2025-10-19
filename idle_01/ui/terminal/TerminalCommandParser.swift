@@ -200,6 +200,41 @@ struct TerminalCommandParser {
             return .listThreads(target: target, filter: filter)
         }
 
+        // MARK: - Visualization Commands (Phase 5)
+        if verb == "fabric" {
+            return .fabric
+        }
+
+        if verb == "consciousness" {
+            return .consciousness
+        }
+
+        if verb == "pulse" {
+            return .pulse
+        }
+
+        if verb == "observe" {
+            // If there's a target, it might be select - handled above
+            // If standalone, it's the observe visualization
+            if expandedComponents.count == 1 {
+                return .observeCity
+            }
+            // Otherwise, it's being used as "select" alias, already handled
+            return .select(target: expandedComponents[1])
+        }
+
+        if verb == "contemplate" {
+            let topic = expandedComponents.count > 1 ? expandedComponents.dropFirst().joined(separator: " ") : nil
+            return .contemplate(topic: topic)
+        }
+
+        if verb == "strengthen" {
+            guard expandedComponents.count > 2 else { return .unknown(input) }
+            let type1 = expandedComponents[1].lowercased()
+            let type2 = expandedComponents[2].lowercased()
+            return .strengthen(type1: type1, type2: type2)
+        }
+
         // MARK: - Clear Command
         if verb == "clear" || verb == "cls" {
             return .clear
@@ -249,6 +284,13 @@ enum TerminalCommand: Equatable {
     case weaveThread(type: String)
     case listThreads(target: String?, filter: String?)
     case inspectThread(target: String)
+    // Phase 5: Visualization Commands
+    case fabric
+    case consciousness
+    case pulse
+    case observeCity
+    case contemplate(topic: String?)
+    case strengthen(type1: String, type2: String)
     case clear
     case unknown(String)
 }

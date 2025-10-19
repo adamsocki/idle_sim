@@ -52,7 +52,7 @@ final class City {
         self.isRunning = false
         self.parameters = parameters
         self.items = items
-        
+
         // Initialize consciousness
         self.cityMood = "awakening"
         self.attentionLevel = 1.0
@@ -65,6 +65,28 @@ final class City {
             "autonomy": 0.0,      // Self-sufficiency
             "complexity": 0.0     // Depth of consciousness (used by story beats)
         ]
+    }
+
+    // MARK: - Computed Properties for Woven Consciousness
+
+    /// City's coherence (sanity/stability) - 0.0 to 1.0
+    var coherence: Double {
+        get { resources["coherence"] ?? 0.5 }
+        set { resources["coherence"] = newValue }
+    }
+
+    /// City's complexity (depth of consciousness) - 0.0 to 1.0
+    var complexity: Double {
+        get { resources["complexity"] ?? 0.0 }
+        set { resources["complexity"] = newValue }
+    }
+
+    /// City's integration (how well threads are connected) - calculated from threads
+    var integration: Double {
+        guard !threads.isEmpty else { return 0.0 }
+
+        let avgIntegration = threads.reduce(0.0) { $0 + $1.integrationLevel } / Double(threads.count)
+        return avgIntegration
     }
 }
 

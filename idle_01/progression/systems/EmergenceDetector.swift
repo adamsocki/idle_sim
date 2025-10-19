@@ -49,7 +49,7 @@ actor EmergenceDetector {
             }
             
             guard let url = url else {
-                print("⚠️ EmergenceDetector: Could not find \(filename).json in any location")
+                print("WARNING: EmergenceDetector: Could not find \(filename).json in any location")
                 continue
             }
 
@@ -57,9 +57,9 @@ actor EmergenceDetector {
                 let data = try Data(contentsOf: url)
                 let collection = try JSONDecoder().decode(EmergenceRuleCollection.self, from: data)
                 emergenceRules.append(contentsOf: collection.emergentProperties)
-                print("✅ Loaded \(collection.emergentProperties.count) emergence rules from \(filename).json")
+                print("Loaded \(collection.emergentProperties.count) emergence rules from \(filename).json")
             } catch {
-                print("❌ EmergenceDetector: Failed to load \(filename).json: \(error)")
+                print("ERROR: EmergenceDetector: Failed to load \(filename).json: \(error)")
             }
         }
     }
@@ -83,7 +83,7 @@ actor EmergenceDetector {
             if evaluateConditions(rule.conditions, city: city) {
                 let property = createEmergentProperty(from: rule, city: city)
                 newProperties.append(property)
-                print("✨ EMERGENCE: \(rule.name) has emerged!")
+                print("EMERGENCE: \(rule.name) has emerged!")
             }
         }
 
@@ -304,7 +304,7 @@ actor EmergenceDetector {
             }
         }
 
-        print("🌟 Consciousness expanded: \(expansion.expandedSelfAwareness)")
+        print("Consciousness expanded: \(expansion.expandedSelfAwareness)")
     }
 
     // MARK: - Nonisolated Access

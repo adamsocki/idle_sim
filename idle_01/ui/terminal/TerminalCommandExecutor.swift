@@ -83,6 +83,25 @@ class TerminalCommandExecutor {
         case .inspectThread(let target):
             return handleInspectThread(target: target, selectedCityID: selectedCityID)
 
+        // Phase 5: Visualization Commands
+        case .fabric:
+            return handleFabric(selectedCityID: selectedCityID)
+
+        case .consciousness:
+            return handleConsciousness(selectedCityID: selectedCityID)
+
+        case .pulse:
+            return handlePulse(selectedCityID: selectedCityID)
+
+        case .observeCity:
+            return handleObserve(selectedCityID: selectedCityID)
+
+        case .contemplate(let topic):
+            return handleContemplate(topic: topic, selectedCityID: selectedCityID)
+
+        case .strengthen(let type1, let type2):
+            return handleStrengthen(type1: type1, type2: type2, selectedCityID: selectedCityID)
+
         case .clear:
             return CommandOutput(text: "// SCREEN_CLEARED", isError: false)
 
@@ -144,6 +163,16 @@ class TerminalCommandExecutor {
         ║  threads [00]            - List threads for specific city    ║
         ║  threads --filter=TYPE   - Filter by thread type             ║
         ║  inspect thread [00]     - Show thread details & relations   ║
+        ║                                                              ║
+        ║ VISUALIZATION (Consciousness Rendering)                      ║
+        ║  fabric                  - View woven fabric of threads      ║
+        ║  consciousness           - View consciousness field          ║
+        ║  pulse                   - View current city pulse/activity  ║
+        ║  observe                 - Generate observation of city      ║
+        ║  contemplate [topic]     - Contemplate a topic (threads,     ║
+        ║                            emergence, consciousness, etc.)   ║
+        ║  strengthen <t1> <t2>    - Strengthen relationship between   ║
+        ║                            two thread types                  ║
         ║                                                              ║
         ║ SETTINGS                                                     ║
         ║  set crt on/off          - Toggle CRT flicker effect         ║
@@ -774,7 +803,7 @@ class TerminalCommandExecutor {
         // Add dialogue if present
         if let dialogue = result.dialogue {
             outputs.append(CommandOutput(
-                text: "🗣️ \(threadType.rawValue.uppercased()): \"\(dialogue)\"",
+                text: "\(threadType.rawValue.uppercased()): \"\(dialogue)\"",
                 isError: false,
                 isDialogue: true
             ))
@@ -813,7 +842,7 @@ class TerminalCommandExecutor {
             // Add thought spawner if present
             if let thought = beat.spawnedThought {
                 outputs.append(CommandOutput(
-                    text: "💭 THOUGHT: \(thought.thoughtTitle)",
+                    text: "THOUGHT: \(thought.thoughtTitle)",
                     isError: false
                 ))
                 outputs.append(CommandOutput(
@@ -843,7 +872,7 @@ class TerminalCommandExecutor {
 
             // Add emergence marker
             outputs.append(CommandOutput(
-                text: "✨ EMERGENCE: \(property.name.uppercased()) ✨",
+                text: "EMERGENCE: \(property.name.uppercased())",
                 isError: false
             ))
 
@@ -892,7 +921,7 @@ class TerminalCommandExecutor {
 
                     if let thought = beat.spawnedThought {
                         outputs.append(CommandOutput(
-                            text: "💭 THOUGHT: \(thought.thoughtTitle)",
+                            text: "THOUGHT: \(thought.thoughtTitle)",
                             isError: false
                         ))
                         outputs.append(CommandOutput(
@@ -1335,6 +1364,188 @@ class TerminalCommandExecutor {
             return String(format: "%02d:%02d:%02d", hours, minutes % 60, seconds % 60)
         } else {
             return String(format: "%02d:%02d", minutes, seconds % 60)
+        }
+    }
+
+    // MARK: - Phase 5: Visualization Commands
+
+    private func handleFabric(selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        let output = FabricRenderer.render(city: city)
+        return CommandOutput(text: output)
+    }
+
+    private func handleConsciousness(selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        // Use a random pulse phase (could be animated in the future)
+        let pulsePhase = Double.random(in: 0...1)
+        let output = ConsciousnessRenderer.render(city: city, pulsePhase: pulsePhase)
+        return CommandOutput(text: output)
+    }
+
+    private func handlePulse(selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        let output = PulseRenderer.render(city: city)
+        return CommandOutput(text: output)
+    }
+
+    private func handleObserve(selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        let output = ObserveRenderer.render(city: city)
+        return CommandOutput(text: output)
+    }
+
+    private func handleContemplate(topic: String?, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        let output = ObserveRenderer.contemplate(topic: topic, city: city)
+        return CommandOutput(text: output)
+    }
+
+    private func handleStrengthen(type1: String, type2: String, selectedCityID: PersistentIdentifier?) -> CommandOutput {
+        guard let selectedCityID = selectedCityID else {
+            return CommandOutput(
+                text: "NO_CITY_SELECTED | Select a city first with 'select [00]'",
+                isError: true
+            )
+        }
+
+        guard let city = allCities.first(where: { $0.persistentModelID == selectedCityID }) else {
+            return CommandOutput(
+                text: "CITY_NOT_FOUND | Selected city no longer exists",
+                isError: true
+            )
+        }
+
+        // Parse thread types
+        guard let threadType1 = parseThreadType(type1) else {
+            return CommandOutput(
+                text: "INVALID_THREAD_TYPE: '\(type1)'",
+                isError: true
+            )
+        }
+
+        guard let threadType2 = parseThreadType(type2) else {
+            return CommandOutput(
+                text: "INVALID_THREAD_TYPE: '\(type2)'",
+                isError: true
+            )
+        }
+
+        // Find threads of these types
+        guard let thread1 = city.threads.first(where: { $0.type == threadType1 }) else {
+            return CommandOutput(
+                text: "NO_THREAD_FOUND: No \(type1) thread exists in this city",
+                isError: true
+            )
+        }
+
+        guard let thread2 = city.threads.first(where: { $0.type == threadType2 }) else {
+            return CommandOutput(
+                text: "NO_THREAD_FOUND: No \(type2) thread exists in this city",
+                isError: true
+            )
+        }
+
+        // Find existing relationship
+        guard let relationshipIndex = thread1.relationships.firstIndex(where: { $0.otherThreadID == thread2.id }) else {
+            return CommandOutput(
+                text: "NO_RELATIONSHIP: These threads are not yet connected. They need to form a relationship first through weaving.",
+                isError: true
+            )
+        }
+
+        // Strengthen the relationship
+        let oldStrength = thread1.relationships[relationshipIndex].strength
+        let newStrength = min(1.0, oldStrength + 0.1)
+        thread1.relationships[relationshipIndex].strength = newStrength
+
+        // Also strengthen the reciprocal relationship in thread2
+        if let reciprocalIndex = thread2.relationships.firstIndex(where: { $0.otherThreadID == thread1.id }) {
+            thread2.relationships[reciprocalIndex].strength = newStrength
+        }
+
+        do {
+            try modelContext.save()
+
+            return CommandOutput(
+                text: """
+                RELATIONSHIP_STRENGTHENED: \(thread1.type.rawValue.uppercased()) ⟷ \(thread2.type.rawValue.uppercased())
+                Old Strength: \(String(format: "%.2f", oldStrength))
+                New Strength: \(String(format: "%.2f", newStrength))
+
+                CITY: The bond between \(type1) and \(type2) deepens. I feel their connection grow stronger.
+                """
+            )
+        } catch {
+            return CommandOutput(
+                text: "ERROR_STRENGTHENING: \(error.localizedDescription)",
+                isError: true
+            )
         }
     }
 }
