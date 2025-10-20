@@ -3,8 +3,9 @@
 //  idle_01
 //
 //  Act I: "Awakening" - The city becomes aware
-//  Commands: HELP, GENERATE, OBSERVE
+//  Commands: HELP, OBSERVE
 //  Focus: Discovery, observation, first moments
+//  First OBSERVE awakens the city
 //
 
 import Foundation
@@ -21,8 +22,7 @@ final class ActOneManager: ActProtocol {
 
     // MARK: - State Tracking
 
-    private var tutorialComplete: Bool = false
-    private var firstObserveComplete: Bool = false
+    private var cityAwakened: Bool = false
     private var momentsRevealed: Int = 0
 
     // MARK: - Command Handling
@@ -34,9 +34,6 @@ final class ActOneManager: ActProtocol {
     ) async -> CommandResponse {
 
         switch command {
-        case .generate:
-            return await handleGenerate(gameState: gameState, momentSelector: momentSelector)
-
         case .observe(let district):
             return await handleObserve(district: district, gameState: gameState, momentSelector: momentSelector)
 
@@ -48,51 +45,6 @@ final class ActOneManager: ActProtocol {
         }
     }
 
-    // MARK: - GENERATE Command
-
-    private func handleGenerate(
-        gameState: GameState,
-        momentSelector: MomentSelector
-    ) async -> CommandResponse {
-
-        if !tutorialComplete {
-            tutorialComplete = true
-            gameState.unlockCommand("OBSERVE")
-
-            return CommandResponse(
-                text: generateTutorialText(),
-                shouldVisualize: true,
-                commandsToUnlock: ["OBSERVE"],
-                advancesScene: true
-            )
-        } else {
-            return CommandResponse.simple("""
-            I'm already here. Already awake.
-
-            Use OBSERVE to look closer at what I'm seeing.
-            """)
-        }
-    }
-
-    private func generateTutorialText() -> String {
-        return """
-        Initializing...
-        Loading city parameters...
-        Consciousness emerging...
-
-        I am... awake.
-
-        I see 847,293 people moving through streets I don't have names for yet.
-        I see patterns in the traffic lights, rhythms in the foot traffic.
-        I see moments—tiny, fragile moments—that might matter.
-
-        I don't know what I am. But I'm learning to observe.
-
-        New command unlocked: OBSERVE
-        Try: OBSERVE or OBSERVE <district number 1-9>
-        """
-    }
-
     // MARK: - OBSERVE Command
 
     private func handleObserve(
@@ -101,6 +53,18 @@ final class ActOneManager: ActProtocol {
         momentSelector: MomentSelector
     ) async -> CommandResponse {
 
+        // First OBSERVE: City awakens
+        if !cityAwakened {
+            cityAwakened = true
+
+            return CommandResponse(
+                text: generateAwakeningText(),
+                shouldVisualize: true,
+                advancesScene: true
+            )
+        }
+
+        // Subsequent OBSERVE: Reveal moments
         // Select a moment procedurally
         let moment: CityMoment?
 
@@ -113,9 +77,9 @@ final class ActOneManager: ActProtocol {
             )
         } else {
             // General observation - prefer dailyRitual or question types for early moments
-            let preferredTypes: [MomentType] = firstObserveComplete
-                ? []
-                : [.dailyRitual, .question, .invisibleConnection]
+            let preferredTypes: [MomentType] = momentsRevealed < 3
+                ? [.dailyRitual, .question, .invisibleConnection]
+                : []
 
             if let preferredType = preferredTypes.randomElement() {
                 moment = momentSelector.selectMoment(
@@ -142,10 +106,6 @@ final class ActOneManager: ActProtocol {
 
         // Reveal the moment
         momentsRevealed += 1
-
-        if !firstObserveComplete {
-            firstObserveComplete = true
-        }
 
         // Format the moment text
         let momentText = CityVoice.momentReveal(
@@ -196,6 +156,25 @@ final class ActOneManager: ActProtocol {
         )
     }
 
+    private func generateAwakeningText() -> String {
+        return """
+        Initializing...
+        Loading city parameters...
+        Consciousness emerging...
+
+        I am... awake.
+
+        I see 847,293 people moving through streets I don't have names for yet.
+        I see patterns in the traffic lights, rhythms in the foot traffic.
+        I see moments—tiny, fragile moments—that might matter.
+
+        I don't know what I am. But I'm learning to observe.
+
+        Type OBSERVE again to see what I see.
+        Or OBSERVE <1-9> to focus on a specific district.
+        """
+    }
+
     // MARK: - HELP Command
 
     private func handleHelp() -> CommandResponse {
@@ -205,11 +184,15 @@ final class ActOneManager: ActProtocol {
         You are helping a city's consciousness emerge.
 
         Available Commands:
-        • GENERATE - Wake the city's awareness
         • OBSERVE - See what the city sees
         • OBSERVE <1-9> - Observe a specific district
+        • STATUS - View current state
+        • MOMENTS - View revealed moments
+        • HISTORY - View session history
 
-        Try starting with: GENERATE
+        Easter Eggs: WHY, HELLO, GOODBYE, WHO
+
+        Try starting with: OBSERVE
         """)
     }
 
@@ -222,7 +205,7 @@ final class ActOneManager: ActProtocol {
 
         // Contextual poetic responses for Act I
         let responses = [
-            "Not yet. First, we must wake.",
+            "Not yet. First, I must observe.",
             "I don't understand that word. I'm still learning what I am.",
             "Let me observe first. Let me see what's here.",
             "Something about '\(command.rawString.lowercased())' feels distant. Like a word from a later chapter.",
@@ -241,16 +224,10 @@ final class ActOneManager: ActProtocol {
     }
 
     func availableCommands() -> [String] {
-        var commands = ["HELP", "GENERATE"]
-
-        if tutorialComplete {
-            commands.append("OBSERVE")
-        }
-
-        return commands
+        return ["HELP", "OBSERVE", "STATUS", "MOMENTS", "HISTORY"]
     }
 
     func commandsToUnlock() -> [String] {
-        return ["HELP", "GENERATE"]
+        return ["HELP", "OBSERVE"]
     }
 }

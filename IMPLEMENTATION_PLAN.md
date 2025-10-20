@@ -2,7 +2,7 @@
 
 ## 🎉 IMPLEMENTATION STATUS UPDATE (2025-10-19)
 
-**Progress: ~70% Complete** | **Phases 1-5 Implemented** | **Act I Fully Playable** | **Build: ✅ PASSING**
+**Progress: ~75% Complete** | **Phases 1-5.5 Implemented** | **Act I Fully Playable & Integrated** | **Build: ✅ PASSING**
 
 ### ✅ Completed Phases
 
@@ -73,8 +73,7 @@
 
 #### **Phase 5: Act I Implementation** ✅ COMPLETE
 - ✅ **ActOneManager.swift** - "Awakening" fully playable
-  - GENERATE command (tutorial + city awakening)
-  - OBSERVE command with procedural moment selection
+  - OBSERVE command as primary command (awakens city on first use)
   - District-specific observations (OBSERVE 1-9)
   - Progressive narrative (3-moment, 6-moment milestones)
   - Wrong command handling with poetic responses
@@ -110,12 +109,14 @@
   - Final decision point leading to endings
   - Theme: What we've become together
 
-#### **Phase 7: Terminal UI Integration** (NOT STARTED)
-- ⬜ Connect NarrativeEngine to existing TerminalCommandExecutor
-- ⬜ Add VisualizationEngine to terminal output
-- ⬜ Create/update GameState initialization in UI
-- ⬜ Handle CommandResponse in terminal output
-- ⬜ Display meta command outputs (STATUS, MOMENTS, HISTORY)
+#### **Phase 7: Terminal UI Integration** ✅ COMPLETE (2025-10-19)
+- ✅ Connected NarrativeEngine to SimulatorView
+- ✅ Created GameState initialization in idle_01App.swift
+- ✅ Dual command routing (narrative + technical commands coexist)
+- ✅ NarrativeEngine initialized on app launch
+- ✅ Welcome message displays on startup
+- ⬜ Add VisualizationEngine to terminal output (PENDING)
+- ⬜ Display ASCII patterns with moments (PENDING)
 
 #### **Phase 8: Content Expansion** (PARTIAL)
 - ✅ 20 moments created (targeting 50-60 total)
@@ -144,14 +145,16 @@
 
 ### 🎮 What's Currently Playable
 
-**Act I: Awakening** is fully functional as a standalone experience:
-1. Type `GENERATE` → City consciousness emerges with tutorial
-2. Type `OBSERVE` → Procedurally-selected moments reveal
-3. Type `OBSERVE 3` → District-specific moment reveals
-4. Type `WHY` / `HELLO` / `GOODBYE` → Easter egg responses
-5. Type `STATUS` → See progress (with debug mode for choice counters)
-6. Type `MOMENTS` → List revealed/destroyed moments
-7. Type `HISTORY` → Session summary with narrative interpretation
+**Act I: Awakening** is fully integrated and playable:
+1. Launch the app → Welcome message appears
+2. Type `HELP` → Show available commands for Act I
+3. Type `OBSERVE` → City awakens (first time) + procedurally-selected moments reveal
+4. Type `OBSERVE 3` → District-specific moment reveals
+5. Type `WHY` / `HELLO` / `GOODBYE` → Easter egg responses
+6. Type `STATUS` → See progress (act, scene, moments revealed)
+7. Type `MOMENTS` → List revealed/destroyed moments
+8. Type `HISTORY` → Session summary with narrative interpretation
+9. Technical commands (`list`, `create city`, `weave transit`) still work alongside narrative
 
 ### 🎯 Immediate Next Steps
 

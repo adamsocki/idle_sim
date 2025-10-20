@@ -1,6 +1,6 @@
 # Implementation Summary - Narrative Terminal Game
 **Date:** October 19, 2025
-**Status:** ~70% Complete | Act I Fully Playable | Build: ✅ PASSING
+**Status:** ~75% Complete | Act I Fully Playable & Integrated | Build: ✅ PASSING
 
 ---
 
@@ -277,13 +277,9 @@ Central coordinator for the entire experience:
 ### **11. ActOneManager.swift** - "Awakening"
 Complete Act I implementation:
 
-- **GENERATE Command:**
-  - Tutorial text on first use
-  - City awakening narrative
-  - Unlocks OBSERVE command
-
 - **OBSERVE Command:**
-  - Procedural moment selection
+  - City awakens on first use (tutorial integrated)
+  - Procedural moment selection using MomentSelector
   - District-specific observations (OBSERVE 1-9)
   - Progressive narrative milestones:
     - 3 moments: "I'm starting to notice patterns..."
@@ -298,7 +294,42 @@ Complete Act I implementation:
   - Requires 8 moments minimum (configurable)
   - Returns true when threshold met
 
-### **12. Build Fixes (October 19, 2025)** - Type Safety & Compilation
+### **12. Terminal Integration (October 19, 2025)** - Making Act I Playable
+Complete integration of narrative system with existing terminal UI:
+
+- **GameState Initialization:**
+  - Added to idle_01App.swift startup sequence
+  - Auto-creates on first launch
+  - Persisted in SwiftData alongside cities
+
+- **NarrativeEngine Integration:**
+  - Initialized in SimulatorView.onAppear()
+  - Dual command routing system:
+    - Narrative commands (OBSERVE, HELP, STATUS) → NarrativeEngine
+    - Technical commands (list, create city, weave) → TerminalCommandExecutor
+  - Both systems coexist seamlessly
+
+- **Command Flow:**
+  ```swift
+  User Input → executeTerminalCommand()
+               ↓
+          Parse as NarrativeCommand
+               ↓
+          Is it recognized?
+          ├─ YES → Route to NarrativeEngine (async)
+          └─ NO  → Route to TerminalCommandExecutor
+  ```
+
+- **Welcome Experience:**
+  - Launch app → Welcome message appears automatically
+  - "Type HELP for available commands"
+  - "Act I: The First Breaths - A city begins to remember..."
+
+- **Toggle Flag:**
+  - `useNarrativeMode` @AppStorage (default: true)
+  - Can disable narrative routing for debugging
+
+### **13. Build Fixes (October 19, 2025)** - Type Safety & Compilation
 Critical fixes to resolve type ambiguities:
 
 - **Type Namespace Conflicts:**
@@ -324,11 +355,21 @@ Critical fixes to resolve type ambiguities:
 ## 🎮 Current Gameplay Loop (Act I)
 
 ```
-1. Player types: GENERATE
-   → City awakens with tutorial
-   → OBSERVE command unlocked
+1. Launch App
+   → Welcome message displays
+   → NarrativeEngine initialized with GameState
+   → "Type HELP for available commands"
 
-2. Player types: OBSERVE
+2. Player types: HELP
+   → Shows Act I commands: OBSERVE, STATUS, MOMENTS, HISTORY
+   → Lists available easter eggs
+
+3. Player types: OBSERVE (first time)
+   → City awakens with tutorial narrative
+   → "I am... awake. I see 847,293 people..."
+   → First moment selection begins
+
+4. Player types: OBSERVE
    → Procedural moment selection based on:
       - Act constraints (Act 1 only)
       - Choice affinity (if player has choice history)
@@ -337,19 +378,22 @@ Critical fixes to resolve type ambiguities:
    → Visualization triggers (pulse, flash, etc.)
    → Scene advances
 
-3. Player types: OBSERVE 3
+5. Player types: OBSERVE 3
    → Same as above but filtered to district 3
 
-4. Player types: WHY
+6. Player types: WHY
    → Easter egg response based on act and trust
 
-5. Player types: STATUS
+7. Player types: STATUS
    → Shows act, moments revealed/destroyed
    → Debug mode shows choice distribution
 
-6. Repeat OBSERVE until 8 moments revealed
+8. Repeat OBSERVE until 8 moments revealed
    → Act I completes
    → (Would transition to Act II if implemented)
+
+9. Technical commands still work:
+   → list, create city, weave transit, etc.
 ```
 
 ---
@@ -367,11 +411,13 @@ Critical fixes to resolve type ambiguities:
 - ✅ ASCII visualization patterns
 - ✅ Act I complete gameplay loop
 - ✅ All 8 ending conditions coded
+- ✅ NarrativeEngine integrated with terminal
+- ✅ GameState initialization on app launch
+- ✅ Dual command routing (narrative + technical)
 
 **Needs Integration:**
-- ⚠️ NarrativeEngine → TerminalCommandExecutor
-- ⚠️ VisualizationEngine → Terminal UI
-- ⚠️ GameState initialization in app
+- ⚠️ VisualizationEngine → Terminal UI display
+- ⚠️ ASCII patterns shown with moment reveals
 
 ---
 
@@ -382,10 +428,10 @@ Critical fixes to resolve type ambiguities:
 - ActThreeManager - Commands: DECIDE, QUESTION, REFLECT
 - ActFourManager - Commands: ACCEPT, RESIST, TRANSCEND
 
-### **Phase 7: Terminal Integration** (~20% of remaining work)
-- Connect NarrativeEngine to existing TerminalCommandExecutor
-- Render VisualizationEngine in terminal UI
-- Initialize GameState on app launch
+### **Phase 7: Visualization Integration** (~10% of remaining work)
+- ⚠️ Render ASCII patterns in terminal output
+- ⚠️ Trigger visualizations on moment reveals
+- ⚠️ Display patterns alongside narrative text
 
 ### **Phase 8: Content Expansion** (~30% of remaining work)
 - Add 30 more moments (total 50)
@@ -458,17 +504,18 @@ Critical fixes to resolve type ambiguities:
 ## 🚀 Next Session Recommendations
 
 **Option A: Complete the Game** (Recommended)
-1. Create ActTwoManager (2-3 hours)
-2. Create ActThreeManager (2-3 hours)
-3. Create ActFourManager (2-3 hours)
-4. Integrate with terminal UI (1-2 hours)
+1. Remove GENERATE command from ActOneManager (5 minutes)
+2. Create ActTwoManager (2-3 hours)
+3. Create ActThreeManager (2-3 hours)
+4. Create ActFourManager (2-3 hours)
 5. Playtest and tune (2-3 hours)
 
 **Option B: Test What We Have**
-1. Integrate NarrativeEngine with existing terminal
+1. Fix ActOneManager to remove GENERATE
 2. Test Act I gameplay thoroughly
 3. Tune moment selection weights
 4. Validate choice affinity behavior
+5. Add ASCII visualization display
 
 **Option C: Expand Content**
 1. Add 15 more moments for Act II

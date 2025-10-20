@@ -281,6 +281,20 @@
       "ifRemembered": "Names carry history. Oak Street remembers oaks. River Road remembers water. When you erase the names, you erase the memory. Can a city have amnesia? Can I prevent that?",
       "tags": ["streets", "names", "history", "memory"],
       "authorNotes": "Question about history and naming. Very low fragility—just names."
+    },
+    {
+      "momentID": "bus_route_47",
+      "text": "Bus route 47 winds through the old district. The scenic route. Only 47 daily riders.",
+      "type": "smallRebellion",
+      "district": 6,
+      "fragility": 10,
+      "associatedAct": 2,
+      "firstMention": "Bus route 47. The long way through the old district. Past the murals. Past the baker who waves. Past the bridge at dawn when the light hits just right. 23 minutes instead of 12. Only 47 people ride it daily. Inefficient. Beautiful.",
+      "ifPreserved": "Route 47 still runs. The new development can wait. The murals still get their morning audience. The baker still waves. Efficiency isn't everything. Sometimes the long way home is the right way.",
+      "ifDestroyed": "Route 47 was optimized. Straightened. 12 minutes now. Serves 200+ riders from the new development. The murals face an empty street. The baker stopped looking up. No one sees the bridge at dawn anymore. Was it worth it?",
+      "ifRemembered": "Route 47 was never about transportation. It was about the journey. About the baker's wave becoming part of someone's morning. About murals having an audience. About beauty being inefficient. I'm learning: sometimes the purpose isn't the destination.",
+      "tags": ["transit", "beauty", "efficiency", "rebellion", "decision_point"],
+      "authorNotes": "Central Act II decision point. Maximum fragility - the choice that defines the player's values. Referenced in ActTwoManager."
     }
   ]
 }

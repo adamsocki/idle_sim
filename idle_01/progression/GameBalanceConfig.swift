@@ -237,6 +237,10 @@ struct GameBalanceConfig {
         /// Minimum moments revealed in Act II
         static let actTwoMomentMinimum: Int = 10
 
+        /// Minimum choices made before Act II can complete
+        /// Ensures player engages with REMEMBER/PRESERVE/OPTIMIZE
+        static let actTwoChoiceMinimum: Int = 5
+
         /// Minimum moments revealed in Act III
         static let actThreeMomentMinimum: Int = 10
 

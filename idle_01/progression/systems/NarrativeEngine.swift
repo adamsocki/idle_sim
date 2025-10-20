@@ -38,8 +38,8 @@ final class NarrativeEngine {
 
         // Initialize act managers
         self.actManagers[1] = ActOneManager()
-        // TODO: Implement ActTwoManager, ActThreeManager, ActFourManager
-        // self.actManagers[2] = ActTwoManager()
+        self.actManagers[2] = ActTwoManager()
+        // TODO: Implement ActThreeManager, ActFourManager
         // self.actManagers[3] = ActThreeManager()
         // self.actManagers[4] = ActFourManager()
     }

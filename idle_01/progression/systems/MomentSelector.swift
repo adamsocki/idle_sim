@@ -268,6 +268,18 @@ final class MomentSelector {
         return moments.filter { $0.tags.contains(tag) }
     }
 
+    /// Gets a specific moment by ID
+    func getMoment(by momentID: String) -> CityMoment? {
+        let descriptor = FetchDescriptor<CityMoment>(
+            predicate: #Predicate { moment in
+                moment.momentID == momentID
+            }
+        )
+
+        guard let moments = try? modelContext.fetch(descriptor) else { return nil }
+        return moments.first
+    }
+
     // MARK: - Weighted Selection Algorithm
 
     /// Performs weighted random selection from candidates

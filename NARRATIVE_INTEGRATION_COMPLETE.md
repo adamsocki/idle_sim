@@ -45,8 +45,8 @@ A city begins to remember...
 
 **Narrative Commands:**
 - `HELP` - Show Act I help
-- `GENERATE` - Generate a new moment (reveals a city memory)
-- `OBSERVE` or `OBSERVE <district>` - Observe a specific district (0-9)
+- `OBSERVE` - City awakens (first time), then reveals moments
+- `OBSERVE <district>` - Observe a specific district (1-9)
 - `STATUS` - View current game state (act, scene, moments revealed)
 - `MOMENTS` - View all revealed moments
 - `HISTORY` - View session history and choices
@@ -55,6 +55,7 @@ A city begins to remember...
 - `WHY` - City asks why
 - `HELLO` - City greets you
 - `WHO` - City questions identity
+- `GOODBYE` - City resists ending
 
 **Technical Commands (still work):**
 - `list` - List all cities
@@ -66,12 +67,13 @@ A city begins to remember...
 Try these commands to test Act I:
 
 1. ✅ `HELP` - Should show Act I help with available commands
-2. ✅ `GENERATE` - Should reveal a random moment with City voice
-3. ✅ `OBSERVE 3` - Should reveal moment from district 3
-4. ✅ `STATUS` - Should show Act 1, Scene 1, moments revealed count
-5. ✅ `MOMENTS` - Should list all revealed moments
-6. ✅ `WHY` - Should trigger easter egg response
-7. ✅ `list` - Should still work (technical commands work alongside)
+2. ✅ `OBSERVE` (first time) - Should awaken city with tutorial narrative
+3. ✅ `OBSERVE` (subsequent) - Should reveal procedurally-selected moments
+4. ✅ `OBSERVE 3` - Should reveal moment from district 3
+5. ✅ `STATUS` - Should show Act 1, Scene 1, moments revealed count
+6. ✅ `MOMENTS` - Should list all revealed moments
+7. ✅ `WHY` - Should trigger easter egg response
+8. ✅ `list` - Should still work (technical commands work alongside)
 
 ## What's Next
 
