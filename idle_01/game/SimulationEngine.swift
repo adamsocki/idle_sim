@@ -28,7 +28,7 @@ public class SimulationEngine {
 
             // Narrative events every 10 ticks
             if tick % 10 == 0 {
-                NarrativeEngine().evolve(city)
+                SimulationNarrativeEngine().evolve(city)
             }
 
             try? await Task.sleep(nanoseconds: intervalNs)
@@ -151,7 +151,7 @@ public class SimulationEngine {
     }
 }
 
-final class NarrativeEngine {
+final class SimulationNarrativeEngine {
     func evolve(_ city: City) {
         // Count unanswered requests
         let unansweredRequests = city.items.filter { $0.response == nil }.count

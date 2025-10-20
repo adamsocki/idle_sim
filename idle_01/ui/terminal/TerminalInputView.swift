@@ -107,8 +107,11 @@ struct TerminalInputView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: outputHistory.count) { _, _ in
                     if let last = outputHistory.last {
-                        withAnimation {
-                            proxy.scrollTo(last.id, anchor: .bottom)
+                        // Use async to ensure layout is complete before scrolling
+                        DispatchQueue.main.async {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                proxy.scrollTo(last.id, anchor: .bottom)
+                            }
                         }
                     }
                 }

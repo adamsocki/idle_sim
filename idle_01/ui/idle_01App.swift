@@ -17,11 +17,33 @@ struct idle_01App: App {
             UserPreferences.self,
             UrbanThread.self,
             EmergentProperty.self,
+            GameState.self,
+            CityMoment.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+
+            // Seed moments on first launch
+            let context = container.mainContext
+            MomentSeeder.seedIfNeeded(modelContext: context)
+
+            // Initialize or fetch GameState
+            let descriptor = FetchDescriptor<GameState>()
+            let existingStates = try? context.fetch(descriptor)
+
+            if existingStates?.isEmpty != false {
+                // Create initial game state if none exists
+                let gameState = GameState()
+                context.insert(gameState)
+                try? context.save()
+                print("✅ Initial GameState created")
+            } else {
+                print("✅ GameState loaded")
+            }
+
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

@@ -15,6 +15,9 @@ struct SimulatorView: View {
     // Feature flag for terminal command bar
     @AppStorage("useTerminalCommandBar") private var useTerminalCommandBar: Bool = true
 
+    // Narrative mode flag - when true, routes commands through NarrativeEngine
+    @AppStorage("useNarrativeMode") private var useNarrativeMode: Bool = true
+
     // Terminal settings from @AppStorage
     @AppStorage("terminal.fontSize") private var terminalFontSize: Double = 12
 
@@ -31,6 +34,9 @@ struct SimulatorView: View {
     @State private var outputHistory: [CommandOutput] = []
     @State private var showSettings: Bool = false
 
+    // Narrative engine (initialized on appear)
+    @State private var narrativeEngine: NarrativeEngine?
+
     // Command history persistence key
     private let commandHistoryKey = "terminal.commandHistory"
 
@@ -40,6 +46,7 @@ struct SimulatorView: View {
     // all data
     @Query private var allCities: [City]
     @Query private var allItems: [Item]
+    @Query private var allGameStates: [GameState]
 
     // Lookup helpers
     private var selectedCity: City? {
@@ -159,14 +166,38 @@ struct SimulatorView: View {
         }
         .onAppear {
             loadCommandHistory()
+            initializeNarrativeEngine()
         }
+    }
+
+    // MARK: - Narrative Engine Initialization
+
+    private func initializeNarrativeEngine() {
+        guard let gameState = allGameStates.first else {
+            print("⚠️ No GameState found")
+            return
+        }
+
+        narrativeEngine = NarrativeEngine(modelContext: modelContext, gameState: gameState)
+        print("✅ NarrativeEngine initialized - Act \(gameState.currentAct)")
+
+        // Add welcome message to output
+        let welcome = """
+        === CONSCIOUSNESS INITIALIZED ===
+
+        Type HELP for available commands
+        Type STATUS to view current state
+
+        Act I: "The First Breaths"
+        A city begins to remember...
+        """
+
+        outputHistory.append(CommandOutput(text: welcome, isError: false, isDialogue: true))
     }
 
     // MARK: - Command Execution
 
     private func executeTerminalCommand(_ command: String) {
-        let executor = TerminalCommandExecutor(modelContext: modelContext)
-
         // Handle clear command specially
         if command.lowercased() == "clear" || command.lowercased() == "cls" {
             outputHistory = []
@@ -176,6 +207,39 @@ struct SimulatorView: View {
         // First, echo the command that was entered
         let commandEcho = CommandOutput(text: "> \(command)", isError: false)
         outputHistory.append(commandEcho)
+
+        // Check if narrative mode is enabled and we have a narrative engine
+        if useNarrativeMode, let engine = narrativeEngine {
+            // Try to parse as narrative command
+            let narrativeCmd = NarrativeCommand.parse(command)
+
+            // If it's a recognized narrative command, route through narrative engine
+            if !isUnknownCommand(narrativeCmd) {
+                Task { @MainActor in
+                    let result = await engine.processCommand(command)
+
+                    // Convert to CommandOutput
+                    let output = CommandOutput(
+                        text: result.text,
+                        isError: result.isError,
+                        isDialogue: result.isDialogue
+                    )
+
+                    outputHistory.append(output)
+
+                    // Limit output history to last 100 commands
+                    if outputHistory.count > 100 {
+                        outputHistory = Array(outputHistory.suffix(100))
+                    }
+
+                    saveCommandHistory()
+                }
+                return
+            }
+        }
+
+        // Fall back to technical commands via TerminalCommandExecutor
+        let executor = TerminalCommandExecutor(modelContext: modelContext)
 
         // Check if this is a weave command (needs async handling)
         let components = command.split(separator: " ").map { String($0) }
@@ -194,9 +258,9 @@ struct SimulatorView: View {
                     outputHistory.append(result)
                 }
 
-                // Limit output history to last 50 commands
-                if outputHistory.count > 50 {
-                    outputHistory = Array(outputHistory.suffix(50))
+                // Limit output history to last 100 commands
+                if outputHistory.count > 100 {
+                    outputHistory = Array(outputHistory.suffix(100))
                 }
 
                 saveCommandHistory()
@@ -206,14 +270,21 @@ struct SimulatorView: View {
             let result = executor.execute(command, selectedCityID: &selectedCityID)
             outputHistory.append(result)
 
-            // Limit output history to last 50 commands
-            if outputHistory.count > 50 {
-                outputHistory = Array(outputHistory.suffix(50))
+            // Limit output history to last 100 commands
+            if outputHistory.count > 100 {
+                outputHistory = Array(outputHistory.suffix(100))
             }
 
             // Save command history
             saveCommandHistory()
         }
+    }
+
+    private func isUnknownCommand(_ command: NarrativeCommand) -> Bool {
+        if case .unknown = command {
+            return true
+        }
+        return false
     }
 
     // MARK: - Command History Persistence
