@@ -18,6 +18,9 @@ struct SimulatorView: View {
     // Narrative mode flag - when true, routes commands through NarrativeEngine
     @AppStorage("useNarrativeMode") private var useNarrativeMode: Bool = true
 
+    // Auto-reset flag - when true, resets game state on app launch
+    @AppStorage("autoResetOnLaunch") private var autoResetOnLaunch: Bool = true
+
     // Terminal settings from @AppStorage
     @AppStorage("terminal.fontSize") private var terminalFontSize: Double = 12
 
@@ -179,7 +182,14 @@ struct SimulatorView: View {
         }
 
         narrativeEngine = NarrativeEngine(modelContext: modelContext, gameState: gameState)
-        print("✅ NarrativeEngine initialized - Act \(gameState.currentAct)")
+
+        // Reset game if auto-reset is enabled
+        if autoResetOnLaunch {
+            narrativeEngine?.resetGame()
+            print("✅ NarrativeEngine initialized - Game reset to Act 1")
+        } else {
+            print("✅ NarrativeEngine initialized - Act \(gameState.currentAct)")
+        }
 
         // Add welcome message to output
         let welcome = """
@@ -227,6 +237,21 @@ struct SimulatorView: View {
 
                     outputHistory.append(output)
 
+                    // If this was a reset command, clear output history and show welcome message
+                    if case .reset = narrativeCmd {
+                        outputHistory = []
+                        let welcome = """
+                        === CONSCIOUSNESS INITIALIZED ===
+
+                        Type HELP for available commands
+                        Type STATUS to view current state
+
+                        Act I: "The First Breaths"
+                        A city begins to remember...
+                        """
+                        outputHistory.append(CommandOutput(text: welcome, isError: false, isDialogue: true))
+                    }
+
                     // Limit output history to last 100 commands
                     if outputHistory.count > 100 {
                         outputHistory = Array(outputHistory.suffix(100))
@@ -238,46 +263,13 @@ struct SimulatorView: View {
             }
         }
 
-        // Fall back to technical commands via TerminalCommandExecutor
-        let executor = TerminalCommandExecutor(modelContext: modelContext)
-
-        // Check if this is a weave command (needs async handling)
-        let components = command.split(separator: " ").map { String($0) }
-        if let firstWord = components.first?.lowercased(),
-           (firstWord == "weave" || firstWord == "thread") && components.count > 1 {
-            let threadType = components[1]
-
-            // Execute async and append results
-            Task { @MainActor in
-                let results = await executor.executeWeaveThreadAsync(
-                    type: threadType,
-                    selectedCityID: selectedCityID
-                )
-
-                for result in results {
-                    outputHistory.append(result)
-                }
-
-                // Limit output history to last 100 commands
-                if outputHistory.count > 100 {
-                    outputHistory = Array(outputHistory.suffix(100))
-                }
-
-                saveCommandHistory()
-            }
-        } else {
-            // Execute command synchronously and append result
-            let result = executor.execute(command, selectedCityID: &selectedCityID)
-            outputHistory.append(result)
-
-            // Limit output history to last 100 commands
-            if outputHistory.count > 100 {
-                outputHistory = Array(outputHistory.suffix(100))
-            }
-
-            // Save command history
-            saveCommandHistory()
-        }
+        // Unknown command - show error message
+        let errorOutput = CommandOutput(
+            text: "Unknown command: '\(command)'\nType HELP for available commands",
+            isError: true
+        )
+        outputHistory.append(errorOutput)
+        saveCommandHistory()
     }
 
     private func isUnknownCommand(_ command: NarrativeCommand) -> Bool {
