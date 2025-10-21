@@ -1,8 +1,8 @@
 # Implementation Plan - Narrative Terminal Game
 
-## 🎉 IMPLEMENTATION STATUS UPDATE (2025-10-19)
+## 🎉 IMPLEMENTATION STATUS UPDATE (2025-10-20)
 
-**Progress: ~75% Complete** | **Phases 1-5.5 Implemented** | **Act I Fully Playable & Integrated** | **Build: ✅ PASSING**
+**Progress: ~85% Complete** | **Phases 1-6 (Partial) Implemented** | **Acts I-II Fully Playable & Integrated** | **Build: ✅ PASSING**
 
 ### ✅ Completed Phases
 
@@ -93,13 +93,36 @@
   - Only Swift 6 concurrency warnings (expected)
   - All progression system types properly namespaced
 
+#### **Phase 6: Acts II-IV** ✅ ACT II COMPLETE (2025-10-20)
+- ✅ **ActTwoManager** - "Stories Within"
+  - ✅ Commands: REMEMBER, PRESERVE, OPTIMIZE
+  - ✅ Decision point: Bus route 47 optimization
+  - ✅ Theme: Choosing what matters
+  - ✅ First OPTIMIZE triggers bus route decision
+  - ✅ Completion requires bus route decision + 5 total choices
+  - ✅ Progressive reflection based on player actions
+  - ✅ Wrong command handling with Act II-specific poetic responses
+- ✅ **Enhanced MomentSelector** - ID-based lookups
+  - ✅ Added `getMoment(by:)` method for targeted retrieval
+- ✅ **Bus Route 47 Moment** - Central Act II decision
+  - ✅ Maximum fragility (10/10) moment added to library
+  - ✅ All 4 narrative variants (first mention, preserved, destroyed, remembered)
+  - ✅ Tagged as "decision_point" for special handling
+- ✅ **Game Balance Updates**
+  - ✅ Added `actTwoChoiceMinimum` config (5 choices)
+  - ✅ Act II completion logic implemented
+- ⬜ **ActThreeManager** - "Weight of Choices" (NOT STARTED)
+  - Commands: DECIDE, QUESTION, REFLECT
+  - Decision points: Major city transformations
+  - Theme: Consequences becoming visible
+- ⬜ **ActFourManager** - "What Remains" (NOT STARTED)
+  - Commands: ACCEPT, RESIST, TRANSCEND
+  - Final decision point leading to endings
+  - Theme: What we've become together
+
 ### 🚧 Remaining Work
 
-#### **Phase 6: Acts II-IV** (NOT STARTED)
-- ⬜ **ActTwoManager** - "Stories Within"
-  - Commands: REMEMBER, PRESERVE, OPTIMIZE
-  - Decision point: Bus route optimization
-  - Theme: Choosing what matters
+#### **Phase 6: Acts III-IV** (NOT STARTED)
 - ⬜ **ActThreeManager** - "Weight of Choices"
   - Commands: DECIDE, QUESTION, REFLECT
   - Decision points: Major city transformations
@@ -119,7 +142,8 @@
 - ⬜ Display ASCII patterns with moments (PENDING)
 
 #### **Phase 8: Content Expansion** (PARTIAL)
-- ✅ 20 moments created (targeting 50-60 total)
+- ✅ 21 moments created (targeting 50-60 total)
+- ✅ Bus route 47 moment added for Act II
 - ⬜ Expand to 30 more moments (Acts 2-4)
 - ⬜ Ensure district coverage (5+ per district)
 - ⬜ Validate type distribution
@@ -135,17 +159,19 @@
 
 ### 📊 Implementation Statistics
 
-**Files Created:** 11 core systems
-**Lines of Code:** ~3,000+
-**Moment Library:** 20/50 moments (40%)
-**Acts Implemented:** 1/4 (25%)
+**Files Created:** 12 core systems
+**Lines of Code:** ~3,500+
+**Moment Library:** 21/50 moments (42%)
+**Acts Implemented:** 2/4 (50%)
 **Endings Coded:** 8/8 (100% logic, 0% narrative)
 **Easter Eggs:** 8/8 (100%)
 **Visualization Patterns:** 13/13 (100%)
 
 ### 🎮 What's Currently Playable
 
-**Act I: Awakening** is fully integrated and playable:
+**Acts I-II: Awakening → Stories Within** are fully integrated and playable:
+
+**Act I:**
 1. Launch the app → Welcome message appears
 2. Type `HELP` → Show available commands for Act I
 3. Type `OBSERVE` → City awakens (first time) + procedurally-selected moments reveal
@@ -154,14 +180,31 @@
 6. Type `STATUS` → See progress (act, scene, moments revealed)
 7. Type `MOMENTS` → List revealed/destroyed moments
 8. Type `HISTORY` → Session summary with narrative interpretation
-9. Technical commands (`list`, `create city`, `weave transit`) still work alongside narrative
+9. Reveal 8+ moments → Transition to Act II
+
+**Act II:**
+1. New commands unlock: `REMEMBER`, `PRESERVE`, `OPTIMIZE`
+2. Type `REMEMBER <moment-id>` → Deep reflection on a moment (story choice)
+3. Type `PRESERVE <moment-id>` → Protect a fragile moment from destruction (story choice)
+4. Type `OPTIMIZE` (first time) → Triggers bus route 47 decision point
+5. Choose between: PRESERVE bus_route_47, OPTIMIZE, or REMEMBER bus_route_47
+6. Continue making choices → Each affects city relationship and future moments
+7. Make 5+ total choices + bus route decision → Complete Act II
+8. Technical commands (`list`, `create city`, `weave transit`) still work alongside narrative
 
 ### 🎯 Immediate Next Steps
 
-1. **Create ActTwoManager** - Similar structure to ActOne
-2. **Integrate with existing terminal UI** - Connect NarrativeEngine to TerminalCommandExecutor
-3. **Test Act I gameplay** - Verify moment selection, variety, pacing
-4. **Expand moment library** - Add 10-15 more moments for Acts 2-3
+1. **Create ActThreeManager** - "Weight of Choices"
+   - DECIDE, QUESTION, REFLECT commands
+   - Major transformation decision points
+   - Consequences becoming visible
+2. **Create ActFourManager** - "What Remains"
+   - ACCEPT, RESIST, TRANSCEND commands
+   - Final choices leading to endings
+   - Ending determination and epilogues
+3. **Integrate Visualizations** - Display ASCII patterns in terminal
+4. **Expand moment library** - Add 30 more moments for Acts 3-4
+5. **Write ending epilogues** - Complete narrative text for all 8 endings
 
 ### ⚙️ Architecture Decisions Made
 
