@@ -244,6 +244,14 @@ struct GameBalanceConfig {
         /// Minimum moments revealed in Act III
         static let actThreeMomentMinimum: Int = 10
 
+        /// Minimum choices made before Act III can complete
+        /// Ensures player engages with DECIDE/QUESTION/REFLECT
+        static let actThreeChoiceMinimum: Int = 5
+
+        /// Minimum choices made before Act IV can complete
+        /// Ensures player engages with ACCEPT/RESIST/TRANSCEND before reaching ending
+        static let actFourChoiceMinimum: Int = 3
+
         /// Minimum total choices made before reaching Act IV
         /// Ensures player has made enough decisions to determine ending
         static let actFourMinimumChoices: Int = 15

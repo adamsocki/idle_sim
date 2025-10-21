@@ -39,9 +39,8 @@ final class NarrativeEngine {
         // Initialize act managers
         self.actManagers[1] = ActOneManager()
         self.actManagers[2] = ActTwoManager()
-        // TODO: Implement ActThreeManager, ActFourManager
-        // self.actManagers[3] = ActThreeManager()
-        // self.actManagers[4] = ActFourManager()
+        self.actManagers[3] = ActThreeManager(momentSelector: self.momentSelector)
+        self.actManagers[4] = ActFourManager(momentSelector: self.momentSelector)
     }
 
     // MARK: - Command Processing
@@ -154,7 +153,16 @@ final class NarrativeEngine {
         if gameState.currentAct == 4 {
             if let ending = checkForEnding() {
                 gameState.reachedEnding = ending.rawValue
-                // TODO: Trigger ending sequence
+
+                // Trigger ending sequence with full epilogue
+                let epilogue = EndingEpilogues.epilogue(for: ending, gameState: gameState, momentSelector: momentSelector)
+
+                return NarrativeCommandOutput(
+                    text: epilogue,
+                    isError: false,
+                    isDialogue: true,
+                    timestamp: Date()
+                )
             }
         }
 
@@ -433,6 +441,21 @@ final class NarrativeEngine {
     }
 
     // MARK: - Utility Methods
+
+    /// Shows the ending epilogue (for testing or manual trigger)
+    func showEnding() -> NarrativeCommandOutput {
+        let ending = determineEnding()
+        gameState.reachedEnding = ending.rawValue
+
+        let epilogue = EndingEpilogues.epilogue(for: ending, gameState: gameState, momentSelector: momentSelector)
+
+        return NarrativeCommandOutput(
+            text: epilogue,
+            isError: false,
+            isDialogue: true,
+            timestamp: Date()
+        )
+    }
 
     /// Resets game state (for new playthrough)
     func resetGame() {
