@@ -111,12 +111,19 @@ struct TerminalInputView: View {
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: outputHistory.count) { _, _ in
-                    // Scroll to bottom marker after layout completes
+                    #if os(macOS)
+                    // Animated scroll on macOS
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         withAnimation(.easeOut(duration: 0.25)) {
                             proxy.scrollTo("bottom", anchor: .bottom)
                         }
                     }
+                    #else
+                    // Instant scroll on iOS for better performance
+                    DispatchQueue.main.async {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                    #endif
                 }
             }
         }
@@ -357,14 +364,22 @@ struct TerminalInputView: View {
     }
 
     private func startCursorBlink() {
+        #if os(macOS)
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             if cursorBlinkEnabled {
                 cursorBlink.toggle()
             }
         }
+        #else
+        // Use animation instead of timer on iOS for better performance
+        withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
+            cursorBlink.toggle()
+        }
+        #endif
     }
 
     private func startCRTFlicker() {
+        #if os(macOS)
         Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             if crtEffectEnabled {
                 // Random subtle flicker between 0.95 and 1.0
@@ -373,6 +388,10 @@ struct TerminalInputView: View {
                 crtFlicker = 1.0
             }
         }
+        #else
+        // Disable CRT flicker on iOS for performance
+        crtFlicker = 1.0
+        #endif
     }
 
     private var bottomBorder: some View {

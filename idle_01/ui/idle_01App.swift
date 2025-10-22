@@ -8,6 +8,12 @@
 import SwiftUI
 import SwiftData
 
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
+
 @main
 struct idle_01App: App {
     var sharedModelContainer: ModelContainer = {
@@ -55,6 +61,7 @@ struct idle_01App: App {
             .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)
+        #if os(macOS)
         .commands {
             // Customize the Help menu
             CommandGroup(replacing: .help) {
@@ -96,5 +103,6 @@ struct idle_01App: App {
                 }
             }
         }
+        #endif
     }
 }

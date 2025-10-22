@@ -94,11 +94,13 @@ struct LiquidButton: View {
             .scaleEffect(isPressed ? 0.97 : 1.0)
         }
         .buttonStyle(.plain)
+        #if os(macOS)
         .onHover { hovering in
             withAnimation(.easeOut(duration: 0.2)) {
                 isHovering = hovering
             }
         }
+        #endif
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -113,6 +115,7 @@ struct LiquidButton: View {
                 }
         )
         .onAppear {
+            #if os(macOS)
             if style.shouldBreathe {
                 // Start gentle breathing animation
                 withAnimation(
@@ -122,6 +125,8 @@ struct LiquidButton: View {
                     breatheAnimation = true
                 }
             }
+            #endif
+            // Disable breathing animation on iOS for performance
         }
     }
 }

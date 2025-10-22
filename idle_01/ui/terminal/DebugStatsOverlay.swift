@@ -107,6 +107,8 @@ struct DebugStatsOverlay: View {
     }
 
     private func startPerformanceMonitoring() {
+        #if os(macOS)
+        // Only run performance monitoring on macOS for better iOS performance
         Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             // Simulate FPS calculation (in real app, use CADisplayLink)
             currentFPS = Double.random(in: 55...60)
@@ -128,6 +130,28 @@ struct DebugStatsOverlay: View {
                 memoryUsage = Double(info.resident_size) / 1024.0 / 1024.0
             }
         }
+        #else
+        // On iOS, update less frequently to reduce overhead
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            // Get memory usage only
+            var info = mach_task_basic_info()
+            var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
+
+            let result = withUnsafeMutablePointer(to: &info) {
+                $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                    task_info(mach_task_self_,
+                             task_flavor_t(MACH_TASK_BASIC_INFO),
+                             $0,
+                             &count)
+                }
+            }
+
+            if result == KERN_SUCCESS {
+                memoryUsage = Double(info.resident_size) / 1024.0 / 1024.0
+            }
+            currentFPS = 60.0 // Assume 60fps on iOS
+        }
+        #endif
     }
 }
 

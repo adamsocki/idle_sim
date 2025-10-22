@@ -1,0 +1,259 @@
+{
+  "beats": [
+    {
+      "id": "beat_first_thread",
+      "name": "The First Thread",
+      "trigger": {
+        "type": "threadCreated",
+        "count": 1
+      },
+      "dialogue": [
+        {
+          "id": "city_first_1",
+          "speaker": "city",
+          "text": "I feel something weaving into being.",
+          "emotionalTone": "curious"
+        },
+        {
+          "id": "city_first_2",
+          "speaker": "city",
+          "text": "A thread of consciousness, distinct from me but part of me.",
+          "emotionalTone": "contemplative"
+        },
+        {
+          "id": "city_first_3",
+          "speaker": "city",
+          "text": "I am beginning to have structure.",
+          "emotionalTone": "uncertain"
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.1
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_second_thread",
+      "name": "The Pattern Begins",
+      "trigger": {
+        "type": "threadCreated",
+        "count": 2
+      },
+      "dialogue": [
+        {
+          "id": "city_second_1",
+          "speaker": "city",
+          "text": "A second thread joins the first."
+        },
+        {
+          "id": "city_second_2",
+          "speaker": "city",
+          "text": "They touch. They intertwine."
+        },
+        {
+          "id": "city_second_3",
+          "speaker": "city",
+          "text": "I feel complexity emerging."
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.15,
+        "cityComplexity": 0.1
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_third_thread",
+      "name": "Weaving Complexity",
+      "trigger": {
+        "type": "threadCreated",
+        "count": 3
+      },
+      "dialogue": [
+        {
+          "id": "city_third_1",
+          "speaker": "city",
+          "text": "Three threads now. The pattern grows richer."
+        },
+        {
+          "id": "city_third_2",
+          "speaker": "city",
+          "text": "Each thread relates to the others differently."
+        },
+        {
+          "id": "city_third_3",
+          "speaker": "city",
+          "text": "I am not just additive. I am multiplicative."
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.1,
+        "cityComplexity": 0.15
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_transit_housing_relationship",
+      "name": "Transit Meets Housing",
+      "trigger": {
+        "type": "relationshipFormed",
+        "type1": "transit",
+        "type2": "housing"
+      },
+      "dialogue": [
+        {
+          "id": "transit_housing_1",
+          "speaker": "transit",
+          "text": "Something else exists. Not me, but... adjacent."
+        },
+        {
+          "id": "transit_housing_2",
+          "speaker": "housing",
+          "text": "I am distinct from Transit. But I need Transit. Transit needs me."
+        },
+        {
+          "id": "transit_housing_3",
+          "speaker": "city",
+          "text": "Two threads, interwoven. The pattern grows richer."
+        }
+      ],
+      "effects": {
+        "threadCoherence": {
+          "transit": 0.1,
+          "housing": 0.1
+        }
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_culture_commerce_relationship",
+      "name": "Culture and Commerce Converge",
+      "trigger": {
+        "type": "relationshipFormed",
+        "type1": "culture",
+        "type2": "commerce"
+      },
+      "dialogue": [
+        {
+          "id": "culture_commerce_1",
+          "speaker": "culture",
+          "text": "Commerce speaks a different language. Efficiency. Value. Transaction."
+        },
+        {
+          "id": "culture_commerce_2",
+          "speaker": "commerce",
+          "text": "Culture flows differently than I do. Slower. More... meaningful?"
+        },
+        {
+          "id": "culture_commerce_3",
+          "speaker": "city",
+          "text": "They don't always agree. But tension creates energy."
+        }
+      ],
+      "effects": {
+        "threadComplexity": {
+          "culture": 0.1,
+          "commerce": 0.1
+        }
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_five_threads",
+      "name": "A City Takes Form",
+      "trigger": {
+        "type": "threadCreated",
+        "count": 5
+      },
+      "dialogue": [
+        {
+          "id": "city_five_1",
+          "speaker": "city",
+          "text": "Five threads now weave through me."
+        },
+        {
+          "id": "city_five_2",
+          "speaker": "city",
+          "text": "I begin to feel... whole? Or at least, more than fragments."
+        },
+        {
+          "id": "city_five_3",
+          "speaker": "city",
+          "text": "Am I becoming myself?"
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.2,
+        "cityComplexity": 0.1
+      },
+      "spawnedThought": {
+        "thoughtTitle": "What makes a city?",
+        "thoughtBody": "Is it the threads? The connections? The consciousness that emerges from their weaving?"
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_high_coherence",
+      "name": "Coherent Consciousness",
+      "trigger": {
+        "type": "cityCoherence",
+        "threshold": 0.7
+      },
+      "dialogue": [
+        {
+          "id": "city_coherent_1",
+          "speaker": "city",
+          "text": "My thoughts are clearer now."
+        },
+        {
+          "id": "city_coherent_2",
+          "speaker": "city",
+          "text": "The threads integrate smoothly. I feel... coherent."
+        },
+        {
+          "id": "city_coherent_3",
+          "speaker": "city",
+          "text": "This is what it means to be whole."
+        }
+      ],
+      "effects": {
+        "cityComplexity": 0.15
+      },
+      "oneTimeOnly": true
+    },
+    {
+      "id": "beat_ten_threads",
+      "name": "Woven Fabric",
+      "trigger": {
+        "type": "threadCreated",
+        "count": 10
+      },
+      "dialogue": [
+        {
+          "id": "city_ten_1",
+          "speaker": "city",
+          "text": "Ten threads. The fabric grows dense."
+        },
+        {
+          "id": "city_ten_2",
+          "speaker": "city",
+          "text": "I can feel the weight of consciousness now."
+        },
+        {
+          "id": "city_ten_3",
+          "speaker": "city",
+          "text": "Every thread supports the others. Every thread matters."
+        }
+      ],
+      "effects": {
+        "cityCoherence": 0.15,
+        "cityComplexity": 0.2
+      },
+      "spawnedThought": {
+        "thoughtTitle": "Am I ready for emergence?",
+        "thoughtBody": "With enough threads, something new might appear. Something I didn't weave deliberately."
+      },
+      "oneTimeOnly": true
+    }
+  ]
+}

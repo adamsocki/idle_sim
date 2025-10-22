@@ -114,12 +114,15 @@ struct MetricCard: View {
         )
         .contentShape(Rectangle())
         .opacity(style.shouldPulse ? (pulseAnimation ? 0.94 : 1.0) : 1.0)
+        #if os(macOS)
         .onHover { hovering in
             withAnimation(.easeOut(duration: 0.4)) {
                 isHovering = hovering
             }
         }
+        #endif
         .onAppear {
+            #if os(macOS)
             if style.shouldPulse {
                 withAnimation(
                     .easeInOut(duration: 5.0)
@@ -128,6 +131,8 @@ struct MetricCard: View {
                     pulseAnimation = true
                 }
             }
+            #endif
+            // Disable pulse animation on iOS for performance
         }
     }
 }

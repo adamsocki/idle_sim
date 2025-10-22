@@ -12,13 +12,7 @@ import SwiftData
 
 struct RootView: View {
     var body: some View {
-        TabView {
-            // Tab 1: Simulations (your 3-column split with integrated dashboard)
-            SimulatorView()
-                .tabItem {
-                    Label("Simulations", systemImage: "sparkles")
-                }
-        }
+        SimulatorView()
     }
 }
 

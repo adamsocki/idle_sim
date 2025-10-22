@@ -19,6 +19,8 @@ struct TerminalSettingsView: View {
     // Audio Settings
     @AppStorage("audio.commandSoundEnabled") private var commandSoundEnabled: Bool = true
     @AppStorage("audio.commandVolume") private var commandVolume: Double = 0.3
+    @AppStorage("audio.backgroundMusicEnabled") private var backgroundMusicEnabled: Bool = true
+    @AppStorage("audio.backgroundMusicVolume") private var backgroundMusicVolume: Double = 0.5
 
     // Simulation Settings
     @AppStorage("simulation.autoSave") private var autoSaveEnabled: Bool = true
@@ -28,8 +30,13 @@ struct TerminalSettingsView: View {
 
     // Debug Settings
     @AppStorage("debug.verbose") private var verboseLogging: Bool = false
+    #if os(macOS)
     @AppStorage("debug.showStats") private var showStats: Bool = true
     @AppStorage("debug.performance") private var performanceMonitor: Bool = false
+    #else
+    @AppStorage("debug.showStats") private var showStats: Bool = false
+    @AppStorage("debug.performance") private var performanceMonitor: Bool = false
+    #endif
 
     @Environment(\.modelContext) private var modelContext
     @State private var showDeleteConfirmation = false
@@ -131,14 +138,47 @@ struct TerminalSettingsView: View {
     private var audioSettingsSection: some View {
         TerminalBox(title: "Audio Settings") {
             VStack(spacing: 12) {
+                // Command Sound Effects
+                Text("Command Effects")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Color.green.opacity(0.7))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 TerminalToggle(label: "Command Sound", isOn: $commandSoundEnabled)
 
                 TerminalSlider(
-                    label: "Volume",
+                    label: "Effects Volume",
                     value: $commandVolume,
                     range: 0.0...1.0,
                     step: 0.05
                 )
+
+                // Divider
+                Rectangle()
+                    .fill(Color.green.opacity(0.2))
+                    .frame(height: 1)
+                    .padding(.vertical, 4)
+
+                // Background Music
+                Text("Background Music")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Color.green.opacity(0.7))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                TerminalToggle(label: "Background Music", isOn: $backgroundMusicEnabled)
+                    .onChange(of: backgroundMusicEnabled) { _, newValue in
+                        SoundManager.shared.toggleBackgroundMusic(enabled: newValue)
+                    }
+
+                TerminalSlider(
+                    label: "Music Volume",
+                    value: $backgroundMusicVolume,
+                    range: 0.0...1.0,
+                    step: 0.05
+                )
+                .onChange(of: backgroundMusicVolume) { _, newValue in
+                    SoundManager.shared.updateMusicVolume(newValue)
+                }
             }
         }
     }
@@ -220,6 +260,8 @@ struct TerminalSettingsView: View {
 
         commandSoundEnabled = true
         commandVolume = 0.3
+        backgroundMusicEnabled = true
+        backgroundMusicVolume = 0.5
 
         autoSaveEnabled = true
         coherence = 75
@@ -227,8 +269,13 @@ struct TerminalSettingsView: View {
         updateInterval = 1000
 
         verboseLogging = false
+        #if os(macOS)
         showStats = true
         performanceMonitor = false
+        #else
+        showStats = false
+        performanceMonitor = false
+        #endif
 
         print("Settings reset to defaults")
     }

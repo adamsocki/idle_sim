@@ -65,76 +65,97 @@ struct SimulatorView: View {
     }
 
     var body: some View {
-        ZStack {
+        Group {
             // Main 2-column split view (terminal + settings/help)
+            #if os(macOS)
             HSplitView {
-                // Left: Terminal (main workspace)
-                if useTerminalCommandBar {
-                    TerminalInputView(
-                        commandText: $commandText,
-                        terminalFontSize: $terminalFontSize,
-                        commandHistory: $commandHistory,
-                        outputHistory: $outputHistory,
-                        selectedCityName: selectedCity?.name,
-                        onExecute: { command in
-                            executeTerminalCommand(command)
-                        }
-                    )
-                } else {
-                    // Fallback to original views if terminal is disabled
-                    Group {
-                        if let city = selectedCity {
-                            CityView(city: city, selectedItemID: $selectedItemID)
-                        } else {
-                            GlobalDashboardView()
-                        }
-                    }
-                }
-
-                // Right: Settings/Help panel
-                ZStack(alignment: .topTrailing) {
-                    // Show either settings or help
-                    if showSettings {
-                        TerminalSettingsView()
-                    } else {
-                        TerminalHelpView(gameState: allGameStates.first)
-                    }
-
-                    // Toggle button in top-right corner
-                    Button(action: { showSettings.toggle() }) {
-                        HStack(spacing: 4) {
-                            Text("[")
-                                .foregroundStyle(Color.green.opacity(0.6))
-
-                            Image(systemName: showSettings ? "book.fill" : "gearshape.fill")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(Color.green.opacity(0.9))
-
-                            Text("]")
-                                .foregroundStyle(Color.green.opacity(0.6))
-                        }
-                        .font(.system(size: 12, design: .monospaced))
-                        .padding(8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.green.opacity(0.08))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .help(showSettings ? "Show Help" : "Show Settings")
-                    .padding(16)
-                }
-                .frame(minWidth: 250, idealWidth: 300, maxWidth: 400)
+                mainContentView
+                settingsHelpPanel
             }
+            #else
+            // iOS: Use horizontal stack with GeometryReader for flexible layout
+            GeometryReader { geometry in
+                HStack(spacing: 0) {
+                    mainContentView
+                        .frame(width: geometry.size.width * 0.6)
 
-            // Debug stats overlay
-            DebugStatsOverlay(cities: allCities)
-                .allowsHitTesting(false)
+                    settingsHelpPanel
+                        .frame(width: geometry.size.width * 0.4)
+                }
+            }
+            #endif
         }
         .onAppear {
             loadCommandHistory()
             initializeNarrativeEngine()
         }
+    }
+
+    // MARK: - View Components
+
+    private var mainContentView: some View {
+        Group {
+            // Left: Terminal (main workspace)
+            if useTerminalCommandBar {
+                TerminalInputView(
+                    commandText: $commandText,
+                    terminalFontSize: $terminalFontSize,
+                    commandHistory: $commandHistory,
+                    outputHistory: $outputHistory,
+                    selectedCityName: selectedCity?.name,
+                    onExecute: { command in
+                        executeTerminalCommand(command)
+                    }
+                )
+            } else {
+                // Fallback to original views if terminal is disabled
+                if let city = selectedCity {
+                    CityView(city: city, selectedItemID: $selectedItemID)
+                } else {
+                    GlobalDashboardView()
+                }
+            }
+        }
+    }
+
+    private var settingsHelpPanel: some View {
+        ZStack(alignment: .topTrailing) {
+            // Show either settings or help
+            if showSettings {
+                TerminalSettingsView()
+            } else {
+                TerminalHelpView(gameState: allGameStates.first)
+            }
+
+            // Toggle button in top-right corner
+            Button(action: { showSettings.toggle() }) {
+                HStack(spacing: 4) {
+                    Text("[")
+                        .foregroundStyle(Color.green.opacity(0.6))
+
+                    Image(systemName: showSettings ? "book.fill" : "gearshape.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Color.green.opacity(0.9))
+
+                    Text("]")
+                        .foregroundStyle(Color.green.opacity(0.6))
+                }
+                .font(.system(size: 12, design: .monospaced))
+                .padding(8)
+                .background(
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.green.opacity(0.08))
+                )
+            }
+            .buttonStyle(.plain)
+            #if os(macOS)
+            .help(showSettings ? "Show Help" : "Show Settings")
+            #endif
+            .padding(16)
+        }
+        #if os(macOS)
+        .frame(minWidth: 250, idealWidth: 300, maxWidth: 400)
+        #endif
     }
 
     // MARK: - Narrative Engine Initialization

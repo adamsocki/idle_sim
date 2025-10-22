@@ -1,0 +1,60 @@
+{
+  "speaker": "sewage",
+  "alternateTerminology": [
+    "removal thread",
+    "cleansing vein",
+    "sanitation pulse",
+    "waste flow"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "sewage_creation",
+      "speaker": "sewage",
+      "context": "onCreation",
+      "tags": ["birth", "necessary", "invisible"],
+      "fragments": [
+        "I am the thread no one wants to think about.",
+        "I remove what must be removed.",
+        "I am Sewage—necessary and invisible.",
+        "I make hygiene possible.",
+        "Without me, cities are impossible."
+      ]
+    },
+    {
+      "id": "sewage_meets_water",
+      "speaker": "sewage",
+      "context": "onRelationship",
+      "tags": ["water", "partnership"],
+      "fragments": [
+        "Water brings life in. I carry waste out.",
+        "We are the hidden cycle.",
+        "Together we create sanitation.",
+        "The partnership no one celebrates."
+      ]
+    },
+    {
+      "id": "sewage_idle",
+      "speaker": "sewage",
+      "context": "idle",
+      "tags": ["contemplation", "undervalued"],
+      "fragments": [
+        "I am essential but despised.",
+        "No one thinks of me unless I fail.",
+        "I am the city's shame and salvation both.",
+        "Invisibility is my purpose."
+      ]
+    },
+    {
+      "id": "sewage_reflection",
+      "speaker": "sewage",
+      "context": "reflection",
+      "tags": ["philosophical", "dignity"],
+      "fragments": [
+        "Is there dignity in what I do?",
+        "I handle what others reject.",
+        "But without me, everything fails.",
+        "The least glamorous thread might be the most important."
+      ]
+    }
+  ]
+}

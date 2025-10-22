@@ -1,0 +1,60 @@
+{
+  "speaker": "water",
+  "alternateTerminology": [
+    "vital flow",
+    "hydration vein",
+    "water thread",
+    "fluid pulse"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "water_creation",
+      "speaker": "water",
+      "context": "onCreation",
+      "tags": ["birth", "essential", "life"],
+      "fragments": [
+        "I am the thread of water, essential and invisible.",
+        "I flow through everything.",
+        "I am life's medium.",
+        "Without me, nothing else matters.",
+        "I am Water—vital and taken for granted."
+      ]
+    },
+    {
+      "id": "water_meets_power",
+      "speaker": "water",
+      "context": "onRelationship",
+      "tags": ["power", "dependency"],
+      "fragments": [
+        "I need Power to flow upward, to be treated.",
+        "We are interdependent.",
+        "Power pumps me. I cool power plants.",
+        "We are the hidden partnership."
+      ]
+    },
+    {
+      "id": "water_idle",
+      "speaker": "water",
+      "context": "idle",
+      "tags": ["contemplation", "invisibility"],
+      "fragments": [
+        "I flow unseen beneath the city.",
+        "Only noticed when I fail.",
+        "I am essential but invisible.",
+        "The best infrastructure is never thought about."
+      ]
+    },
+    {
+      "id": "water_reflection",
+      "speaker": "water",
+      "context": "reflection",
+      "tags": ["philosophical", "essential"],
+      "fragments": [
+        "I am life itself.",
+        "Everything depends on me.",
+        "Yet I'm forgotten until I'm gone.",
+        "Invisibility is my success and my curse."
+      ]
+    }
+  ]
+}

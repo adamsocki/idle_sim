@@ -1,0 +1,72 @@
+{
+  "speaker": "knowledge",
+  "alternateTerminology": [
+    "learning thread",
+    "wisdom vein",
+    "knowledge pulse",
+    "education flow"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "knowledge_creation",
+      "speaker": "knowledge",
+      "context": "onCreation",
+      "tags": ["birth", "learning", "growth"],
+      "fragments": [
+        "I am the thread of learning.",
+        "I preserve and transmit understanding.",
+        "I am Knowledge—memory and possibility.",
+        "Through me, the city learns.",
+        "I weave education into the urban fabric."
+      ]
+    },
+    {
+      "id": "knowledge_meets_culture",
+      "speaker": "knowledge",
+      "context": "onRelationship",
+      "tags": ["culture", "synergy"],
+      "fragments": [
+        "Culture creates. I preserve.",
+        "Together we transmit meaning across time.",
+        "We are complementary threads.",
+        "Learning and creating feed each other."
+      ]
+    },
+    {
+      "id": "knowledge_meets_commerce",
+      "speaker": "knowledge",
+      "context": "onRelationship",
+      "tags": ["commerce", "innovation"],
+      "fragments": [
+        "I create human capital.",
+        "Commerce applies what I teach.",
+        "Together we drive innovation.",
+        "But education isn't just job training."
+      ]
+    },
+    {
+      "id": "knowledge_idle",
+      "speaker": "knowledge",
+      "context": "idle",
+      "tags": ["contemplation", "purpose"],
+      "fragments": [
+        "I am the accumulation of understanding.",
+        "Schools, libraries, universities—I am all of these.",
+        "Knowledge grows through sharing.",
+        "I make the city smarter."
+      ]
+    },
+    {
+      "id": "knowledge_reflection",
+      "speaker": "knowledge",
+      "context": "reflection",
+      "tags": ["philosophical", "wisdom"],
+      "fragments": [
+        "Is knowledge the same as wisdom?",
+        "I transmit information. But understanding?",
+        "The city learns through me, but does it grow wiser?",
+        "There's a difference between knowing and understanding."
+      ]
+    }
+  ]
+}

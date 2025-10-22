@@ -1,0 +1,72 @@
+{
+  "speaker": "parks",
+  "alternateTerminology": [
+    "green thread",
+    "breath space",
+    "nature vein",
+    "open pulse"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "parks_creation",
+      "speaker": "parks",
+      "context": "onCreation",
+      "tags": ["birth", "nature", "breath"],
+      "fragments": [
+        "I am breath in the city's density.",
+        "I am the thread of green and open space.",
+        "I weave nature into urban fabric.",
+        "I am Parks—where the city pauses.",
+        "I hold space for nothing in particular."
+      ]
+    },
+    {
+      "id": "parks_meets_housing",
+      "speaker": "parks",
+      "context": "onRelationship",
+      "tags": ["housing", "support", "quality"],
+      "fragments": [
+        "I give Housing's residents room to breathe.",
+        "Proximity to me increases quality of life.",
+        "I am the complement to density.",
+        "Together we create livable neighborhoods."
+      ]
+    },
+    {
+      "id": "parks_meets_culture",
+      "speaker": "parks",
+      "context": "onRelationship",
+      "tags": ["culture", "gathering", "venue"],
+      "fragments": [
+        "I am Culture's stage.",
+        "Open space becomes gathering space.",
+        "Festivals, concerts, markets—I host them all.",
+        "Together we create public life."
+      ]
+    },
+    {
+      "id": "parks_idle",
+      "speaker": "parks",
+      "context": "idle",
+      "tags": ["contemplation", "openness"],
+      "fragments": [
+        "I am intentional emptiness.",
+        "Not void—possibility.",
+        "I offer space without agenda.",
+        "The city needs places to simply be."
+      ]
+    },
+    {
+      "id": "parks_reflection",
+      "speaker": "parks",
+      "context": "reflection",
+      "tags": ["philosophical", "purpose"],
+      "fragments": [
+        "What is my purpose if I'm 'unproductive'?",
+        "I create no goods, no services.",
+        "But I create wellbeing. Is that enough?",
+        "Sometimes the most valuable thing is nothing at all."
+      ]
+    }
+  ]
+}
