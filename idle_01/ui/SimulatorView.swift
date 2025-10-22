@@ -66,12 +66,9 @@ struct SimulatorView: View {
 
     var body: some View {
         ZStack {
-            // Main 3-column split view
-            NavigationSplitView(columnVisibility: $columnVisibility) {
-                // Left column: City List
-                CityListView(selectedCityID: $selectedCityID)
-            } content: {
-                // Middle column: Terminal (main workspace)
+            // Main 2-column split view (terminal + settings/help)
+            HSplitView {
+                // Left: Terminal (main workspace)
                 if useTerminalCommandBar {
                     TerminalInputView(
                         commandText: $commandText,
@@ -93,75 +90,42 @@ struct SimulatorView: View {
                         }
                     }
                 }
-            } detail: {
-            Group {
-                if let item = selectedItem {
-                    DetailView(item: item)
-                } else {
-                    // Terminal help/context when nothing selected
-                    if useTerminalCommandBar {
-                        ZStack(alignment: .topTrailing) {
-                            // Show either settings or help
-                            if showSettings {
-                                TerminalSettingsView()
-                            } else {
-                                TerminalHelpView()
-                            }
 
-                            // Toggle button in top-right corner
-                            Button(action: { showSettings.toggle() }) {
-                                HStack(spacing: 4) {
-                                    Text("[")
-                                        .foregroundStyle(Color.green.opacity(0.6))
-
-                                    Image(systemName: showSettings ? "book.fill" : "gearshape.fill")
-                                        .font(.system(size: 11, weight: .bold))
-                                        .foregroundStyle(Color.green.opacity(0.9))
-
-                                    Text("]")
-                                        .foregroundStyle(Color.green.opacity(0.6))
-                                }
-                                .font(.system(size: 12, design: .monospaced))
-                                .padding(8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(Color.green.opacity(0.08))
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .help(showSettings ? "Show Help" : "Show Settings")
-                            .padding(16)
-                        }
+                // Right: Settings/Help panel
+                ZStack(alignment: .topTrailing) {
+                    // Show either settings or help
+                    if showSettings {
+                        TerminalSettingsView()
                     } else {
-                        // Empty state
-                        VStack(spacing: 16) {
-                            Image(systemName: "sidebar.right")
-                                .font(.system(size: 48, weight: .ultraLight))
-                                .foregroundStyle(.secondary)
-
-                            Text("No Selection")
-                                .font(.title3)
-                                .foregroundStyle(.secondary)
-
-                            Text("Select a thought to view details")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        TerminalHelpView(gameState: allGameStates.first)
                     }
+
+                    // Toggle button in top-right corner
+                    Button(action: { showSettings.toggle() }) {
+                        HStack(spacing: 4) {
+                            Text("[")
+                                .foregroundStyle(Color.green.opacity(0.6))
+
+                            Image(systemName: showSettings ? "book.fill" : "gearshape.fill")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(Color.green.opacity(0.9))
+
+                            Text("]")
+                                .foregroundStyle(Color.green.opacity(0.6))
+                        }
+                        .font(.system(size: 12, design: .monospaced))
+                        .padding(8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.green.opacity(0.08))
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .help(showSettings ? "Show Help" : "Show Settings")
+                    .padding(16)
                 }
+                .frame(minWidth: 250, idealWidth: 300, maxWidth: 400)
             }
-            .navigationSplitViewColumnWidth(min: 250, ideal: 300, max: 400)
-            }
-            // Hidden toggle for feature flag (Cmd+T)
-            .background(
-                Button("") {
-                    useTerminalCommandBar.toggle()
-                }
-                .keyboardShortcut("t", modifiers: [.command, .shift])
-                .hidden()
-            )
 
             // Debug stats overlay
             DebugStatsOverlay(cities: allCities)

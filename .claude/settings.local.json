@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(git commit:*)",
-      "Bash(xcodebuild:*)"
+      "Bash(xcodebuild:*)",
+      "Bash(git log:*)",
+      "Bash(xargs -I {} git show {}:idle_01/ui/terminal/TerminalCommandExecutor.swift)",
+      "Bash(xargs -I {} sh -c 'git show {}:idle_01/ui/terminal/TerminalCommandParser.swift 2>/dev/null | grep -A 10 \"\"\"\"struct CommandOutput\"\"\"\" && echo \"\"\"\"Found in commit {}\"\"\"\"')",
+      "Bash(git add:*)",
+      "Bash(sips:*)"
     ],
     "deny": [],
     "ask": []

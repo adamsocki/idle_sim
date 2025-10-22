@@ -1,8 +1,8 @@
 # Implementation Plan - Narrative Terminal Game
 
-## 🎉 IMPLEMENTATION STATUS UPDATE (2025-10-20)
+## 🎉 IMPLEMENTATION STATUS UPDATE (2025-10-21)
 
-**Progress: ~98% Complete** | **Phases 1-9 Implemented** | **Acts I-IV Fully Implemented & Integrated** | **All 8 Ending Epilogues Complete** | **Build: ✅ PASSING**
+**Progress: ~99% Complete** | **Phases 1-9 Implemented** | **Acts I-IV Fully Implemented & Integrated** | **All 8 Ending Epilogues Complete** | **Critical Bugs Fixed** | **Build: ✅ PASSING**
 
 ### ✅ Completed Phases
 
@@ -78,7 +78,9 @@
   - Progressive narrative (3-moment, 6-moment milestones)
   - Wrong command handling with poetic responses
   - Act completion logic (8 moments minimum)
+  - **BUG FIX (2025-10-21):** Fixed cityAwakened state using GameState flags instead of local variable
 - ✅ **NarrativeEngine integration** - ActOneManager connected
+  - **BUG FIX (2025-10-21):** Implemented act transition logic (was TODO comment)
 
 #### **Phase 5.5: Build Fixes & Type Safety** ✅ COMPLETE (2025-10-19)
 - ✅ **Type Conflict Resolution** - Fixed ambiguous type definitions
@@ -93,21 +95,20 @@
   - Only Swift 6 concurrency warnings (expected)
   - All progression system types properly namespaced
 
-#### **Phase 6: Acts II-IV** ✅ COMPLETE (2025-10-20)
-- ✅ **ActTwoManager** - "Stories Within"
-  - ✅ Commands: REMEMBER, PRESERVE, OPTIMIZE
-  - ✅ Decision point: Bus route 47 optimization
-  - ✅ Theme: Choosing what matters
-  - ✅ First OPTIMIZE triggers bus route decision
-  - ✅ Completion requires bus route decision + 5 total choices
-  - ✅ Progressive reflection based on player actions
+#### **Phase 6: Acts II-IV** ✅ COMPLETE (2025-10-20) | 🔄 REDESIGNED (2025-10-21)
+- ✅ **ActTwoManager** - "Stories Within" - **REDESIGNED WITH BINARY CHOICES**
+  - ✅ Commands: PRESERVE, OPTIMIZE (REMEMBER removed)
+  - ✅ **Binary Choice System:** Each moment presents mutually exclusive decision
+  - ✅ Theme: "You cannot have both" - preservation vs. efficiency
+  - ✅ Auto-presents next moment when PRESERVE or OPTIMIZE is typed
+  - ✅ PRESERVE saves the moment (story choice)
+  - ✅ OPTIMIZE destroys the moment for efficiency gains (efficiency choice)
+  - ✅ Completion requires 5 binary choices made
+  - ✅ Progressive reflection based on choice patterns
   - ✅ Wrong command handling with Act II-specific poetic responses
-- ✅ **Enhanced MomentSelector** - ID-based lookups
+- ✅ **Enhanced MomentSelector** - Fragile moment selection
+  - ✅ Added `selectFragileMoment()` method for Act II binary choices
   - ✅ Added `getMoment(by:)` method for targeted retrieval
-- ✅ **Bus Route 47 Moment** - Central Act II decision
-  - ✅ Maximum fragility (10/10) moment added to library
-  - ✅ All 4 narrative variants (first mention, preserved, destroyed, remembered)
-  - ✅ Tagged as "decision_point" for special handling
 - ✅ **ActThreeManager** - "Weight of Choices"
   - ✅ Commands: DECIDE, QUESTION, REFLECT
   - ✅ Decision point: City infrastructure transformation
@@ -137,14 +138,18 @@
 
 ### 🚧 Remaining Work
 
-#### **Phase 7: Terminal UI Integration** ✅ COMPLETE (2025-10-19)
+#### **Phase 7: Terminal UI Integration** ✅ COMPLETE (2025-10-21)
 - ✅ Connected NarrativeEngine to SimulatorView
 - ✅ Created GameState initialization in idle_01App.swift
 - ✅ Dual command routing (narrative + technical commands coexist)
 - ✅ NarrativeEngine initialized on app launch
 - ✅ Welcome message displays on startup
-- ⬜ Add VisualizationEngine to terminal output (PENDING)
-- ⬜ Display ASCII patterns with moments (PENDING)
+- ✅ **CRITICAL BUG FIXES (2025-10-21):**
+  - Fixed OBSERVE command infinite loop (cityAwakened state persistence)
+  - Implemented Act I → Act II automatic transition
+  - Both issues resolved and tested
+- ⬜ Add VisualizationEngine to terminal output (PENDING - OPTIONAL)
+- ⬜ Display ASCII patterns with moments (PENDING - OPTIONAL)
 
 #### **Phase 8: Content Expansion** (PARTIAL)
 - ✅ 21 moments created (targeting 50-60 total)
@@ -154,16 +159,18 @@
 - ⬜ Validate type distribution
 - ⬜ Test choice affinity behavior
 
-#### **Phase 9: Endings & Polish** ✅ COMPLETE (2025-10-20)
+#### **Phase 9: Endings & Polish** ✅ EPILOGUES COMPLETE, TESTING IN PROGRESS
 - ✅ All 8 ending conditions implemented in code
 - ✅ **EndingEpilogues.swift** - Rich narrative epilogues for all 8 endings
   - All epilogues personalized with player journey data (choices, trust, autonomy, moments)
   - Unique voice and tone for each ending
   - Integrated into NarrativeEngine ending flow
 - ⬜ Create ending-specific visualizations (OPTIONAL)
-- ⬜ Playtest all ending paths (TESTING)
-- ⬜ Tune choice thresholds (TESTING)
-- ⬜ Balance pacing (TESTING)
+- 🔄 **Playtest all ending paths (IN PROGRESS - 2025-10-21)**
+  - Critical bugs blocking progression have been fixed
+  - Ready for full Act I → II → III → IV playthrough testing
+- ⬜ Tune choice thresholds (TESTING - PENDING PLAYTEST RESULTS)
+- ⬜ Balance pacing (TESTING - PENDING PLAYTEST RESULTS)
 
 ### 📊 Implementation Statistics
 
@@ -191,13 +198,13 @@
 9. Reveal 8+ moments → Transition to Act II
 
 **Act II:**
-1. New commands unlock: `REMEMBER`, `PRESERVE`, `OPTIMIZE`
-2. Type `REMEMBER <moment-id>` → Deep reflection on a moment (story choice)
-3. Type `PRESERVE <moment-id>` → Protect a fragile moment from destruction (story choice)
-4. Type `OPTIMIZE` (first time) → Triggers bus route 47 decision point
-5. Choose between: PRESERVE bus_route_47, OPTIMIZE, or REMEMBER bus_route_47
-6. Continue making choices → Each affects city relationship and future moments
-7. Make 5+ total choices + bus route decision → Complete Act II, transition to Act III
+1. New commands unlock: `PRESERVE`, `OPTIMIZE`
+2. Type `PRESERVE` or `OPTIMIZE` → City presents a fragile moment
+3. **Binary Choice:** PRESERVE (save it, story choice) OR OPTIMIZE (destroy it, efficiency choice)
+4. Choose one → Cannot have both, choice is permanent
+5. City presents next moment → Another binary choice
+6. Progressive reflections based on your choices
+7. Make 5 binary choices → Complete Act II, transition to Act III
 
 **Act III:**
 1. New commands unlock: `DECIDE`, `QUESTION`, `REFLECT`
@@ -224,10 +231,11 @@
 1. ~~**Create ActThreeManager**~~ ✅ COMPLETE - "Weight of Choices"
 2. ~~**Create ActFourManager**~~ ✅ COMPLETE - "What Remains"
 3. ~~**Write ending epilogues**~~ ✅ COMPLETE - All 8 endings with rich narrative epilogues
-4. **Test complete Acts I-IV flow** - Full playthrough testing (NEXT PRIORITY)
-5. **Verify all 8 endings reachable** - Test ending determination logic
-6. **Integrate Visualizations** - Display ASCII patterns in terminal (optional polish)
-7. **Expand moment library** - Add 30 more moments for Acts 3-4 (optional content expansion)
+4. ~~**Fix critical progression bugs**~~ ✅ COMPLETE (2025-10-21) - OBSERVE loop & Act transitions
+5. **Test complete Acts I-IV flow** - Full playthrough testing (READY TO START)
+6. **Verify all 8 endings reachable** - Test ending determination logic
+7. **Integrate Visualizations** - Display ASCII patterns in terminal (optional polish)
+8. **Expand moment library** - Add 30 more moments for Acts 3-4 (optional content expansion)
 
 ### ⚙️ Architecture Decisions Made
 

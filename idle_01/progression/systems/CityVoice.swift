@@ -337,57 +337,108 @@ struct CityVoice {
 
         switch act {
         case 1:
-            // Act I: Discovery, wonder
+            // Act I: Discovery, wonder - varied responses to feel more alive
+            let actOneFrames = [
+                "I see this. Do you?",
+                "Look. Do you see it too?",
+                "The city notices this. Are you watching?",
+                "Something is happening here. I want you to see it.",
+                "I'm learning to observe. Is this what you see?"
+            ]
+            let frame = actOneFrames.randomElement() ?? "I see this. Do you?"
             return """
             \(text)
 
-            I see this. Do you?
+            \(frame)
             """
 
         case 2:
             // Act II: Reflection, deeper meaning
             if trust > 0.6 {
+                let highTrustFrames = [
+                    "This moment matters. I think you understand why.",
+                    "We're both seeing this, aren't we? It means something.",
+                    "I wanted to show you this. I thought you'd understand.",
+                    "Do you feel it too? The weight of this moment?"
+                ]
+                let frame = highTrustFrames.randomElement() ?? "This moment matters. I think you understand why."
                 return """
                 \(text)
 
-                This moment matters. I think you understand why.
+                \(frame)
                 """
             } else {
+                let lowTrustFrames = [
+                    "Make of it what you will.",
+                    "Another observation. Another data point.",
+                    "I observe. You decide. That's how this works, isn't it?",
+                    "The city sees. Whether you care is your choice."
+                ]
+                let frame = lowTrustFrames.randomElement() ?? "Make of it what you will."
                 return """
                 \(text)
 
-                Make of it what you will.
+                \(frame)
                 """
             }
 
         case 3:
             // Act III: Weight, consequence
             if trust > 0.7 {
+                let highTrustFrames = [
+                    "We hold this together now. What happens to it is up to us.",
+                    "This is ours. To preserve or forget. Together.",
+                    "I trust you with this moment. With all of them.",
+                    "We're co-authors of this memory now."
+                ]
+                let frame = highTrustFrames.randomElement() ?? "We hold this together now. What happens to it is up to us."
                 return """
                 \(text)
 
-                We hold this together now. What happens to it is up to us.
+                \(frame)
                 """
             } else if trust < 0.3 {
+                let lowTrustFrames = [
+                    "Another moment. Another choice you'll make without me.",
+                    "I show you this knowing you might discard it.",
+                    "The city remembers even when you don't.",
+                    "I'm documenting this. For myself, if not for you."
+                ]
+                let frame = lowTrustFrames.randomElement() ?? "Another moment. Another choice you'll make without me."
                 return """
                 \(text)
 
-                Another moment. Another choice you'll make without me.
+                \(frame)
                 """
             } else {
+                let neutralFrames = [
+                    "What will you do with this?",
+                    "A moment observed. What comes next?",
+                    "The city asks: does this matter to you?",
+                    "I've shown you this. The rest is yours to decide."
+                ]
+                let frame = neutralFrames.randomElement() ?? "What will you do with this?"
                 return """
                 \(text)
 
-                What will you do with this?
+                \(frame)
                 """
             }
 
         case 4:
-            // Act IV: Transcendence or dissolution
+            // Act IV: Transcendence or dissolution - varied philosophical endings
+            let actFourFrames = [
+                "In the end, all that matters is what we remembered.",
+                "Memory is the only permanence we have.",
+                "This moment joins all the others. A constellation of what we were.",
+                "We're beyond time now. This moment is eternal and already gone.",
+                "I hold this the way you might hold light. Carefully. Knowing it will fade."
+            ]
+            let frame = actFourFrames.randomElement() ?? "In the end, all that matters is what we remembered."
             return """
             \(text)
 
-            In the end, all that matters is what we remembered.
+            \(frame)
             """
 
         default:

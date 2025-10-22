@@ -95,23 +95,26 @@ struct TerminalInputView: View {
     private var outputLogView: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
+                LazyVStack(alignment: .leading, spacing: 2) {
                     if outputHistory.isEmpty {
 //                        welcomeMessage
                     } else {
                         outputList
                     }
+
+                    // Bottom spacer to ensure last item can scroll into view
+                    Color.clear
+                        .frame(height: 1)
+                        .id("bottom")
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .onChange(of: outputHistory.count) { _, _ in
-                    if let last = outputHistory.last {
-                        // Use async to ensure layout is complete before scrolling
-                        DispatchQueue.main.async {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                proxy.scrollTo(last.id, anchor: .bottom)
-                            }
+                    // Scroll to bottom marker after layout completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            proxy.scrollTo("bottom", anchor: .bottom)
                         }
                     }
                 }
@@ -271,7 +274,7 @@ struct TerminalInputView: View {
         guard let firstWord = components.first?.lowercased() else { return result }
 
         // Command verbs (primary commands)
-        let commandVerbs = ["help", "list", "create", "select", "start", "stop", "delete", "stats", "export", "clear", "items", "respond", "dismiss", "set", "awaken", "breathe", "rest", "forget", "attend", "answer", "acknowledge", "thoughts"]
+        let commandVerbs = ["help", "list", "create", "select", "start", "stop", "delete", "stats", "export", "clear", "items", "respond", "dismiss", "set", "awaken", "breathe", "rest", "forget", "attend", "answer", "acknowledge", "thoughts", "generate", "observe", "remember", "preserve", "optimize", "decide", "question", "reflect", "accept", "resist", "transcend", "status", "moments", "history"]
 
         // Aliases
         let aliases = ["ls", "ll", "la", "cc", "ct", "new", "sel", "cd", "run", "pause", "rm", "del", "i", "t", "r", "d", "s", "st", "cls", "clr", "?", "h"]

@@ -20,11 +20,6 @@ final class ActOneManager: ActProtocol {
     let actName: String = "Act I: Awakening"
     let actDescription: String = "The city stirs. Consciousness emerges from data."
 
-    // MARK: - State Tracking
-
-    private var cityAwakened: Bool = false
-    private var momentsRevealed: Int = 0
-
     // MARK: - Command Handling
 
     func handle(
@@ -54,8 +49,8 @@ final class ActOneManager: ActProtocol {
     ) async -> CommandResponse {
 
         // First OBSERVE: City awakens
-        if !cityAwakened {
-            cityAwakened = true
+        if !gameState.getFlag("cityAwakened") {
+            gameState.setFlag("cityAwakened", value: true)
 
             return CommandResponse(
                 text: generateAwakeningText(),
@@ -67,6 +62,7 @@ final class ActOneManager: ActProtocol {
         // Subsequent OBSERVE: Reveal moments
         // Select a moment procedurally
         let moment: CityMoment?
+        let momentsRevealed = gameState.revealedMomentIDs.count
 
         if let district = district {
             // District-specific observation
@@ -96,16 +92,23 @@ final class ActOneManager: ActProtocol {
         }
 
         guard let selectedMoment = moment else {
-            return CommandResponse.simple("""
-            I've shown you everything I can see right now.
+            // Different message if they specified a district vs general observation
+            if let districtNum = district {
+                return CommandResponse.simple("""
+                District \(districtNum)...
 
-            There's more, but... I need to understand myself better first.
-            Keep exploring. Keep questioning.
-            """)
+                I'm looking, but I haven't learned to see anything there yet.
+                Maybe try another district? Or just OBSERVE without a number.
+                """)
+            } else {
+                return CommandResponse.simple("""
+                I've shown you everything I can see right now.
+
+                There's more, but... I need to understand myself better first.
+                Keep exploring. Keep questioning.
+                """)
+            }
         }
-
-        // Reveal the moment
-        momentsRevealed += 1
 
         // Format the moment text
         let momentText = CityVoice.momentReveal(
@@ -116,7 +119,8 @@ final class ActOneManager: ActProtocol {
         )
 
         // Check if this triggers any special narrative moments
-        if momentsRevealed == 3 {
+        // Note: count after this moment will be revealed
+        if momentsRevealed + 1 == 3 {
             // After 3 moments, city starts to wonder
             return CommandResponse.momentReveal(
                 text: """
@@ -133,7 +137,7 @@ final class ActOneManager: ActProtocol {
             )
         }
 
-        if momentsRevealed == 6 {
+        if momentsRevealed + 1 == 6 {
             // Midpoint reflection
             return CommandResponse.momentReveal(
                 text: """

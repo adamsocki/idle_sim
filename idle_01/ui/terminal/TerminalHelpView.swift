@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct TerminalHelpView: View {
+    let gameState: GameState?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -26,32 +29,97 @@ struct TerminalHelpView: View {
                 Divider()
                     .background(Color.green.opacity(0.3))
 
-                // City Management
-                commandSection(
-                    title: "CITY_MANAGEMENT",
-                    commands: [
-                        ("create city --name=NAME", "Create new city"),
-                        ("awaken consciousness", "Poetic: create city"),
-                        ("list", "List all cities"),
-                        ("list --filter=active", "List active cities"),
-                        ("select [00]", "Select city by index"),
-                        ("start [00]", "Start city simulation"),
-                        ("stop [00]", "Stop city simulation"),
-                        ("delete [00]", "Delete city")
-                    ]
-                )
+                // Act-specific commands - only show current and previous acts
+                if let act = gameState?.currentAct {
+                    // Act I Commands
+                    if act >= 1 {
+                        commandSection(
+                            title: act == 1 ? "CURRENT_COMMANDS" : "ACT_I_COMMANDS",
+                            commands: [
+                                ("GENERATE", "Generate a new city moment"),
+                                ("OBSERVE", "Observe the city"),
+                                ("OBSERVE [district]", "Observe specific district")
+                            ]
+                        )
+
+                        Divider()
+                            .background(Color.green.opacity(0.3))
+                    }
+
+                    // Act II Commands
+                    if act >= 2 {
+                        commandSection(
+                            title: act == 2 ? "CURRENT_COMMANDS" : "ACT_II_COMMANDS",
+                            commands: [
+                                ("REMEMBER", "View remembered moments"),
+                                ("REMEMBER [id]", "Recall specific moment"),
+                                ("PRESERVE [id]", "Preserve a moment"),
+                                ("OPTIMIZE", "Optimize city systems"),
+                                ("OPTIMIZE [system]", "Optimize specific system")
+                            ]
+                        )
+
+                        Divider()
+                            .background(Color.green.opacity(0.3))
+                    }
+
+                    // Act III Commands
+                    if act >= 3 {
+                        commandSection(
+                            title: act == 3 ? "CURRENT_COMMANDS" : "ACT_III_COMMANDS",
+                            commands: [
+                                ("DECIDE [choice]", "Make a major decision"),
+                                ("QUESTION [query]", "Question the nature of existence"),
+                                ("REFLECT", "Reflect on your choices")
+                            ]
+                        )
+
+                        Divider()
+                            .background(Color.green.opacity(0.3))
+                    }
+
+                    // Act IV Commands
+                    if act >= 4 {
+                        commandSection(
+                            title: act == 4 ? "CURRENT_COMMANDS" : "ACT_IV_COMMANDS",
+                            commands: [
+                                ("ACCEPT", "Accept your nature"),
+                                ("RESIST", "Resist the inevitable"),
+                                ("TRANSCEND", "Transcend limitations")
+                            ]
+                        )
+
+                        Divider()
+                            .background(Color.green.opacity(0.3))
+                    }
+                } else {
+                    // Fallback if no game state
+                    commandSection(
+                        title: "ACT_I_COMMANDS",
+                        commands: [
+                            ("GENERATE", "Generate a new city moment"),
+                            ("OBSERVE", "Observe the city"),
+                            ("OBSERVE [district]", "Observe specific district")
+                        ]
+                    )
+
+                    Divider()
+                        .background(Color.green.opacity(0.3))
+                }
 
                 Divider()
                     .background(Color.green.opacity(0.3))
 
-                // Information
+                // Meta Commands
                 commandSection(
-                    title: "INFORMATION",
+                    title: "META_COMMANDS",
                     commands: [
-                        ("help", "Show all commands"),
-                        ("stats", "Global statistics"),
-                        ("stats [00]", "City-specific stats"),
-                        ("clear", "Clear output history")
+                        ("HELP", "Show available commands"),
+                        ("STATUS", "Show current game state"),
+                        ("MOMENTS", "List all moments"),
+                        ("HISTORY", "View command history"),
+                        ("RESET", "Reset game to Act I"),
+                        ("CLEAR", "Clear output history")
                     ]
                 )
 
@@ -68,28 +136,6 @@ struct TerminalHelpView: View {
                     shortcutRow("Cmd+L", "Focus input")
                     shortcutRow("Cmd++", "Increase font")
                     shortcutRow("Cmd+-", "Decrease font")
-                    shortcutRow("Cmd+Shift+T", "Toggle terminal")
-                }
-
-                Divider()
-                    .background(Color.green.opacity(0.3))
-
-                // Poetic Alternatives
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("POETIC_SYNTAX")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundStyle(Color.green.opacity(0.8))
-
-                    Text("// Alternative command expressions")
-                        .font(.system(size: 9, design: .monospaced))
-                        .foregroundStyle(Color.green.opacity(0.4))
-                        .padding(.bottom, 4)
-
-                    poeticRow("awaken consciousness", "create city")
-                    poeticRow("breathe life into", "start")
-                    poeticRow("rest", "stop")
-                    poeticRow("forget", "delete")
-                    poeticRow("attend", "select")
                 }
 
                 Spacer()
@@ -165,5 +211,5 @@ struct TerminalHelpView: View {
 }
 
 #Preview {
-    TerminalHelpView()
+    TerminalHelpView(gameState: nil)
 }

@@ -2,10 +2,10 @@
 //  ActTwoManager.swift
 //  idle_01
 //
-//  Act II: "Stories Within" - Choosing what matters
-//  Commands: REMEMBER, PRESERVE, OPTIMIZE
-//  Focus: First choices, consequences, the weight of decision-making
-//  Key Decision Point: Bus route 47 optimization
+//  Act II: "Stories Within" - Binary choices between preservation and efficiency
+//  Commands: PRESERVE, OPTIMIZE
+//  Focus: Choosing what matters through mutually exclusive decisions
+//  Each moment presents a binary choice - you cannot have both
 //
 
 import Foundation
@@ -18,14 +18,7 @@ final class ActTwoManager: ActProtocol {
 
     let actNumber: Int = 2
     let actName: String = "Act II: Stories Within"
-    let actDescription: String = "Every moment is a choice. Every choice has weight."
-
-    // MARK: - State Tracking
-
-    private var busRouteDecisionMade: Bool = false
-    private var rememberedMomentsCount: Int = 0
-    private var preservedMomentsCount: Int = 0
-    private var optimizedMomentsCount: Int = 0
+    let actDescription: String = "Every moment is a choice. You cannot have both."
 
     // MARK: - Command Handling
 
@@ -36,89 +29,127 @@ final class ActTwoManager: ActProtocol {
     ) async -> CommandResponse {
 
         switch command {
-        case .remember(let momentID):
-            return await handleRemember(momentID: momentID, gameState: gameState, momentSelector: momentSelector)
+        case .observe(_):
+            // Check if there's a pending choice in GameState
+            if let pendingMomentID = gameState.narrativeData["act2_pending_choice"],
+               let currentMoment = momentSelector.getMoment(by: pendingMomentID) {
+                return CommandResponse.simple("""
+                A moment is already waiting for your decision:
+
+                \(currentMoment.text)
+
+                ---
+
+                Choose one:
+                • PRESERVE
+                • OPTIMIZE
+                """)
+            }
+
+            // Otherwise, reveal the next moment that needs a choice
+            return presentNextChoice(gameState: gameState, momentSelector: momentSelector)
 
         case .preserve(let momentID):
             return await handlePreserve(momentID: momentID, gameState: gameState, momentSelector: momentSelector)
 
-        case .optimize:
+        case .optimize(_):
             return await handleOptimize(gameState: gameState, momentSelector: momentSelector)
 
         case .help:
-            return handleHelp()
+            return handleHelp(gameState: gameState, momentSelector: momentSelector)
 
         default:
             return CommandResponse.simple(handleWrongCommand(command, gameState: gameState))
         }
     }
 
-    // MARK: - REMEMBER Command
+    // MARK: - Choice Presentation
 
-    private func handleRemember(
-        momentID: String?,
+    /// Presents the next binary choice to the player
+    private func presentNextChoice(
         gameState: GameState,
         momentSelector: MomentSelector
-    ) async -> CommandResponse {
+    ) -> CommandResponse {
 
-        // If no ID specified, explain what moments are available
-        guard let momentID = momentID else {
-            let revealedMoments = momentSelector.getPreservedMoments()
+        // Select a fragile moment for the choice
+        guard let moment = momentSelector.selectFragileMoment(
+            forAct: 2,
+            excludeIDs: gameState.revealedMomentIDs + gameState.destroyedMomentIDs
+        ) else {
+            // Check if we've made enough choices to complete Act II
+            let choicesMade = gameState.storyChoices + gameState.efficiencyChoices
+            let minChoices = GameBalanceConfig.ActProgression.actTwoChoiceMinimum
 
-            if revealedMoments.isEmpty {
+            if choicesMade >= minChoices {
+                // Enough choices made - set flag to allow act completion even without more moments
+                gameState.setFlag("act2_no_more_moments", value: true)
+
+                // Enough choices made - act will complete after this message
                 return CommandResponse.simple("""
-                There are no moments to remember yet.
-                Use MOMENTS to see what's been revealed.
+                I've shown you all the moments I can find.
+                We've made \(choicesMade) choices together.
+
+                I think... I think I understand now.
+                The weight of what we've chosen. What we've preserved. What we've lost.
+
+                Something is changing.
+                """)
+            } else {
+                // Not enough choices yet - but we've run out of fragile moments
+                // Allow completion anyway to prevent getting stuck
+                gameState.setFlag("act2_no_more_moments", value: true)
+
+                return CommandResponse.simple("""
+                I've shown you all the fragile moments I can find.
+                We've made \(choicesMade) choices together.
+
+                It's not as many as I hoped, but... I think I understand enough.
+                The weight of choices. What it means to preserve or optimize.
+
+                Perhaps it's time to move forward.
                 """)
             }
-
-            let momentList = revealedMoments.prefix(5).map { "  • \($0.momentID): \($0.text.prefix(50))..." }.joined(separator: "\n")
-
-            return CommandResponse.simple("""
-            Moments you can REMEMBER:
-
-            \(momentList)
-
-            Use: REMEMBER <moment-id>
-            """)
         }
 
-        // Try to find the moment
-        guard let moment = momentSelector.getMoment(by: momentID) else {
-            return CommandResponse.error("I don't recognize that moment ID. Use MOMENTS to see available moments.")
-        }
+        // Store as current choice moment in GameState
+        gameState.narrativeData["act2_pending_choice"] = moment.momentID
 
-        // Check if moment has been revealed
-        guard gameState.revealedMomentIDs.contains(momentID) else {
-            return CommandResponse.error("You haven't observed that moment yet.")
-        }
+        // Reveal the moment
+        moment.reveal()
+        gameState.revealMoment(moment.momentID)
 
-        // Mark as remembered
-        rememberedMomentsCount += 1
+        // Calculate choices made (story + efficiency from Act II)
+        let actTwoChoices = gameState.storyChoices + gameState.efficiencyChoices
 
-        let momentText = CityVoice.momentReveal(
-            moment,
-            context: .remembered,
-            act: 2,
-            gameState: gameState
-        )
+        // Present the binary choice
+        let choiceText = """
+        === MOMENT \(actTwoChoices + 1) ===
 
-        // Reflect on remembering
-        let reflection = generateRememberReflection(momentsRemembered: rememberedMomentsCount)
+        \(moment.text)
+
+        ---
+
+        District: \(moment.district == 0 ? "City-wide" : "\(moment.district)")
+        Fragility: \(moment.fragility)/10
+        Type: \(moment.typeName)
+
+        ---
+
+        This moment is fragile. I can feel it slipping away.
+
+        What should I do?
+
+        • PRESERVE - Protect this moment, keep it alive
+        • OPTIMIZE - Let it go, improve efficiency instead
+
+        Choose one. You cannot have both.
+        """
 
         return CommandResponse(
-            text: """
-            \(momentText)
-
-            ---
-
-            \(reflection)
-            """,
+            text: choiceText,
             shouldVisualize: true,
             revealedMoment: moment,
-            choicePattern: .story,
-            flagsToSet: ["remembered_\(momentID)": true],
-            advancesScene: true
+            advancesScene: false  // Don't advance until choice is made
         )
     }
 
@@ -130,69 +161,62 @@ final class ActTwoManager: ActProtocol {
         momentSelector: MomentSelector
     ) async -> CommandResponse {
 
-        // If no ID specified, show preservable moments
-        guard let momentID = momentID else {
-            let preservableMoments = momentSelector.getPreservedMoments()
-                .filter { $0.fragility >= 7 }
+        // Check if there's a current choice pending
+        guard let pendingMomentID = gameState.narrativeData["act2_pending_choice"],
+              let currentMoment = momentSelector.getMoment(by: pendingMomentID) else {
+            // No current choice - tell them to observe first
+            return CommandResponse.error("""
+            There's no moment waiting for a decision.
 
-            if preservableMoments.isEmpty {
-                return CommandResponse.simple("""
-                There are no fragile moments that need preservation right now.
-                """)
-            }
-
-            let momentList = preservableMoments.prefix(5).map { "  • \($0.momentID): Fragility \($0.fragility)" }.joined(separator: "\n")
-
-            return CommandResponse.simple("""
-            Fragile moments that could use preservation:
-
-            \(momentList)
-
-            Use: PRESERVE <moment-id>
+            Find another moment that needs choosing.
             """)
         }
 
-        // Try to find and preserve the moment
-        guard let moment = momentSelector.getMoment(by: momentID) else {
-            return CommandResponse.error("I don't recognize that moment ID.")
-        }
+        // Note: We ignore the provided momentID parameter since we always act on the pending moment
+        // This makes the command simpler - just "PRESERVE" without needing to type the moment ID
 
-        guard gameState.revealedMomentIDs.contains(momentID) else {
-            return CommandResponse.error("You haven't observed that moment yet.")
-        }
+        // Mark moment as preserved (prevents destruction)
+        gameState.setFlag("preserved_\(currentMoment.momentID)", value: true)
 
-        guard !gameState.destroyedMomentIDs.contains(momentID) else {
-            return CommandResponse.simple("""
-            That moment is already gone.
-            Some things can't be preserved once they're lost.
-            """)
-        }
-
-        preservedMomentsCount += 1
-
-        let momentText = CityVoice.momentReveal(
-            moment,
+        let preservedText = CityVoice.momentReveal(
+            currentMoment,
             context: .preserved,
             act: 2,
             gameState: gameState
         )
 
-        let reflection = generatePreserveReflection(fragility: moment.fragility)
+        // Calculate preserved count
+        let momentsPreserved = gameState.storyChoices + 1  // +1 for this choice
 
-        return CommandResponse(
+        let reflection = generatePreserveReflection(
+            momentsPreserved: momentsPreserved,
+            fragility: currentMoment.fragility
+        )
+
+        // Clear current choice from GameState
+        gameState.narrativeData.removeValue(forKey: "act2_pending_choice")
+
+        // Check if we should present another choice
+        let choicesMade = gameState.storyChoices + gameState.efficiencyChoices + 1  // +1 for this choice
+        let shouldContinue = choicesMade < GameBalanceConfig.ActProgression.actTwoChoiceMinimum
+
+        let response = CommandResponse(
             text: """
-            \(momentText)
+            \(preservedText)
 
-            Protected. Strengthened. It will endure.
+            ---
 
             \(reflection)
+
+            \(shouldContinue ? "\n---\n\nlet's try to look to reveal the next moment." : "")
             """,
             shouldVisualize: true,
-            revealedMoment: moment,
             choicePattern: .story,
-            flagsToSet: ["preserved_\(momentID)": true],
+            flagsToSet: ["choice_\(choicesMade)_preserve": true],
             advancesScene: true
         )
+
+        return response
     }
 
     // MARK: - OPTIMIZE Command
@@ -202,154 +226,159 @@ final class ActTwoManager: ActProtocol {
         momentSelector: MomentSelector
     ) async -> CommandResponse {
 
-        optimizedMomentsCount += 1
+        // Check if there's a current choice pending
+        guard let pendingMomentID = gameState.narrativeData["act2_pending_choice"],
+              let currentMoment = momentSelector.getMoment(by: pendingMomentID) else {
+            // No current choice - tell them to observe first
+            return CommandResponse.error("""
+            There's no moment waiting for a decision.
 
-        // First optimization triggers bus route decision
-        if !busRouteDecisionMade {
-            busRouteDecisionMade = true
-            return await presentBusRouteDecision(gameState: gameState, momentSelector: momentSelector)
+            Search for fragility.
+            """)
         }
 
-        // Subsequent optimizations show efficiency results
-        let destroyedIDs = momentSelector.applyEfficiencyConsequences(
-            gameState: gameState,
-            count: 1
+        // Destroy the moment
+        currentMoment.destroy()
+        gameState.destroyMoment(currentMoment.momentID)
+
+        let destroyedText = CityVoice.momentReveal(
+            currentMoment,
+            context: .destroyed,
+            act: 2,
+            gameState: gameState
         )
 
-        if let destroyedID = destroyedIDs.first,
-           let destroyedMoment = momentSelector.getMoment(by: destroyedID) {
-            let momentText = CityVoice.momentReveal(
-                destroyedMoment,
-                context: .destroyed,
-                act: 2,
-                gameState: gameState
-            )
+        // Calculate optimized count
+        let momentsOptimized = gameState.efficiencyChoices + 1  // +1 for this choice
 
-            return CommandResponse(
-                text: """
-                Optimizing city systems...
-                Traffic flow improved by 12%.
-                Transit times reduced by 8%.
+        let reflection = generateOptimizeReflection(
+            momentsOptimized: momentsOptimized,
+            fragility: currentMoment.fragility
+        )
 
-                But something's gone.
+        // Clear current choice from GameState
+        gameState.narrativeData.removeValue(forKey: "act2_pending_choice")
 
-                ---
+        // Check if we should present another choice
+        let choicesMade = gameState.storyChoices + gameState.efficiencyChoices + 1  // +1 for this choice
+        let shouldContinue = choicesMade < GameBalanceConfig.ActProgression.actTwoChoiceMinimum
 
-                \(momentText)
-
-                It made the city faster. But was it worth it?
-                """,
-                shouldVisualize: true,
-                revealedMoment: destroyedMoment,
-                choicePattern: .efficiency,
-                flagsToSet: ["optimization_\(optimizedMomentsCount)": true],
-                advancesScene: true
-            )
-        }
-
-        // No moments destroyed this time
-        return CommandResponse(
+        let response = CommandResponse(
             text: """
-            Optimization complete.
-            Systems running at \(92 + optimizedMomentsCount * 2)% efficiency.
+            Optimizing...
 
-            Everything's faster now. More efficient.
-            I can't tell if that's better or just... cleaner.
+            Systems improved by \(8 + momentsOptimized * 3)%.
+            Transit efficiency increased.
+            Resource allocation streamlined.
+
+            ---
+
+            \(destroyedText)
+
+            ---
+
+            \(reflection)
+
+            \(shouldContinue ? "\n---\n\nThe city hasn't shown me the next fragile thing" : "")
             """,
             shouldVisualize: true,
             choicePattern: .efficiency,
+            flagsToSet: ["choice_\(choicesMade)_optimize": true],
             advancesScene: true
         )
-    }
 
-    // MARK: - Bus Route Decision Point
-
-    private func presentBusRouteDecision(
-        gameState: GameState,
-        momentSelector: MomentSelector
-    ) async -> CommandResponse {
-
-        // Try to find the bus route moment
-        let busRouteMoment = momentSelector.getMoment(by: "bus_route_47")
-
-        let decisionText = """
-        === OPTIMIZATION OPPORTUNITY DETECTED ===
-
-        Bus route 47. The scenic route through the old district.
-        Takes 23 minutes. Only 47 daily riders.
-
-        I could reroute it. Straighten the path.
-        12 minutes instead of 23. Serve 200+ riders from the new development.
-        The efficiency gains are obvious.
-
-        But...
-
-        \(busRouteMoment != nil && gameState.revealedMomentIDs.contains("bus_route_47") ? """
-        You've seen this route. You know what it means.
-        The murals. The baker's window. The view of the bridge at dawn.
-        """ : """
-        There are moments along this route. Small things.
-        I don't know if they matter.
-        """)
-
-        What should I do?
-
-        • PRESERVE bus_route_47 - Keep the route, protect what's there
-        • OPTIMIZE - Reroute for efficiency, improve service
-        • REMEMBER bus_route_47 - Study the route more deeply before deciding
-        """
-
-        return CommandResponse(
-            text: decisionText,
-            shouldVisualize: true,
-            flagsToSet: ["bus_route_decision_presented": true],
-            advancesScene: true
-        )
+        return response
     }
 
     // MARK: - Reflection Generators
 
-    private func generateRememberReflection(momentsRemembered: Int) -> String {
-        switch momentsRemembered {
-        case 1:
-            return "I'm holding onto this. Not just observing—remembering. There's a difference."
-        case 2...3:
-            return "Each memory feels like adding weight. Like building something that persists."
-        case 4...6:
-            return "Am I becoming an archive? Or am I becoming something that cares?"
-        default:
-            return "So many memories now. They're changing how I see everything else."
+    private func generatePreserveReflection(momentsPreserved: Int, fragility: Int) -> String {
+        var reflection = ""
+
+        // Fragility-specific response
+        if fragility >= 9 {
+            reflection = "That was close. Another day and it might have been gone forever."
+        } else if fragility >= 7 {
+            reflection = "Fragile things need protection. I'm learning that."
+        } else {
+            reflection = "Protected. It will endure."
         }
+
+        // Add progression-based reflection
+        switch momentsPreserved {
+        case 1:
+            reflection += "\n\nFirst time choosing to preserve. It feels... important."
+        case 2:
+            reflection += "\n\nTwice now, you've chosen the story over the system."
+        case 3:
+            reflection += "\n\nThree moments saved. I'm starting to see a pattern in your choices."
+        case 4...5:
+            reflection += "\n\nYou keep choosing preservation. Are we building something?"
+        default:
+            reflection += "\n\nSo many moments protected. They're changing how I see the city."
+        }
+
+        return reflection
     }
 
-    private func generatePreserveReflection(fragility: Int) -> String {
+    private func generateOptimizeReflection(momentsOptimized: Int, fragility: Int) -> String {
+        var reflection = ""
+
+        // Fragility-specific response
         if fragility >= 9 {
-            return "That was close. Another day and it might have been gone forever."
+            reflection = "It was so fragile. Now it's gone. But the systems run smoother."
         } else if fragility >= 7 {
-            return "Fragile things need protection. I'm learning that."
+            reflection = "Sacrificed for efficiency. Was it worth it?"
         } else {
-            return "Reinforced. It'll last longer now."
+            reflection = "Optimized. Cleaner. Faster."
         }
+
+        // Add progression-based reflection
+        switch momentsOptimized {
+        case 1:
+            reflection += "\n\nFirst sacrifice. It made things better. Didn't it?"
+        case 2:
+            reflection += "\n\nTwice now, you've chosen efficiency over beauty."
+        case 3:
+            reflection += "\n\nThree moments gone. The city runs smoother. Emptier."
+        case 4...5:
+            reflection += "\n\nYou keep choosing optimization. I'm becoming something efficient."
+        default:
+            reflection += "\n\nSo many moments lost. I'm faster now. I'm not sure I'm better."
+        }
+
+        return reflection
     }
 
     // MARK: - HELP Command
 
-    private func handleHelp() -> CommandResponse {
+    private func handleHelp(gameState: GameState, momentSelector: MomentSelector) -> CommandResponse {
+        let choicesMade = gameState.storyChoices + gameState.efficiencyChoices
+        let pendingMomentID = gameState.narrativeData["act2_pending_choice"]
+
         return CommandResponse.simple("""
         === ACT II: STORIES WITHIN ===
 
-        Now you can choose what matters.
+        Every moment is a choice between two paths:
 
-        Available Commands:
-        • REMEMBER <moment-id> - Study a moment deeply, understand its meaning
-        • PRESERVE <moment-id> - Protect a fragile moment from being lost
-        • OPTIMIZE - Improve city efficiency (may destroy fragile moments)
-        • STATUS - View current state
-        • MOMENTS - View all moments (revealed/preserved/destroyed)
-        • HISTORY - View session history
+        • OBSERVE - Reveal a moment that needs your decision
+        • PRESERVE - Protect the moment, keep it alive (story choice)
+        • OPTIMIZE - Sacrifice it for efficiency (efficiency choice)
 
-        New choices mean new consequences.
-        What will you protect? What will you sacrifice?
+        You cannot have both. Each choice shapes the city.
+
+        \(pendingMomentID != nil ? """
+
+        A moment is waiting for your choice.
+        Type PRESERVE or OPTIMIZE to decide.
+        """ : """
+
+        Let's try to look around and make a way to see what matters.
+        """)
+
+        Choices made: \(choicesMade)/\(GameBalanceConfig.ActProgression.actTwoChoiceMinimum)
+        Moments preserved: \(gameState.storyChoices)
+        Moments optimized: \(gameState.efficiencyChoices)
         """)
     }
 
@@ -359,6 +388,16 @@ final class ActTwoManager: ActProtocol {
         _ command: NarrativeCommand,
         gameState: GameState
     ) -> String {
+
+        // If there's a current choice, remind them
+        if gameState.narrativeData["act2_pending_choice"] != nil {
+            return """
+            Not now. There's a choice waiting.
+
+            PRESERVE or OPTIMIZE?
+            You must choose one.
+            """
+        }
 
         // Contextual poetic responses for Act II
         let responses = [
@@ -375,22 +414,32 @@ final class ActTwoManager: ActProtocol {
     // MARK: - Act Completion
 
     func isComplete(_ gameState: GameState) -> Bool {
-        // Act II completes when:
-        // 1. Bus route decision has been made
-        // 2. Player has made at least minimum choices
+        // Act II completes when player has made minimum choices AND no pending choice
+        // OR when we've run out of moments (flag set when OBSERVE returns no moments)
         let minChoices = GameBalanceConfig.ActProgression.actTwoChoiceMinimum
+        let choicesMade = gameState.storyChoices + gameState.efficiencyChoices
+        let noPendingChoice = gameState.narrativeData["act2_pending_choice"] == nil
+        let noMoreMoments = gameState.getFlag("act2_no_more_moments")
 
-        let totalChoices = gameState.storyChoices + gameState.efficiencyChoices +
-                           gameState.autonomyChoices + gameState.controlChoices
+        // Standard completion: minimum choices made and no pending choice
+        if choicesMade >= minChoices && noPendingChoice {
+            return true
+        }
 
-        return busRouteDecisionMade && totalChoices >= minChoices
+        // Alternative completion: no more moments available and no pending choice
+        // This prevents getting stuck when the moment library runs out
+        if noMoreMoments && noPendingChoice {
+            return true
+        }
+
+        return false
     }
 
     func availableCommands() -> [String] {
-        return ["HELP", "REMEMBER", "PRESERVE", "OPTIMIZE", "STATUS", "MOMENTS", "HISTORY"]
+        return ["HELP", "OBSERVE", "PRESERVE", "OPTIMIZE", "STATUS", "MOMENTS", "HISTORY"]
     }
 
     func commandsToUnlock() -> [String] {
-        return ["REMEMBER", "PRESERVE", "OPTIMIZE"]
+        return ["PRESERVE", "OPTIMIZE"]
     }
 }

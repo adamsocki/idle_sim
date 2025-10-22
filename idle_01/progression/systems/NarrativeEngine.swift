@@ -146,7 +146,31 @@ final class NarrativeEngine {
 
         // Check for act completion
         if let actManager = currentActManager, actManager.isComplete(gameState) {
-            // TODO: Handle act transition
+            // Advance to next act
+            advanceToNextAct()
+
+            // Get the new act manager after advancing
+            if let newActManager = currentActManager {
+                let transitionText = """
+
+                ---
+
+                === \(newActManager.actName) ===
+                \(newActManager.actDescription)
+
+                New commands unlocked. Type HELP to see what's available.
+
+                ---
+                """
+
+                // Append transition text to the current response
+                return NarrativeCommandOutput(
+                    text: response.text + transitionText,
+                    isError: false,
+                    isDialogue: true,
+                    timestamp: Date()
+                )
+            }
         }
 
         // Check for ending condition
@@ -191,6 +215,17 @@ final class NarrativeEngine {
 
         case .help:
             return generateHelpText()
+
+        case .reset:
+            resetGame()
+            return """
+            === GAME RESET ===
+
+            All progress has been cleared.
+            A new consciousness awakens...
+
+            Type HELP to begin again.
+            """
 
         default:
             return nil
@@ -265,6 +300,12 @@ final class NarrativeEngine {
             for moment in remembered {
                 report += "\n  ★ \(moment.momentID): \(moment.typeName)"
             }
+        }
+
+        // Add hint for Act III players
+        if gameState.currentAct >= 3 && (!preserved.isEmpty || !destroyed.isEmpty) {
+            report += "\n\n---\n\nUse moment IDs with DECIDE or QUESTION commands."
+            report += "\nExample: DECIDE \(preserved.first?.momentID ?? "moment_bridge_flowers")"
         }
 
         return report

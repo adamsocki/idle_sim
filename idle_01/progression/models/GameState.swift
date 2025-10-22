@@ -22,7 +22,7 @@ final class GameState {
     var controlChoices: Int = 0
 
     // Command progression
-    var unlockedCommands: [String] = ["HELP", "GENERATE"]
+    var unlockedCommands: [String] = ["HELP", "OBSERVE"]
 
     // Moment tracking
     var revealedMomentIDs: [String] = []
@@ -30,6 +30,9 @@ final class GameState {
 
     // Narrative state flags
     var narrativeFlags: [String: Bool] = [:]
+
+    // Narrative state data (for storing strings, IDs, etc.)
+    var narrativeData: [String: String] = [:]
 
     // Ending state
     var reachedEnding: String? = nil
@@ -48,10 +51,11 @@ final class GameState {
         self.efficiencyChoices = 0
         self.autonomyChoices = 0
         self.controlChoices = 0
-        self.unlockedCommands = ["HELP", "GENERATE"]
+        self.unlockedCommands = ["HELP", "OBSERVE"]
         self.revealedMomentIDs = []
         self.destroyedMomentIDs = []
         self.narrativeFlags = [:]
+        self.narrativeData = [:]
         self.reachedEnding = nil
         self.sessionStarted = Date()
         self.cityTrust = GameBalanceConfig.RelationshipBounds.initialTrust

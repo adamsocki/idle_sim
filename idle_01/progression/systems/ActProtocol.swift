@@ -156,7 +156,7 @@ enum NarrativeCommand: Equatable {
 
     // Act II commands
     case remember(momentID: String?)
-    case preserve(momentID: String)
+    case preserve(momentID: String?)
     case optimize(system: String?)
 
     // Act III commands
@@ -173,6 +173,7 @@ enum NarrativeCommand: Equatable {
     case status
     case moments
     case history
+    case reset
 
     // Easter eggs
     case why
@@ -202,14 +203,20 @@ enum NarrativeCommand: Equatable {
                 return "REMEMBER \(id)"
             }
             return "REMEMBER"
-        case .preserve(let id): return "PRESERVE \(id)"
+        case .preserve(let id):
+            if let id = id {
+                return "PRESERVE \(id)"
+            }
+            return "PRESERVE"
         case .optimize(let system):
             if let s = system {
                 return "OPTIMIZE \(s)"
             }
             return "OPTIMIZE"
-        case .decide(let choice): return "DECIDE \(choice)"
-        case .question(let query): return "QUESTION \(query)"
+        case .decide(let choice):
+            return choice.isEmpty ? "DECIDE" : "DECIDE \(choice)"
+        case .question(let query):
+            return query.isEmpty ? "QUESTION" : "QUESTION \(query)"
         case .reflect: return "REFLECT"
         case .accept: return "ACCEPT"
         case .resist: return "RESIST"
@@ -217,6 +224,7 @@ enum NarrativeCommand: Equatable {
         case .status: return "STATUS"
         case .moments: return "MOMENTS"
         case .history: return "HISTORY"
+        case .reset: return "RESET"
         case .why: return "WHY"
         case .hello: return "HELLO"
         case .goodbye: return "GOODBYE"
@@ -262,11 +270,8 @@ extension NarrativeCommand {
             return .remember(momentID: id)
 
         case "PRESERVE", "KEEP":
-            if components.count > 1 {
-                let id = components[1...].joined(separator: " ")
-                return .preserve(momentID: id)
-            }
-            return .unknown(input)
+            let id = components.count > 1 ? components[1...].joined(separator: " ") : nil
+            return .preserve(momentID: id)
 
         case "OPTIMIZE", "OPT":
             let system = components.count > 1 ? components[1...].joined(separator: " ") : nil
@@ -278,14 +283,16 @@ extension NarrativeCommand {
                 let choice = components[1...].joined(separator: " ")
                 return .decide(choice: choice)
             }
-            return .unknown(input)
+            // Allow DECIDE without arguments to trigger major decision presentation
+            return .decide(choice: "")
 
         case "QUESTION", "ASK":
             if components.count > 1 {
                 let query = components[1...].joined(separator: " ")
                 return .question(query: query)
             }
-            return .unknown(input)
+            // Allow QUESTION without arguments
+            return .question(query: "")
 
         case "REFLECT", "THINK":
             return .reflect
@@ -309,6 +316,9 @@ extension NarrativeCommand {
 
         case "HISTORY", "HIST":
             return .history
+
+        case "RESET", "RESTART":
+            return .reset
 
         // Easter eggs
         case "WHY":

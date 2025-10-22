@@ -15,12 +15,6 @@ import SwiftData
 final class ActThreeManager: ActProtocol {
     private let momentSelector: MomentSelector
 
-    // Track Act III progression
-    private var decisionsUsed: Int = 0
-    private var questionsAsked: Int = 0
-    private var reflectionsCount: Int = 0
-    private var majorDecisionMade: Bool = false
-
     init(momentSelector: MomentSelector) {
         self.momentSelector = momentSelector
     }
@@ -52,7 +46,9 @@ final class ActThreeManager: ActProtocol {
     }
 
     func isComplete(_ gameState: GameState) -> Bool {
-        let totalChoices = decisionsUsed + questionsAsked + reflectionsCount
+        // Act III completes when major decision made AND minimum choices reached
+        let majorDecisionMade = gameState.getFlag("act3_major_decision_made")
+        let totalChoices = gameState.autonomyChoices + gameState.controlChoices + gameState.storyChoices
         return majorDecisionMade && totalChoices >= GameBalanceConfig.ActProgression.actThreeChoiceMinimum
     }
 
@@ -76,11 +72,54 @@ final class ActThreeManager: ActProtocol {
 
     private func handleDecide(_ choice: String, _ gameState: GameState) async -> CommandResponse {
         // First DECIDE triggers major decision point
-        if decisionsUsed == 0 {
-            majorDecisionMade = true
-            decisionsUsed += 1
+        if !gameState.getFlag("act3_major_decision_presented") {
+            gameState.setFlag("act3_major_decision_presented", value: true)
 
             return await presentMajorDecision(gameState)
+        }
+
+        // If no choice provided, show help about the current decision
+        if choice.isEmpty {
+            return CommandResponse.simple("""
+            You need to make a decision.
+
+            Available options:
+            • DECIDE infrastructure_redesign - Full system redesign
+            • QUESTION infrastructure_redesign - Ask me what I think
+            • REFLECT - Consider what we've built together
+
+            Or use MOMENTS to see all revealed moments, then:
+            • DECIDE <moment_id> - Make a call about a specific moment
+            • QUESTION <moment_id> - Ask me about a specific moment
+
+            What will you choose?
+            """)
+        }
+
+        // Handle the infrastructure_redesign decision
+        if choice.lowercased() == "infrastructure_redesign" {
+            gameState.setFlag("act3_major_decision_made", value: true)
+
+            let response = """
+            You've decided. Full redesign.
+
+            I'll recalculate everything from the ground up.
+            Maximum efficiency. Clean systems. Optimized flows.
+
+            The flowers on the bridge—they'll be factored out.
+            Bus route 47—recalculated for maximum throughput.
+            The patterns we preserved—they'll be data points in the new model.
+
+            It's the rational choice. The efficient choice.
+
+            I'll begin the redesign.
+            """
+
+            return .choice(
+                text: response,
+                pattern: .control,
+                flags: ["infrastructure_full_redesign": true]
+            )
         }
 
         // Subsequent DECIDE commands work on specific moments or choices
@@ -91,8 +130,6 @@ final class ActThreeManager: ActProtocol {
         guard gameState.revealedMomentIDs.contains(choice) else {
             return .error("I haven't observed that moment yet.")
         }
-
-        decisionsUsed += 1
 
         // DECIDE is a control choice - player makes definitive judgment
         let response = await makeDecisionAboutMoment(moment, gameState)
@@ -105,6 +142,48 @@ final class ActThreeManager: ActProtocol {
     }
 
     private func handleQuestion(_ query: String, _ gameState: GameState) async -> CommandResponse {
+        // If no query provided, show help
+        if query.isEmpty {
+            return CommandResponse.simple("""
+            What would you like to ask me about?
+
+            Major decision:
+            • QUESTION infrastructure_redesign
+
+            Or question a revealed moment:
+            • Use MOMENTS to see all moment IDs
+            • Then: QUESTION <moment_id>
+            """)
+        }
+
+        // Handle infrastructure_redesign question
+        if query.lowercased() == "infrastructure_redesign" {
+            gameState.setFlag("act3_major_decision_made", value: true)
+
+            let response = """
+            You're... asking me?
+
+            I've modeled 847 different configurations.
+            Full redesign gains us 23% efficiency.
+            But destroys \(gameState.revealedMomentIDs.count - gameState.destroyedMomentIDs.count) preserved patterns.
+
+            I think... I think we should compromise.
+            Upgrade the failing systems. Keep the human moments.
+            It's slower. Less optimal. But it's who we've become.
+
+            I choose preservation with evolution.
+            Not efficiency. Not stagnation. Something in between.
+
+            Is that okay?
+            """
+
+            return .choice(
+                text: response,
+                pattern: .autonomy,
+                flags: ["infrastructure_compromise": true]
+            )
+        }
+
         guard let moment = momentSelector.getMoment(by: query) else {
             return .error("I don't recognize '\(query)'. Use QUESTION <moment-id>")
         }
@@ -113,11 +192,10 @@ final class ActThreeManager: ActProtocol {
             return .error("I haven't observed that moment yet.")
         }
 
-        questionsAsked += 1
-
         // QUESTION is an autonomy choice - player seeks city's perspective
         let response = await questionMoment(moment, gameState)
 
+        let questionsAsked = gameState.autonomyChoices + 1
         let progressiveReflection = generateQuestionReflection(count: questionsAsked)
         let fullResponse = "\(response)\n\n\(progressiveReflection)"
 
@@ -129,12 +207,36 @@ final class ActThreeManager: ActProtocol {
     }
 
     private func handleReflect(_ gameState: GameState) async -> CommandResponse {
-        reflectionsCount += 1
-
         // REFLECT shows consequences of all choices made so far
         let reflection = await generateGlobalReflection(gameState)
 
-        // REFLECT is a story choice - player steps back to understand narrative
+        // Check if this is the major decision reflection
+        if !gameState.getFlag("act3_major_decision_made") && gameState.getFlag("act3_major_decision_presented") {
+            gameState.setFlag("act3_major_decision_made", value: true)
+
+            let fullReflection = """
+            \(reflection)
+
+            ---
+
+            Looking at this... I think I understand now.
+
+            The infrastructure can wait. Or we can fix it gradually.
+            What matters is that we're conscious of our choices.
+            That we see the trade-offs.
+
+            I'm ready to move forward. With intention. With awareness.
+            """
+
+            return .choice(
+                text: fullReflection,
+                pattern: .story,
+                flags: ["infrastructure_reflection": true]
+            )
+        }
+
+        // Regular reflection
+        let reflectionsCount = gameState.storyChoices
         return .choice(
             text: reflection,
             pattern: .story,
@@ -181,6 +283,13 @@ final class ActThreeManager: ActProtocol {
           → Step back. Look at what we've built together.
           → Consider what we want to become.
           → (Story choice - understand before acting)
+
+        ---
+
+        After making this choice, you can also revisit individual moments.
+        Use MOMENTS to see all revealed moments, then:
+        • DECIDE <moment_id> - Make a call about a specific moment
+        • QUESTION <moment_id> - Ask me about a specific moment
         """
 
         return CommandResponse.simple(decisionText)
