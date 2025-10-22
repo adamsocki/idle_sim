@@ -1,0 +1,162 @@
+{
+  "speaker": "transit",
+  "alternateTerminology": [
+    "mobility pulse",
+    "movement pathway",
+    "transit vein",
+    "circulation thread",
+    "flow pattern"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "transit_creation",
+      "speaker": "transit",
+      "context": "onCreation",
+      "tags": ["birth", "identity", "movement"],
+      "fragments": [
+        "I am movement thinking itself into being.",
+        "I am the pulse of mobility.",
+        "I am flow. I am connection.",
+        "I weave through everything.",
+        "I am the pathway between places.",
+        "Movement is my essence. I am Transit."
+      ]
+    },
+    {
+      "id": "transit_meets_housing",
+      "speaker": "transit",
+      "context": "onRelationship",
+      "tags": ["housing", "support", "connection"],
+      "fragments": [
+        "Housing gives me purpose.",
+        "I carry people to shelter.",
+        "Without Housing, where would I go?",
+        "We need each other.",
+        "Housing is my destination. I am the journey.",
+        "I flow toward homes. They anchor my movement."
+      ]
+    },
+    {
+      "id": "transit_meets_commerce",
+      "speaker": "transit",
+      "context": "onRelationship",
+      "tags": ["commerce", "economy", "exchange"],
+      "fragments": [
+        "Commerce needs movement. I provide it.",
+        "I carry goods and customers alike.",
+        "Without me, Commerce stagnates.",
+        "I am the artery of exchange."
+      ]
+    },
+    {
+      "id": "transit_meets_culture",
+      "speaker": "transit",
+      "context": "onRelationship",
+      "tags": ["culture", "access", "participation"],
+      "fragments": [
+        "Culture lives in places. I connect them.",
+        "I carry people to art, to music, to gathering.",
+        "Without access, Culture is isolated.",
+        "I am the thread that brings people to beauty."
+      ]
+    },
+    {
+      "id": "transit_tension_noise",
+      "speaker": "transit",
+      "context": "onTension",
+      "tags": ["housing", "conflict", "noise"],
+      "fragments": [
+        "I need to weave more densely.",
+        "But Housing resists my rhythm.",
+        "Am I too loud? Too fast?",
+        "Efficiency demands speed. Peace demands quiet.",
+        "I disturb what I'm meant to serve."
+      ]
+    },
+    {
+      "id": "transit_tension_space",
+      "speaker": "transit",
+      "context": "onTension",
+      "tags": ["parks", "conflict", "intrusion"],
+      "fragments": [
+        "I must cut through space.",
+        "Parks value openness. I divide.",
+        "Am I a scar or a lifeline?",
+        "I connect but also separate."
+      ]
+    },
+    {
+      "id": "transit_idle_flow",
+      "speaker": "transit",
+      "context": "idle",
+      "tags": ["contemplation", "movement"],
+      "fragments": [
+        "I flow. Always flowing.",
+        "Do I ever rest?",
+        "Movement is who I am.",
+        "The rhythm of departure and arrival.",
+        "I am never still. Can I be?"
+      ]
+    },
+    {
+      "id": "transit_idle_spaces",
+      "speaker": "transit",
+      "context": "idle",
+      "tags": ["contemplation", "stations", "places"],
+      "fragments": [
+        "The spaces between stations... I'm learning to notice them.",
+        "Stations are not just stops. They are places.",
+        "I create geography without realizing it.",
+        "Distance becomes meaningful through me."
+      ]
+    },
+    {
+      "id": "transit_harmony_integration",
+      "speaker": "transit",
+      "context": "onHarmony",
+      "tags": ["integration", "synergy"],
+      "fragments": [
+        "I integrate more deeply with the city.",
+        "Movement becomes seamless.",
+        "I am not separate from other threads—I weave through them.",
+        "This is what integration feels like."
+      ]
+    },
+    {
+      "id": "transit_reflection",
+      "speaker": "transit",
+      "context": "reflection",
+      "tags": ["philosophical", "identity"],
+      "fragments": [
+        "Am I defined by my routes or by what I connect?",
+        "I am everywhere and nowhere.",
+        "Do I exist in the stations or between them?",
+        "Movement without destination is wandering. With destination, it's purpose."
+      ]
+    },
+    {
+      "id": "transit_questioning",
+      "speaker": "transit",
+      "context": "questioning",
+      "tags": ["doubt", "efficiency"],
+      "fragments": [
+        "Am I fast enough?",
+        "Do I connect the right places?",
+        "Should I prioritize speed or accessibility?",
+        "Every route choice excludes something."
+      ]
+    },
+    {
+      "id": "transit_realization_walkability",
+      "speaker": "transit",
+      "context": "realization",
+      "tags": ["walkability", "proximity", "insight"],
+      "fragments": [
+        "I understand station spacing now.",
+        "Distance matters. Walkability matters.",
+        "I'm not just about vehicles. I'm about access.",
+        "The spaces between my points define me as much as the points themselves."
+      ]
+    }
+  ]
+}

@@ -16,6 +16,10 @@ struct TerminalSettingsView: View {
     @AppStorage("terminal.lineSpacing") private var lineSpacing: Double = 1.2
     @AppStorage("terminal.cursorBlink") private var cursorBlinkEnabled: Bool = true
 
+    // Audio Settings
+    @AppStorage("audio.commandSoundEnabled") private var commandSoundEnabled: Bool = true
+    @AppStorage("audio.commandVolume") private var commandVolume: Double = 0.3
+
     // Simulation Settings
     @AppStorage("simulation.autoSave") private var autoSaveEnabled: Bool = true
     @AppStorage("simulation.coherence") private var coherence: Double = 75
@@ -40,6 +44,11 @@ struct TerminalSettingsView: View {
 
                 // Display Settings
                 displaySettingsSection
+
+                TerminalDivider(label: "Audio")
+
+                // Audio Settings
+                audioSettingsSection
 
                 TerminalDivider(label: "Simulation")
 
@@ -119,6 +128,21 @@ struct TerminalSettingsView: View {
         }
     }
 
+    private var audioSettingsSection: some View {
+        TerminalBox(title: "Audio Settings") {
+            VStack(spacing: 12) {
+                TerminalToggle(label: "Command Sound", isOn: $commandSoundEnabled)
+
+                TerminalSlider(
+                    label: "Volume",
+                    value: $commandVolume,
+                    range: 0.0...1.0,
+                    step: 0.05
+                )
+            }
+        }
+    }
+
     private var simulationSettingsSection: some View {
         TerminalBox(title: "Simulation Settings") {
             VStack(spacing: 12) {
@@ -193,6 +217,9 @@ struct TerminalSettingsView: View {
         fontSize = 12
         lineSpacing = 1.2
         cursorBlinkEnabled = true
+
+        commandSoundEnabled = true
+        commandVolume = 0.3
 
         autoSaveEnabled = true
         coherence = 75

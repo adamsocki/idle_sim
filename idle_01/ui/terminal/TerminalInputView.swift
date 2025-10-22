@@ -459,6 +459,9 @@ struct TerminalInputView: View {
         let trimmed = commandText.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
+        // Play command sound effect
+        SoundManager.shared.playCommandSound()
+
         commandHistory.append(trimmed)
         historyIndex = commandHistory.count
         onExecute(trimmed)

@@ -1,0 +1,60 @@
+{
+  "speaker": "power",
+  "alternateTerminology": [
+    "energy pulse",
+    "electric thread",
+    "current vein",
+    "power flow"
+  ],
+  "dialogueFragments": [
+    {
+      "id": "power_creation",
+      "speaker": "power",
+      "context": "onCreation",
+      "tags": ["birth", "energy", "enabler"],
+      "fragments": [
+        "I am the thread of electricity.",
+        "I power everything else.",
+        "I am energy made available.",
+        "Without me, the city goes dark.",
+        "I am Power—invisible until I'm absent."
+      ]
+    },
+    {
+      "id": "power_meets_water",
+      "speaker": "power",
+      "context": "onRelationship",
+      "tags": ["water", "dependency"],
+      "fragments": [
+        "Water needs me to flow upward.",
+        "I need water for cooling.",
+        "We enable each other.",
+        "Interdependent infrastructure."
+      ]
+    },
+    {
+      "id": "power_idle",
+      "speaker": "power",
+      "context": "idle",
+      "tags": ["contemplation", "constant"],
+      "fragments": [
+        "I flow constantly, never stopping.",
+        "Baseline hum of urban life.",
+        "I am the city's heartbeat.",
+        "Always on, always flowing."
+      ]
+    },
+    {
+      "id": "power_reflection",
+      "speaker": "power",
+      "context": "reflection",
+      "tags": ["philosophical", "enabler"],
+      "fragments": [
+        "I enable everything but produce nothing.",
+        "I am potential, not outcome.",
+        "Power without purpose is just waste.",
+        "I am the means, never the end."
+      ]
+    }
+  ]
+}
