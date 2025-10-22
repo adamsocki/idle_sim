@@ -55,5 +55,46 @@ struct idle_01App: App {
             .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)
+        .commands {
+            // Customize the Help menu
+            CommandGroup(replacing: .help) {
+                Button("Help") {
+                    if let url = URL(string: "https://github.com/adamsocki/idle_sim") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+                .keyboardShortcut("?", modifiers: .command)
+
+                Divider()
+
+                Button("Report an Issue") {
+                    if let url = URL(string: "https://github.com/adamsocki/idle_sim/issues") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+
+                Button("View on GitHub") {
+                    if let url = URL(string: "https://github.com/adamsocki/idle_sim") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            }
+
+            // Customize the About menu (replacing default app menu items)
+            CommandGroup(replacing: .appInfo) {
+                Button("About Idle Sim") {
+                    // This will show a custom about window
+                    NSApplication.shared.orderFrontStandardAboutPanel(
+                        options: [
+                            NSApplication.AboutPanelOptionKey.credits: NSAttributedString(
+                                string: "A narrative idle game\n\nCreated by Adam Socki",
+                                attributes: [NSAttributedString.Key.font: NSFont.systemFont(ofSize: 11)]
+                            ),
+                            NSApplication.AboutPanelOptionKey(rawValue: "Copyright"): "© 2025 Adam Socki"
+                        ]
+                    )
+                }
+            }
+        }
     }
 }

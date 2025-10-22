@@ -180,7 +180,7 @@ struct TerminalInputView: View {
     private var inputBarView: some View {
         VStack(spacing: 0) {
 //            topBorder
-            suggestionsView
+//            suggestionsView
             inputRow
 //            bottomBorder
         }

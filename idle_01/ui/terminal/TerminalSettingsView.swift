@@ -69,6 +69,7 @@ struct TerminalSettingsView: View {
         }
         .background(Color.black)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        #if DEBUG
         .alert("Delete All Data?", isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Delete All", role: .destructive) {
@@ -77,6 +78,7 @@ struct TerminalSettingsView: View {
         } message: {
             Text("This will permanently delete all SwiftData from the app. This action cannot be undone.")
         }
+        #endif
     }
 
     // MARK: - Sections
